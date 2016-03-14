@@ -1,0 +1,62 @@
+{
+  "name": "playing-poker",
+  "version": "1.0.0",
+  "description": "NodeJS app to manage project tasks",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rimraf dist/*",
+    "start": "nf start",
+    "serve": "node node_modules/.bin/webpack-dev-server --content-base app",
+    "dev": "nodemon index.js",
+    "test": "npm test",
+    "coveralls": "cat ./coverage/**/lcov.info | ./node_modules/.bin/coveralls"
+  },
+  "keywords": [
+    "NodeJS",
+    "Socket.io",
+    "Express",
+    "MongoDB",
+    "Playing poker",
+    "PassportJS"
+  ],
+  "author": "velmyk",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^1.9.1",
+    "rimraf": "2.5.2",
+    "webpack": "1.12.14",
+    "webpack-dev-server": "1.14.1",
+    "coveralls": "2.11.8"
+  },
+  "engines": {
+    "node": "4.3.1"
+  },
+  "dependencies": {
+    "angular": "1.5.0",
+    "angular-ui-router": "0.2.18",
+    "babel-core": "6.7.2",
+    "babel-loader": "6.2.4",
+    "body-parser": "~1.5.0",
+    "composable-middleware": "^0.3.0",
+    "connect-mongo": "^0.8.1",
+    "cookie-parser": "~1.0.1",
+    "crypto": "0.0.3",
+    "dotenv": "2.0.0",
+    "ejs": "2.4.1",
+    "errorhandler": "~1.0.0",
+    "express": "^4.13.4",
+    "express-jwt": "^3.3.0",
+    "express-session": "~1.0.2",
+    "foreman": "1.4.1",
+    "import-glob-loader": "1.1.0",
+    "jsonwebtoken": "5.7.0",
+    "lodash": "~2.4.1",
+    "method-override": "~1.0.0",
+    "mongoose": "^4.4.6",
+    "morgan": "~1.0.0",
+    "passport": "^0.3.0",
+    "passport-local": "^1.0.0",
+    "q": "^1.4.1",
+    "socket.io": "1.4.5"
+  }
+}
