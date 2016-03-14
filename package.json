@@ -9,7 +9,7 @@
     "starttt": "nf start",
     "serve": "node node_modules/.bin/webpack-dev-server --content-base app",
     "dev": "nodemon index.js",
-    "coveralls": "cat ./coverage/**/lcov.info | ./node_modules/.bin/coveralls",
+    "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "start": "npm-run-all --parallel client server",
     "client": "webpack && webpack-dev-server --devtool source-map",
     "server": "nodemon ./server/index.js --watch ./server",
