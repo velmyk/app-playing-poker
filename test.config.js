@@ -10,9 +10,6 @@ loadSpecs();
 function loadSpecs() {
     var contextBO = require.context('./src', true, /\.spec\.js$/);
     contextBO.keys().forEach(contextBO);
-
-    var contextEJ = require.context('./electronic-journal', true, /\.spec\.js$/);
-    contextEJ.keys().forEach(contextEJ);
 }
 
 beforeEach(function () {
