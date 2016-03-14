@@ -19,6 +19,7 @@ module.exports = function (app) {
     var env = app.get('env');
     _.assign(app.locals, config.locals);
     app.set('view engine', 'ejs');
+    app.set('views', './server/views');
     app.use(bodyParser.urlencoded({extended: false}));
     app.use(bodyParser.json());
     app.use(methodOverride());
