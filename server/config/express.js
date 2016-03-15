@@ -4,18 +4,18 @@
 
 'use strict';
 
-var express = require('express');
-var morgan = require('morgan');
-var bodyParser = require('body-parser');
-var methodOverride = require('method-override');
-var cookieParser = require('cookie-parser');
-var errorHandler = require('errorhandler');
-var passport = require('passport');
-var path = require('path');
-var _ = require('lodash');
-var config = require('./environment');
+let express = require('express'),
+    morgan = require('morgan'),
+    bodyParser = require('body-parser'),
+    methodOverride = require('method-override'),
+    cookieParser = require('cookie-parser'),
+    errorHandler = require('errorhandler'),
+    passport = require('passport'),
+    path = require('path'),
+    _ = require('lodash'),
+    config = require('./environment');
 
-module.exports = function (app) {
+const expressSetup = (app) => {
     var env = app.get('env');
     _.assign(app.locals, config.locals);
     app.set('view engine', 'ejs');
@@ -38,3 +38,5 @@ module.exports = function (app) {
         app.use(errorHandler()); // Error handler - has to be last
     }
 };
+
+module.exports = expressSetup;
