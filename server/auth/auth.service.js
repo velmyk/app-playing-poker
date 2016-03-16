@@ -1,13 +1,15 @@
 'use strict';
 
-var mongoose = require('mongoose');
-var passport = require('passport');
-var config = require('../config/environment');
-var jwt = require('jsonwebtoken');
-var expressJwt = require('express-jwt');
-var compose = require('composable-middleware');
-var User = require('../api/user/user.model');
-var validateJwt = expressJwt({
+const   mongoose = require('mongoose'),
+        passport = require('passport'),
+        jwt = require('jsonwebtoken'),
+        expressJwt = require('express-jwt'),
+        compose = require('composable-middleware');
+
+const   User = require('../api/user/user.model'),
+        config = require('../config/environment');
+
+const   validateJwt = expressJwt({
     secret: config.secrets.session,
     getToken: function(req) {
         return req.cookies.token && JSON.parse(req.cookies.token);
@@ -18,7 +20,7 @@ var validateJwt = expressJwt({
  * Attaches the user object to the request if authenticated
  * Otherwise returns 403
  */
-function isAuthenticated() {
+const   isAuthenticated = () => {
     return compose()
     // Validate jwt
         .use(validateJwt)
@@ -41,22 +43,24 @@ function isAuthenticated() {
 /**
  * Returns a jwt token signed by the app secret
  */
-function signToken(id) {
-    return jwt.sign({_id: id}, config.secrets.session, {expiresInMinutes: 60 * 5});
+const   signToken = (id) => {
+    return jwt.sign({_id: id}, config.secrets.session, {expiresIn: 60 * 5});
 }
 
 /**
  * Set token cookie directly for oAuth strategies
  */
-function setTokenCookie(req, res) {
+const   setTokenCookie = (req, res) => {
     if (!req.user) {
         return res.status(404).json({message: 'Something went wrong, please try again.'});
     }
     var token = signToken(req.user._id);
     res.cookie('token', JSON.stringify(token));
-    res.redirect('/');
+    res.send();
 }
 
-exports.isAuthenticated = isAuthenticated;
-exports.signToken = signToken;
-exports.setTokenCookie = setTokenCookie;
+module.exports = {
+    isAuthenticated: isAuthenticated,
+    signToken: signToken,
+    setTokenCookie: setTokenCookie
+};

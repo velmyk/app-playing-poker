@@ -8,8 +8,7 @@ loadEnv('.env');
 
 module.exports = {
     ui: {
-        backOfficeBaseUrl: getenv('BACK_OFFICE_BASE_URL', '/api/v1/pos'),
-        eJournalBaseUrl: getenv('E_JOURNAL_BASE_URL', '/api/v1/pos/css_proxy')
+        appBaseUrl: getenv('BACK_OFFICE_BASE_URL', '/api/v1/pos')
     },
     webpackServer: {
         host: getenv('WEBPACK_SERVER_HOST', 'localhost'),

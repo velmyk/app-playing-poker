@@ -24,7 +24,6 @@ router.use('/local', require('./local'));
 router.use('/logout', function (req, res) {
     req.logout();
     res.cookie('token', null);
-    res.redirect('/');
 });
 
 module.exports = router;

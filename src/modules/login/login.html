@@ -1,0 +1,39 @@
+<form name="loginCtrl.form"
+      novalidate
+      autocomplete="off"
+      ng-submit="loginCtrl.login()">
+
+    <div>
+        <header>
+            <p><span>Playing Poker</span></p>
+        </header>
+
+        <div ng-if="loginCtrl.errorText">
+            <pos-form-error text="loginCtrl.errorText"></pos-form-error>
+        </div>
+
+        <div>
+            <label>Login</label>
+            <input type="text"
+                   placeholder="Enter Login"
+                   required
+                   ng-model="loginCtrl.input.login"
+                   ng-class="loginCtrl.loginError.inputErr">
+        </div>
+        <div>
+            <label>Password</label>
+            <input type="password"
+                   placeholder="Enter Password"
+                   required
+                   ng-model="loginCtrl.input.password"
+                   ng-class="loginCtrl.loginError.inputErr">
+        </div>
+        <div>
+            <button type="submit"
+                    ng-disabled="loginCtrl.form.$dirty && loginCtrl.form.$invalid">
+                <span class="text">SignIn</span>
+            </button>
+        </div>
+    </div>
+
+</form>

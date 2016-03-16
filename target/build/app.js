@@ -86,7 +86,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "6e09934c648c34e94df1"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "7353e951d94642454a02"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -610,7 +610,7 @@ Object.defineProperty(Array.prototype, 'find', {
 
 	var _modules2 = _interopRequireDefault(_modules);
 
-	var _router = __webpack_require__(7);
+	var _router = __webpack_require__(11);
 
 	var _router2 = _interopRequireDefault(_router);
 
@@ -35625,6 +35625,10 @@ Object.defineProperty(Array.prototype, 'find', {
 
 	var _sharedModule2 = _interopRequireDefault(_sharedModule);
 
+	var _poker = __webpack_require__(7);
+
+	var _poker2 = _interopRequireDefault(_poker);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	exports.default = [_sharedModule2.default];
@@ -35649,6 +35653,142 @@ Object.defineProperty(Array.prototype, 'find', {
 
 /***/ },
 /* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _angular = __webpack_require__(2);
+
+	var _angular2 = _interopRequireDefault(_angular);
+
+	var _angularUiRouter = __webpack_require__(4);
+
+	var _angularUiRouter2 = _interopRequireDefault(_angularUiRouter);
+
+	var _pokerRoutes = __webpack_require__(8);
+
+	var _pokerRoutes2 = _interopRequireDefault(_pokerRoutes);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.default = _angular2.default.module('app.poker', [_angularUiRouter2.default]).config(_pokerRoutes2.default).name;
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	pokerRoutes.$inject = ["$stateProvider"];
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = pokerRoutes;
+
+	var _poker = __webpack_require__(9);
+
+	var _poker2 = _interopRequireDefault(_poker);
+
+	var _PokerController = __webpack_require__(10);
+
+	var _PokerController2 = _interopRequireDefault(_PokerController);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function pokerRoutes($stateProvider) {
+	    'ngInject';
+
+	    $stateProvider.state('poker', {
+	        url: '/poker',
+	        template: _poker2.default,
+	        controller: _PokerController2.default,
+	        controllerAs: 'pokerCtrl'
+	    });
+	}
+
+/***/ },
+/* 9 */
+/***/ function(module, exports) {
+
+	module.exports = " <div>\n    <div>\n        <div>\n            <a href=\"/\"><%= AppName %></a>\n            <ul>\n                <li><a href=\"/\">Home</a></li>\n                <li><a href=\"/login\">Login</a></li>\n            </ul>\n        </div>\n    </div>\n    <div>\n        <div>\n            <div id=\"users\">\n            </div>\n            <ul id=\"marks\">\n                <li>0.5</li>\n                <li>1</li>\n                <li>2</li>\n                <li>3</li>\n                <li>5</li>\n                <li>8</li>\n                <li>13</li>\n                <li>21</li>\n                <li>34</li>\n            </ul>\n\n        </div>\n\n    </div>\n</div>\n"
+
+/***/ },
+/* 10 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var PokerController = function () {
+	    function PokerController() {
+	        'ngInject';
+
+	        _classCallCheck(this, PokerController);
+
+	        this.socket = new WebSocket('ws:localhost:9000/poker');
+
+	        this.socket.onmessage(this.socketHandler);
+	    }
+
+	    _createClass(PokerController, [{
+	        key: 'socketHandler',
+	        value: function socketHandler(event) {
+	            switch (event.data.message) {
+	                case 'newUser':
+	                    this.newUser(event.data);
+
+	                case 'onMarkSelect':
+	                    this.onSomeoneMarkSelect(event.data);
+
+	                default:
+	                    break;
+	            }
+	        }
+	    }, {
+	        key: 'newUser',
+	        value: function newUser(user) {
+	            this.users.push(user);
+	        }
+	    }, {
+	        key: 'onSomeoneMarkSelect',
+	        value: function onSomeoneMarkSelect(data) {
+	            this.users[data.userId][mark] = data.mark;
+	        }
+	    }, {
+	        key: 'joinPoker',
+	        value: function joinPoker() {
+	            socket.emit('joinPoker', {
+	                userId: currentUserId
+	            });
+	        }
+	    }, {
+	        key: 'onMarkSelect',
+	        value: function onMarkSelect(mark) {
+	            this.socket.emit('selectMark', {
+	                userId: currentUserId,
+	                mark: mark
+	            });
+	        }
+	    }]);
+
+	    return PokerController;
+	}();
+
+	exports.default = PokerController;
+
+/***/ },
+/* 11 */
 /***/ function(module, exports) {
 
 	'use strict';

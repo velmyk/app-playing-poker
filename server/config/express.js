@@ -13,21 +13,22 @@ let express = require('express'),
     passport = require('passport'),
     path = require('path'),
     _ = require('lodash'),
-    config = require('./environment');
+    cors = require('cors');
+
+let config = require('./environment');
 
 const expressSetup = (app) => {
     var env = app.get('env');
     _.assign(app.locals, config.locals);
-    app.set('view engine', 'ejs');
-    app.set('views', './server/views');
     app.use(bodyParser.urlencoded({extended: false}));
     app.use(bodyParser.json());
+    app.use(cors())
     app.use(methodOverride());
     app.use(cookieParser());
     app.use(passport.initialize());
     app.use(passport.session());
 
-    app.use(express.static('public'));
+    app.use(express.static(__dirname + '/target/build'));
 
     if ('production' === env) {
         app.use(morgan('dev'));
