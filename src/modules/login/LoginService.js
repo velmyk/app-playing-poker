@@ -9,7 +9,7 @@ export default class LoginService {
 
     signIn(credentials) {
 
-        return this.$http.post('http://localhost:9000/auth/local', credentials);
+        return this.$http.post('http://localhost:9000/api/auth/local', credentials);
     }
 
     signOut() {

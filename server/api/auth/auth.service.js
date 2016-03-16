@@ -6,8 +6,8 @@ const   mongoose = require('mongoose'),
         expressJwt = require('express-jwt'),
         compose = require('composable-middleware');
 
-const   User = require('../api/user/user.model'),
-        config = require('../config/environment');
+const   User = require('../user/user.model'),
+        config = require('../../config/environment');
 
 const   validateJwt = expressJwt({
     secret: config.secrets.session,

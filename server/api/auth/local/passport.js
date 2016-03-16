@@ -1,16 +1,16 @@
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
+const   passport = require('passport'),
+        LocalStrategy = require('passport-local').Strategy;
 
-exports.setup = function (User, config) {
+const   setup = (User, config) => {
     passport.use(new LocalStrategy({
             usernameField: 'login',
             passwordField: 'password' // this is the virtual field on the model
         },
-        function (name, password, done) {
+        (name, password, done) => {
             return User.findOne({
                     name: {$regex: new RegExp("^" + name + "$", "i")}
                 })
-                .then(function (user) {
+                .then(user => {
                     if (user && user.authenticate(password)) {
                         done(null, user);
                     }
@@ -18,9 +18,11 @@ exports.setup = function (User, config) {
                         done(null, false);
                     }
                 })
-                .catch(function (err) {
-                    return done(err);
-                });
+                .catch(err => done(err));
         })
     )
+};
+
+module.exports = {
+    setup: setup
 };

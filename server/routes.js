@@ -1,21 +1,14 @@
-/**
- * Main application routes
- */
-
 'use strict';
 
-var path = require('path');
-var auth = require('./auth/auth.service');
+const 	path = require('path');
 
-module.exports = function (app) {
+module.exports = (app) => {
 
-    // Insert routes below
-    app.use('/api', require('./api'));
+    app
+    	.use('/api', require('./api'))
 
-    app.use('/auth', require('./auth'));
-
-    app.get('/*', function (req, res) {
-        res.sendFile('index.html');
-    });
+    	.get('/*', function (req, res) {
+	        res.sendFile('index.html');
+	    });
 
 };

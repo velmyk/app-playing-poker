@@ -1,97 +1,108 @@
 'use strict';
-var OK = 200;
-var CREATED = 201;
-var NOT_FOUND = 404;
+
+const   path = require('path'),
+        q = require('q');
+
+const   OK = 200,
+        CREATED = 201,
+        NOT_FOUND = 404;
+
+const   User = require('./user.model');
 
 
-var path = require('path');
-var User = require('./user.model');
-var q = require('q');
-
-exports.getCurrentUser = function getCurrentUser(req, res) {
+const   getCurrentUser = (req, res) => {
     return q.Promise(
-        function (resolve, reject) {
+        (resolve, reject) => {
             if (!req.user || !req.user._id) {
                 reject();
             } else {
                 resolve(req.user._id);
             }
         })
-        .then(function (userId) {
+        .then(userId => {
             return User.findById(userId);
         })
-        .then(function (result) {
+        .then(result => {
             res.status(OK).json(result);
         })
-        .catch(function (err) {
+        .catch(err => {
             res.status(NOT_FOUND).json(err);
         });
 }
 
-exports.get = function get(req, res) {
+const   get = (req, res) => {
     return User.find(req.params)
-        .then(function (result) {
+        .then(result => {
             res.status(OK).json({
                 status: 'success',
                 total: result.length,
                 responses: result
             });
         })
-        .catch(function (err) {
+        .catch(err => {
             res.status(NOT_FOUND).json(err);
         });
-}
+};
 
-exports.add = function add(req, res) {
+const   add = (req, res) => {
     var modelInstance = new User(req.body);
     return modelInstance.save()
-        .then(function (result) {
+        .then(result => {
             res.status(CREATED).json({
                 status: 'success',
                 response: result
             });
         })
-        .catch(function (err) {
+        .catch(err => {
             res.send(err);
         });
-}
+};
 
-exports.getById = function getById(req, res) {
+const   getById = (req, res) => {
     return User.findById(req.params.id)
-        .then(function (result) {
+        .then(result => {
             res.status(OK).json(result);
         })
-        .catch(function (err) {
+        .catch(err => {
             res.status(NOT_FOUND).json(err);
         });
-}
+};
 
-exports.update = function update(req, res) {
+const   update = (req, res) => {
     return User.findById(req.params.id)
-        .then(function (modelInstance) {
+        .then(modelInstance => {
             var updatedInstance = _lodash.extend(modelInstance, req.body);
             return updatedInstance.save();
         })
-        .then(function (result) {
+        .then(result => {
             res.status(OK).json({
                 status: 'success',
                 response: result
             });
         })
-        .catch(function (err) {
+        .catch(err => {
             res.status(NOT_FOUND).json(err);
         });
 }
 
-exports.remove = function remove(req, res) {
+const remove = (req, res) => {
     return User.remove({_id: req.params.id})
-        .then(function (result) {
+        .then(result => {
             res.json({
                 status: 'success',
                 response: result
             });
         })
-        .catch(function (err) {
+        .catch(err => {
             res.send(err);
         });
+}
+
+module.exports = {
+    getCurrentUser: getCurrentUser,
+    get: get,
+    add: add,
+    getById: getById,
+    update: update,
+    remove: remove
 }

@@ -12,7 +12,7 @@
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "start": "npm-run-all --parallel client server",
     "client": "webpack && webpack-dev-server --devtool source-map",
-    "server": "nodemon ./server/index.js --watch ./server",
+    "server": "nodemon index.js --watch ./server",
     "prebuild": "npm i",
     "build": "webpack -p --optimize-compress-warnings=false",
     "posttestt": "coverage-blamer -c ./coverage/coverage-final.json -s . > ./coverage-blamer.md",

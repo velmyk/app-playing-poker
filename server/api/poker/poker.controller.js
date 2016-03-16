@@ -2,7 +2,7 @@ const User = require('../user/user.model');
 
 const joinPoker = (socket, data) => {
     User.findById(data.userId)
-        .then(function (result) {
+        .then(result => {
             socket.broadcast.emit('newUser', {
                 userId: data.userId,
                 userName: result.name

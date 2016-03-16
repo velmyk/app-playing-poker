@@ -1,12 +1,13 @@
 
 'use strict';
 
-const express = require('express');
+const 	express = require('express');
 
-var auth = require('../auth/auth.service');
-const router = express.Router();
+const 	auth = require('./auth/auth.service'),
+		router = express.Router();
 
-// Insert routes below
-router.use('/user',/* auth.isAuthenticated(),  */require('./user'));
+router
+	.use('/user',/* auth.isAuthenticated(),  */require('./user'))
+	.use('/auth', require('./auth'));
 
 module.exports = router;
