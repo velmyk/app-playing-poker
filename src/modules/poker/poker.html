@@ -3,7 +3,7 @@
         <div>Hello</div>
         <div>
             <div id="users">
-                <p ng-repeat="user in pokerCtrl.activeUsers">{{user.name}}</p>
+                <div ng-repeat="user in pokerCtrl.activeUsers">{{user.userName}} - {{user.mark}} </div>
             </div>
             <ul id="marks">
                 <li ng-repeat="score in pokerCtrl.SCORES"

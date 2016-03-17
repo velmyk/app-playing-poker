@@ -86,7 +86,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "9c5ca1a520d00b9c8f33"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "1899929920c7f33dc8db"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -43345,7 +43345,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /* 19 */
 /***/ function(module, exports) {
 
-	module.exports = " <div>\n    <div>\n        <div>Hello</div>\n        <div>\n            <div id=\"users\">\n                <p ng-repeat=\"user in pokerCtrl.activeUsers\">{{user}}</p>\n            </div>\n            <ul id=\"marks\">\n                <li ng-repeat=\"score in pokerCtrl.SCORES\"\n                    ng-click=\"pokerCtrl.onMyMarkSelect(score)\">{{score}}</li>\n            </ul>\n\n        </div>\n\n    </div>\n</div>\n"
+	module.exports = " <div>\n    <div>\n        <div>Hello</div>\n        <div>\n            <div id=\"users\">\n                <div ng-repeat=\"user in pokerCtrl.activeUsers\">{{user.userName}} - {{user.mark}} </div>\n            </div>\n            <ul id=\"marks\">\n                <li ng-repeat=\"score in pokerCtrl.SCORES\"\n                    ng-click=\"pokerCtrl.onMyMarkSelect(score)\">{{score}}</li>\n            </ul>\n\n        </div>\n\n    </div>\n</div>\n"
 
 /***/ },
 /* 20 */
@@ -43379,20 +43379,21 @@ Object.defineProperty(Array.prototype, 'find', {
 	        this.socket = SocketService;
 	        this.activeUsers = [];
 	        this.socket.on('newUser', this.newUser.bind(this));
-	        this.socket.on('onMarkSelect', this.onMyMarkSelect.bind(this));
+	        this.socket.on('onMarkSelect', this.onSomeoneMarkSelect.bind(this));
 	        this.socket.emit('joinPoker', { userId: this.currentUser._id });
 	    }
 
 	    _createClass(PokerController, [{
 	        key: 'newUser',
 	        value: function newUser(data) {
-	            console.log('newUser');
+	            console.log('newUser', data);
 	            this.activeUsers.push(data);
+	            console.log('all', this.activeUsers);
 	        }
 	    }, {
 	        key: 'onMyMarkSelect',
 	        value: function onMyMarkSelect(mark) {
-	            console.log('onMarkSelect');
+	            console.log('onMyMarkSelect', mark);
 	            this.socket.emit('selectMark', {
 	                userId: this.currentUser._id,
 	                mark: mark
@@ -43401,8 +43402,11 @@ Object.defineProperty(Array.prototype, 'find', {
 	    }, {
 	        key: 'onSomeoneMarkSelect',
 	        value: function onSomeoneMarkSelect(data) {
-	            console.log('onSomeoneMarkSelect');
-	            this.users[data.userId][mark] = data.mark;
+	            console.log('someoneMark', data);
+
+	            this.activeUsers.forEach(function (user) {
+	                if (user.userId === data.userId) user.mark = data.mark;
+	            });
 	        }
 	    }]);
 
