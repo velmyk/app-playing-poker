@@ -8,7 +8,7 @@ module.exports = (app) => {
     	.use('/api', require('./api'))
 
     	.get('/*', function (req, res) {
-	        res.sendFile('index.html');
+	        res.sendFile('index.html', {root: __dirname + '/../target/build'});
 	    });
 
 };

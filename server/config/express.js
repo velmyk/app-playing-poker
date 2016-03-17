@@ -1,7 +1,3 @@
-/**
- * Express configuration
- */
-
 'use strict';
 
 let express = require('express'),
@@ -28,7 +24,7 @@ const expressSetup = (app) => {
     app.use(passport.initialize());
     app.use(passport.session());
 
-    app.use(express.static(__dirname + '/target/build'));
+    app.use(express.static(__dirname + './../../target/build'));
 
     if ('production' === env) {
         app.use(morgan('dev'));

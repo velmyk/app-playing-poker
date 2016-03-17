@@ -1,43 +1,35 @@
+import SCORES from './SCORES';
+
 export default class PokerController {
-    constructor() {
+    constructor(SocketService,
+                IdentityStore) {
         'ngInject';
-
-        this.socket = new WebSocket('ws:localhost:9000/poker');
-
-        this.socket.onmessage(this.socketHandler);
+        this.currentUser = IdentityStore.get();
+        this.SCORES = SCORES;
+        this.socket = SocketService;
+        this.activeUsers = [];
+        this.socket.on('newUser', this.newUser.bind(this));
+        this.socket.on('onMarkSelect', this.onMyMarkSelect.bind(this));
+        this.socket.emit('joinPoker', { userId: this.currentUser._id });
     }
 
-    socketHandler(event) {
-        switch(event.data.message) {
-            case 'newUser':
-                this.newUser(event.data);
 
-            case 'onMarkSelect':
-                this.onSomeoneMarkSelect(event.data);
-                
-            default:
-                break;
-        }
+    newUser(data) {
+        console.log('newUser');
+        this.activeUsers.push(data);
     }
 
-    newUser(user) {
-        this.users.push(user);
-    }
-
-    onSomeoneMarkSelect(data) {
-        this.users[data.userId][mark] = data.mark;
-    }
-
-    joinPoker() {
-        socket.emit('joinPoker', {
-            userId: currentUserId
-        });
-    }
-
-    onMarkSelect(mark) {
+    onMyMarkSelect(mark) {
+        console.log('onMarkSelect');
         this.socket.emit('selectMark', {
-            userId: currentUserId,
+            userId: this.currentUser._id,
             mark: mark
         });
     }
+
+    onSomeoneMarkSelect(data) {
+        console.log('onSomeoneMarkSelect');
+        this.users[data.userId][mark] = data.mark;
+    }
+
 }

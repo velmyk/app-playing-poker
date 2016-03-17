@@ -4,7 +4,7 @@ const socketIo = require('socket.io');
 
 const controller = require('./poker.controller');
 
- const poker = (server) => {
+const poker = (server) => {
 
     const io = socketIo.listen(server);
 

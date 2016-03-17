@@ -8,6 +8,8 @@
     "clean": "rimraf target/*",
     "starttt": "nf start",
     "serve": "node node_modules/.bin/webpack-dev-server --content-base app",
+    "cl": "webpack",
+    "jss": "watch webpack src",
     "dev": "nodemon index.js",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "start": "npm-run-all --parallel client server",
@@ -15,7 +17,7 @@
     "server": "nodemon index.js --watch ./server",
     "prebuild": "npm i",
     "build": "webpack -p --optimize-compress-warnings=false",
-    "posttestt": "coverage-blamer -c ./coverage/coverage-final.json -s . > ./coverage-blamer.md",
+    "posttestt": "",
     "test": "karma start",
     "tdd": "karma start --singleRun=false"
   },
@@ -74,6 +76,7 @@
     "raw-loader": "0.5.1",
     "rimraf": "2.5.2",
     "sass-loader": "3.1.2",
+    "watch": "0.17.1",
     "webpack": "1.12.13",
     "webpack-dev-server": "1.14.1",
     "webpack-polyfills-plugin": "0.0.9",
@@ -104,7 +107,8 @@
     "passport": "^0.3.0",
     "passport-local": "^1.0.0",
     "q": "^1.4.1",
-    "socket.io": "1.4.5"
+    "socket.io": "1.4.5",
+    "socket.io-client": "1.4.5"
   },
   "engines": {
     "node": "4.3.1"

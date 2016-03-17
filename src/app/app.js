@@ -10,6 +10,6 @@ import router from './router';
 
 angular.module('app', [
         ...modules,
-        uirouter,
+        uirouter
     ])
     .config(router);

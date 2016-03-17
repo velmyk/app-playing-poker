@@ -56,7 +56,7 @@ const   setTokenCookie = (req, res) => {
     }
     var token = signToken(req.user._id);
     res.cookie('token', JSON.stringify(token));
-    res.send();
+    res.send(req.user);
 }
 
 module.exports = {
