@@ -26,6 +26,15 @@ export default class LoginService {
             });
     }
 
+    signInWithGitHub() {
+
+        return this.$http.get('http://localhost:9000/api/auth/github/auth')
+            .then(response => {
+                this.IdentityStore.update(response.data);
+                console.log(this.IdentityStore.get());
+            });
+    }
+
     signOut() {
         return this.$state.go('login');
     }

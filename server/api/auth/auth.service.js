@@ -56,11 +56,28 @@ const   setTokenCookie = (req, res) => {
     }
     var token = signToken(req.user._id);
     res.cookie('token', JSON.stringify(token));
+    console.log('setTokenCookie');
     res.send(req.user);
 }
+
+const   callback = (req, res) => {
+    console.log(req.user);
+    console.log('GH callback');
+  // In the real application you might need to check 
+  // whether the user exits and if exists redirect 
+  // or if not you many need to create user.
+  res.send('Login success');
+};
+
+const   error = (req, res) => {
+    console.log('GH err');
+  res.send('Login Failed');
+};
 
 module.exports = {
     isAuthenticated: isAuthenticated,
     signToken: signToken,
-    setTokenCookie: setTokenCookie
+    setTokenCookie: setTokenCookie,
+    callback: callback,
+    error: error
 };

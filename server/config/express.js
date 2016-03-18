@@ -10,6 +10,7 @@ let express = require('express'),
     path = require('path'),
     _ = require('lodash'),
     cors = require('cors');
+    // session = require('express-sessions');
 
 let config = require('./environment');
 
@@ -21,6 +22,7 @@ const expressSetup = (app) => {
     app.use(cors())
     app.use(methodOverride());
     app.use(cookieParser());
+    // app.use(session({secret: 'mysecret'}));
     app.use(passport.initialize());
     app.use(passport.session());
 

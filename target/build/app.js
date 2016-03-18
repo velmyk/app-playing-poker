@@ -86,7 +86,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "d40d368ae62a3130df70"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "292e562e958c49280f0e"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -43139,6 +43139,16 @@ Object.defineProperty(Array.prototype, 'find', {
 	            });
 	        }
 	    }, {
+	        key: 'signInWithGitHub',
+	        value: function signInWithGitHub() {
+	            var _this2 = this;
+
+	            return this.$http.get('http://localhost:9000/api/auth/github/auth').then(function (response) {
+	                _this2.IdentityStore.update(response.data);
+	                console.log(_this2.IdentityStore.get());
+	            });
+	        }
+	    }, {
 	        key: 'signOut',
 	        value: function signOut() {
 	            return this.$state.go('login');
@@ -43187,7 +43197,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /* 13 */
 /***/ function(module, exports) {
 
-	module.exports = "<form name=\"loginCtrl.signInForm\"\n      novalidate\n      autocomplete=\"off\"\n      ng-submit=\"loginCtrl.signIn()\">\n\n    <div>\n        <header>\n            <p><span>SignIn</span></p>\n        </header>\n\n        <div>\n            <label>Login</label>\n            <input type=\"text\"\n                   placeholder=\"Enter Login\"\n                   required\n                   ng-model=\"loginCtrl.input.login\">\n        </div>\n        <div>\n            <label>Password</label>\n            <input type=\"password\"\n                   placeholder=\"Enter Password\"\n                   required\n                   ng-model=\"loginCtrl.input.password\">\n        </div>\n        <div>\n            <button type=\"submit\"\n                <span class=\"text\">SignIn</span>\n            </button>\n        </div>\n    </div>\n\n</form>\n\n<form name=\"loginCtrl.signUpForm\"\n      novalidate\n      autocomplete=\"off\"\n      ng-submit=\"loginCtrl.signUp()\">\n\n    <div>\n        <header>\n            <p><span>SignIn</span></p>\n        </header>\n\n        <div>\n            <label>Login</label>\n            <input type=\"text\"\n                   placeholder=\"Enter Login\"\n                   required\n                   ng-model=\"loginCtrl.input.name\">\n        </div>\n        <div>\n            <label>Password</label>\n            <input type=\"password\"\n                   placeholder=\"Enter Password\"\n                   required\n                   ng-model=\"loginCtrl.input.password\">\n        </div>\n        <div>\n            <button type=\"submit\">\n                <span class=\"text\">SignUp</span>\n            </button>\n        </div>\n    </div>\n\n</form>"
+	module.exports = "<form name=\"loginCtrl.signInForm\"\n      novalidate\n      autocomplete=\"off\"\n      ng-submit=\"loginCtrl.signIn()\">\n\n    <div>\n        <header>\n            <p><span>SignIn</span></p>\n        </header>\n\n        <div>\n            <label>Login</label>\n            <input type=\"text\"\n                   placeholder=\"Enter Login\"\n                   required\n                   ng-model=\"loginCtrl.input.login\">\n        </div>\n        <div>\n            <label>Password</label>\n            <input type=\"password\"\n                   placeholder=\"Enter Password\"\n                   required\n                   ng-model=\"loginCtrl.input.password\">\n        </div>\n        <div>\n            <button type=\"submit\"\n                <span class=\"text\">SignIn</span>\n            </button>\n        </div>\n    </div>\n\n</form>\n\n<button ng-click=\"loginCtrl.signInWithGitHub()\">Sign In With GitHub</button>\n\n<hr>\n\n<form name=\"loginCtrl.signUpForm\"\n      novalidate\n      autocomplete=\"off\"\n      ng-submit=\"loginCtrl.signUp()\">\n\n    <div>\n        <header>\n            <p><span>SignIn</span></p>\n        </header>\n\n        <div>\n            <label>Login</label>\n            <input type=\"text\"\n                   placeholder=\"Enter Login\"\n                   required\n                   ng-model=\"loginCtrl.input.name\">\n        </div>\n        <div>\n            <label>Password</label>\n            <input type=\"password\"\n                   placeholder=\"Enter Password\"\n                   required\n                   ng-model=\"loginCtrl.input.password\">\n        </div>\n        <div>\n            <button type=\"submit\">\n                <span class=\"text\">SignUp</span>\n            </button>\n        </div>\n    </div>\n\n</form>\n\n<input type=\"button\" ng-click=\"loginCtrl.signUpWithGinhub()\">\n"
 
 /***/ },
 /* 14 */
@@ -43235,6 +43245,14 @@ Object.defineProperty(Array.prototype, 'find', {
 	        value: function signUp() {
 	            this.LoginService.signUp(this.input);
 	        }
+	    }, {
+	        key: 'signInWithGitHub',
+	        value: function signInWithGitHub() {
+	            this.LoginService.signInWithGitHub();
+	        }
+	    }, {
+	        key: 'signUpWithGitGub',
+	        value: function signUpWithGitGub() {}
 	    }]);
 
 	    return LoginController;
