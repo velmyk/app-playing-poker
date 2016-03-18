@@ -86,7 +86,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "1899929920c7f33dc8db"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "d40d368ae62a3130df70"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -43131,6 +43131,14 @@ Object.defineProperty(Array.prototype, 'find', {
 	            });
 	        }
 	    }, {
+	        key: 'signUp',
+	        value: function signUp(credentials) {
+
+	            return this.$http.post('http://localhost:9000/api/user', credentials).then(function (response) {
+	                console.log('Signed up succesfuly');
+	            });
+	        }
+	    }, {
 	        key: 'signOut',
 	        value: function signOut() {
 	            return this.$state.go('login');
@@ -43179,7 +43187,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /* 13 */
 /***/ function(module, exports) {
 
-	module.exports = "<form name=\"loginCtrl.form\"\n      novalidate\n      autocomplete=\"off\"\n      ng-submit=\"loginCtrl.login()\">\n\n    <div>\n        <header>\n            <p><span>Playing Poker</span></p>\n        </header>\n\n        <div ng-if=\"loginCtrl.errorText\">\n            <pos-form-error text=\"loginCtrl.errorText\"></pos-form-error>\n        </div>\n\n        <div>\n            <label>Login</label>\n            <input type=\"text\"\n                   placeholder=\"Enter Login\"\n                   required\n                   ng-model=\"loginCtrl.input.login\"\n                   ng-class=\"loginCtrl.loginError.inputErr\">\n        </div>\n        <div>\n            <label>Password</label>\n            <input type=\"password\"\n                   placeholder=\"Enter Password\"\n                   required\n                   ng-model=\"loginCtrl.input.password\"\n                   ng-class=\"loginCtrl.loginError.inputErr\">\n        </div>\n        <div>\n            <button type=\"submit\"\n                    ng-disabled=\"loginCtrl.form.$dirty && loginCtrl.form.$invalid\">\n                <span class=\"text\">SignIn</span>\n            </button>\n        </div>\n    </div>\n\n</form>"
+	module.exports = "<form name=\"loginCtrl.signInForm\"\n      novalidate\n      autocomplete=\"off\"\n      ng-submit=\"loginCtrl.signIn()\">\n\n    <div>\n        <header>\n            <p><span>SignIn</span></p>\n        </header>\n\n        <div>\n            <label>Login</label>\n            <input type=\"text\"\n                   placeholder=\"Enter Login\"\n                   required\n                   ng-model=\"loginCtrl.input.login\">\n        </div>\n        <div>\n            <label>Password</label>\n            <input type=\"password\"\n                   placeholder=\"Enter Password\"\n                   required\n                   ng-model=\"loginCtrl.input.password\">\n        </div>\n        <div>\n            <button type=\"submit\"\n                <span class=\"text\">SignIn</span>\n            </button>\n        </div>\n    </div>\n\n</form>\n\n<form name=\"loginCtrl.signUpForm\"\n      novalidate\n      autocomplete=\"off\"\n      ng-submit=\"loginCtrl.signUp()\">\n\n    <div>\n        <header>\n            <p><span>SignIn</span></p>\n        </header>\n\n        <div>\n            <label>Login</label>\n            <input type=\"text\"\n                   placeholder=\"Enter Login\"\n                   required\n                   ng-model=\"loginCtrl.input.name\">\n        </div>\n        <div>\n            <label>Password</label>\n            <input type=\"password\"\n                   placeholder=\"Enter Password\"\n                   required\n                   ng-model=\"loginCtrl.input.password\">\n        </div>\n        <div>\n            <button type=\"submit\">\n                <span class=\"text\">SignUp</span>\n            </button>\n        </div>\n    </div>\n\n</form>"
 
 /***/ },
 /* 14 */
@@ -43210,19 +43218,22 @@ Object.defineProperty(Array.prototype, 'find', {
 
 	        _classCallCheck(this, LoginController);
 
-	        this.form = {};
+	        this.signInForm = {};
+	        this.signUpForm = {};
 	        this.$state = $state;
 	        this.LoginService = LoginService;
 	        this.input = _LoginForm2.default.getFields();
 	    }
 
 	    _createClass(LoginController, [{
-	        key: 'login',
-	        value: function login() {
-	            if (this.form.$invalid) {
-	                return;
-	            }
+	        key: 'signIn',
+	        value: function signIn() {
 	            this.LoginService.signIn(this.input);
+	        }
+	    }, {
+	        key: 'signUp',
+	        value: function signUp() {
+	            this.LoginService.signUp(this.input);
 	        }
 	    }]);
 

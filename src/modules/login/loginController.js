@@ -6,16 +6,18 @@ export default class LoginController {
                 LoginService) {
         'ngInject';
 
-        this.form = {};
+        this.signInForm = {};
+        this.signUpForm = {};
         this.$state = $state;
         this.LoginService = LoginService;
         this.input = LoginForm.getFields();
     }
 
-    login() {
-        if (this.form.$invalid) {
-            return;
-        }
+    signIn() {
         this.LoginService.signIn(this.input);
+    }
+
+    signUp() {
+        this.LoginService.signUp(this.input);
     }
 }

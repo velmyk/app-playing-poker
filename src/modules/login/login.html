@@ -1,37 +1,63 @@
-<form name="loginCtrl.form"
+<form name="loginCtrl.signInForm"
       novalidate
       autocomplete="off"
-      ng-submit="loginCtrl.login()">
+      ng-submit="loginCtrl.signIn()">
 
     <div>
         <header>
-            <p><span>Playing Poker</span></p>
+            <p><span>SignIn</span></p>
         </header>
-
-        <div ng-if="loginCtrl.errorText">
-            <pos-form-error text="loginCtrl.errorText"></pos-form-error>
-        </div>
 
         <div>
             <label>Login</label>
             <input type="text"
                    placeholder="Enter Login"
                    required
-                   ng-model="loginCtrl.input.login"
-                   ng-class="loginCtrl.loginError.inputErr">
+                   ng-model="loginCtrl.input.login">
         </div>
         <div>
             <label>Password</label>
             <input type="password"
                    placeholder="Enter Password"
                    required
-                   ng-model="loginCtrl.input.password"
-                   ng-class="loginCtrl.loginError.inputErr">
+                   ng-model="loginCtrl.input.password">
         </div>
         <div>
             <button type="submit"
-                    ng-disabled="loginCtrl.form.$dirty && loginCtrl.form.$invalid">
                 <span class="text">SignIn</span>
+            </button>
+        </div>
+    </div>
+
+</form>
+
+<form name="loginCtrl.signUpForm"
+      novalidate
+      autocomplete="off"
+      ng-submit="loginCtrl.signUp()">
+
+    <div>
+        <header>
+            <p><span>SignIn</span></p>
+        </header>
+
+        <div>
+            <label>Login</label>
+            <input type="text"
+                   placeholder="Enter Login"
+                   required
+                   ng-model="loginCtrl.input.name">
+        </div>
+        <div>
+            <label>Password</label>
+            <input type="password"
+                   placeholder="Enter Password"
+                   required
+                   ng-model="loginCtrl.input.password">
+        </div>
+        <div>
+            <button type="submit">
+                <span class="text">SignUp</span>
             </button>
         </div>
     </div>

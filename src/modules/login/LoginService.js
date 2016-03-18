@@ -18,6 +18,14 @@ export default class LoginService {
             });
     }
 
+    signUp(credentials) {
+
+        return this.$http.post('http://localhost:9000/api/user', credentials)
+            .then(response => {
+                console.log('Signed up succesfuly');
+            });
+    }
+
     signOut() {
         return this.$state.go('login');
     }
