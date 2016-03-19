@@ -18,10 +18,7 @@ const   auth = require('../auth.service'),
 //     );
 
 router
-    .get('/auth',
-    	passport.authenticate('github'),
-    	auth.callback
-    )
+    .get('/auth', passport.authenticate('github'))
     .get('/auth/error', auth.error)
     .get('/auth/callback',
         passport.authenticate('github', {failureRedirect: '/auth/error'}),
