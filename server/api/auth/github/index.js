@@ -22,7 +22,7 @@ router
     .get('/auth/error', auth.error)
     .get('/auth/callback',
         passport.authenticate('github', {failureRedirect: '/auth/error'}),
-        auth.callback
+        auth.setTokenCookie
     );
 
 module.exports = router;

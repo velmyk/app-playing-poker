@@ -1,12 +1,14 @@
 export default class LoginService {
     constructor($http,
                 $state,
-                IdentityStore) {
+                IdentityStore,
+                $window) {
         'ngInject';
 
         this.$http = $http;
         this.$state = $state;
         this.IdentityStore = IdentityStore;
+        this.$window = $window;
     }
 
     signIn(credentials) {
@@ -27,12 +29,7 @@ export default class LoginService {
     }
 
     signInWithGitHub() {
-
-        return this.$http.get('https://playing-poker.herokuapp.com/api/auth/github/auth')
-            .then(response => {
-                this.IdentityStore.update(response.data);
-                console.log(this.IdentityStore.get());
-            });
+        this.$window.location.href = '/api/auth/github/auth';
     }
 
     signOut() {

@@ -86,7 +86,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "a8b1e5c4d3d7af8fee6a"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "c3dcfc52a4be780a3be5"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -43109,8 +43109,8 @@ Object.defineProperty(Array.prototype, 'find', {
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var LoginService = function () {
-	    LoginService.$inject = ["$http", "$state", "IdentityStore"];
-	    function LoginService($http, $state, IdentityStore) {
+	    LoginService.$inject = ["$http", "$state", "IdentityStore", "$window"];
+	    function LoginService($http, $state, IdentityStore, $window) {
 	        'ngInject';
 
 	        _classCallCheck(this, LoginService);
@@ -43118,6 +43118,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	        this.$http = $http;
 	        this.$state = $state;
 	        this.IdentityStore = IdentityStore;
+	        this.$window = $window;
 	    }
 
 	    _createClass(LoginService, [{
@@ -43141,12 +43142,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	    }, {
 	        key: 'signInWithGitHub',
 	        value: function signInWithGitHub() {
-	            var _this2 = this;
-
-	            return this.$http.get('https://playing-poker.herokuapp.com/api/auth/github/auth').then(function (response) {
-	                _this2.IdentityStore.update(response.data);
-	                console.log(_this2.IdentityStore.get());
-	            });
+	            this.$window.location.href = '/api/auth/github/auth';
 	        }
 	    }, {
 	        key: 'signOut',

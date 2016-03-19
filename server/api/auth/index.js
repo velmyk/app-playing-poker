@@ -11,12 +11,10 @@ require('./local/passport').setup(User, config);
 require('./github/passport').setup(User, config);
 
 passport.serializeUser((user, done) => {
-    console.log('serialize', user);
-    done(null, user._id);
+    done(null, user);
 });
 
 passport.deserializeUser((id, done) => {
-    console.log('deserialize', user);
     User.findById(id, (err, user) => {
         done(err, user);
     });
