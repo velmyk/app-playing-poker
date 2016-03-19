@@ -28,7 +28,7 @@ export default class LoginService {
 
     signInWithGitHub() {
 
-        return this.$http.get('http://localhost:9000/api/auth/github/auth')
+        return this.$http.get('https://playing-poker.herokuapp.com/api/auth/github/auth')
             .then(response => {
                 this.IdentityStore.update(response.data);
                 console.log(this.IdentityStore.get());

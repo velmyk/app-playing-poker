@@ -86,7 +86,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "292e562e958c49280f0e"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "a8b1e5c4d3d7af8fee6a"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -43143,7 +43143,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	        value: function signInWithGitHub() {
 	            var _this2 = this;
 
-	            return this.$http.get('http://localhost:9000/api/auth/github/auth').then(function (response) {
+	            return this.$http.get('https://playing-poker.herokuapp.com/api/auth/github/auth').then(function (response) {
 	                _this2.IdentityStore.update(response.data);
 	                console.log(_this2.IdentityStore.get());
 	            });
