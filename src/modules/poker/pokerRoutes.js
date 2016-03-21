@@ -5,11 +5,15 @@ export default function pokerRoutes($stateProvider) {
     'ngInject';
 
     $stateProvider
-        .state('poker', {
+        .state('main.poker', {
             url: '/poker',
-            template: pokerTemplate,
-            controller: PokerController,
-            controllerAs: 'pokerCtrl'
+            views: {
+            	'content@main': {
+            		template: pokerTemplate,
+		            controller: PokerController,
+		            controllerAs: 'pokerCtrl'
+            	}
+            }
         });
 
 }

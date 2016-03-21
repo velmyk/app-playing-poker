@@ -5,10 +5,14 @@ export default function loginRoutes($stateProvider) {
     'ngInject';
 
     $stateProvider
-        .state('login', {
-            url: '/login',
-            template: loginTemplate,
-            controller: LoginController,
-            controllerAs: 'loginCtrl'
+        .state('main.login', {
+            url: '/',
+            views: {
+            	'content@main': {
+            		template: loginTemplate,
+            		controller: LoginController,
+            		controllerAs: 'loginCtrl'
+            	}
+            }
         });
 }
