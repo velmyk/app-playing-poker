@@ -13,7 +13,7 @@ export default class LoginService {
 
     signIn(credentials) {
 
-        return this.$http.post('http://localhost:9000/api/auth/local', credentials)
+        return this.$http.post('/api/auth/local', credentials)
             .then(response => {
                 this.IdentityStore.update(response.data);
                 console.log(this.IdentityStore.get());
@@ -22,7 +22,7 @@ export default class LoginService {
 
     signUp(credentials) {
 
-        return this.$http.post('http://localhost:9000/api/user', credentials)
+        return this.$http.post('/api/user', credentials)
             .then(response => {
                 console.log('Signed up succesfuly');
             });
@@ -33,7 +33,7 @@ export default class LoginService {
     }
 
     getMe() {
-        return this.$http.get('http://localhost:9000/api/user/me');
+        return this.$http.get('/api/user/me');
     }
 
     signOut() {

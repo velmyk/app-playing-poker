@@ -1,12 +1,14 @@
 const   passport = require('passport'),
         GithubStrategy = require('passport-github').Strategy;
 
+const   config = require('../../../config/environment');
+
 const   setup = (User, config) => {
     
     passport.use(new GithubStrategy({
-          clientID: '4bd3e99c3cfd161d9071',
-          clientSecret: '4a1cf85a9eda09ae6a7fa08206fb6415ffd7cb72',
-          callbackURL: 'http://localhost:9000/api/auth/github/auth/callback'
+          clientID: config.github.clientID,
+          clientSecret: config.github.clientSecret,
+          callbackURL: config.github.callbackURL
         }, 
         function (accessToken, refreshToken, profile, done) {
             console.log('Strat');

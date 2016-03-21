@@ -86,7 +86,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "df1b49c821c23ee932f2"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "9f5c5e6c1555e3624a87"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -43138,7 +43138,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	        value: function signIn(credentials) {
 	            var _this = this;
 
-	            return this.$http.post('http://localhost:9000/api/auth/local', credentials).then(function (response) {
+	            return this.$http.post('/api/auth/local', credentials).then(function (response) {
 	                _this.IdentityStore.update(response.data);
 	                console.log(_this.IdentityStore.get());
 	            });
@@ -43147,7 +43147,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	        key: 'signUp',
 	        value: function signUp(credentials) {
 
-	            return this.$http.post('http://localhost:9000/api/user', credentials).then(function (response) {
+	            return this.$http.post('/api/user', credentials).then(function (response) {
 	                console.log('Signed up succesfuly');
 	            });
 	        }
@@ -43159,7 +43159,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	    }, {
 	        key: 'getMe',
 	        value: function getMe() {
-	            return this.$http.get('http://localhost:9000/api/user/me');
+	            return this.$http.get('/api/user/me');
 	        }
 	    }, {
 	        key: 'signOut',
@@ -72758,7 +72758,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /* 34 */
 /***/ function(module, exports) {
 
-	module.exports = "<md-toolbar layout=\"row\" class=\"md-whiteframe-z2 header-panel\" data-ng-cloak>\n    <div class=\"md-toolbar-tools\">\n        <a href=\"#/\" id=\"logo\">PP</a>\n        <a ui-sref=\"main.poker\">poker</a>\n        <a ui-sref=\"main.login\">login</a>\n        <p style=\"padding-left: 40px;\">{{headerCtrl.getCurrentUser()}}</p>\n    </div>\n    <roles layout=\"row\" flex=\"15\" layout-align=\"space-between center\"></roles>\n</md-toolbar>"
+	module.exports = "<md-toolbar layout=\"row\" class=\"md-whiteframe-z2 header-panel\" data-ng-cloak>\n    <div class=\"md-toolbar-tools\">\n        <a style=\"padding-left: 40px;\" href=\"#/\" id=\"logo\">PP</a>\n        <a style=\"padding-left: 40px;\" ui-sref=\"main.poker\">poker</a>\n        <a style=\"padding-left: 40px;\" ui-sref=\"main.login\">login</a>\n        <p style=\"padding-left: 40px;\">{{headerCtrl.getCurrentUser()}}</p>\n    </div>\n    <roles layout=\"row\" flex=\"15\" layout-align=\"space-between center\"></roles>\n</md-toolbar>"
 
 /***/ },
 /* 35 */
