@@ -1,7 +1,8 @@
 'use strict';
 
 const   path = require('path'),
-        q = require('q');
+        q = require('q'),
+        jwt = require('jsonwebtoken');
 
 const   OK = 200,
         CREATED = 201,
@@ -45,9 +46,12 @@ const   get = (req, res) => {
 };
 
 const   me = (req, res) => {
-    console.log('req: ', req.cookies);
-    var cookies = req.cookies;
-    res.send(cookies);
+    var token = req.cookies.token.slice(1,-1);
+    var id = jwt.verify(token, 'my-secret');
+
+    User.findById(id).exec().then(user => res.send(user));
+    // console.log(id);
+    // res.send(id);
 };
 
 const   add = (req, res) => {

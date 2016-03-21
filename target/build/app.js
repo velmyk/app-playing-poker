@@ -86,7 +86,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "0de16c7f5b69a1fa4f93"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "df1b49c821c23ee932f2"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -72758,7 +72758,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /* 34 */
 /***/ function(module, exports) {
 
-	module.exports = "<md-toolbar layout=\"row\" class=\"md-whiteframe-z2 header-panel\" data-ng-cloak>\n    <div class=\"md-toolbar-tools\">\n        <a href=\"#/\" id=\"logo\">PP</a>\n        <a ui-sref=\"main.poker\">poker</a>\n        <a ui-sref=\"main.login\">login</a>\n    </div>\n    <roles layout=\"row\" flex=\"15\" layout-align=\"space-between center\"></roles>\n</md-toolbar>"
+	module.exports = "<md-toolbar layout=\"row\" class=\"md-whiteframe-z2 header-panel\" data-ng-cloak>\n    <div class=\"md-toolbar-tools\">\n        <a href=\"#/\" id=\"logo\">PP</a>\n        <a ui-sref=\"main.poker\">poker</a>\n        <a ui-sref=\"main.login\">login</a>\n        <p style=\"padding-left: 40px;\">{{headerCtrl.getCurrentUser()}}</p>\n    </div>\n    <roles layout=\"row\" flex=\"15\" layout-align=\"space-between center\"></roles>\n</md-toolbar>"
 
 /***/ },
 /* 35 */
@@ -72833,15 +72833,31 @@ Object.defineProperty(Array.prototype, 'find', {
 	    value: true
 	});
 
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var LoginController = function LoginController() {
-	    'ngInject';
+	var HeaderController = function () {
+	    HeaderController.$inject = ["IdentityStore"];
+	    function HeaderController(IdentityStore) {
+	        'ngInject';
 
-	    _classCallCheck(this, LoginController);
-	};
+	        _classCallCheck(this, HeaderController);
 
-	exports.default = LoginController;
+	        this.IdentityStore = IdentityStore;
+	    }
+
+	    _createClass(HeaderController, [{
+	        key: 'getCurrentUser',
+	        value: function getCurrentUser() {
+	            return this.IdentityStore.get().name || 'guest';
+	        }
+	    }]);
+
+	    return HeaderController;
+	}();
+
+	exports.default = HeaderController;
 
 /***/ }
 /******/ ]);

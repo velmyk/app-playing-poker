@@ -54,23 +54,11 @@ const   setTokenCookie = (req, res) => {
     if (!req.user) {
         return res.status(404).json({message: 'Something went wrong, please try again.'});
     }
-    console.log(req.user.id);
-    var token = signToken(req.user.profile.id);
-    console.log(token);
+    console.log(req.user)
+    var token = signToken(req.user._id);
     res.cookie('token', JSON.stringify(token));
-    console.log('setTokenCookie');
-    // res.send(req.user);
     res.redirect('/');
 }
-
-const   callback = (req, res) => {
-    console.log(req.user);
-    console.log('GH callback');
-  // In the real application you might need to check 
-  // whether the user exits and if exists redirect 
-  // or if not you many need to create user.
-  res.send({message: 'Login success', data: req});
-};
 
 const   error = (req, res) => {
     console.log('GH err');
@@ -81,6 +69,5 @@ module.exports = {
     isAuthenticated: isAuthenticated,
     signToken: signToken,
     setTokenCookie: setTokenCookie,
-    callback: callback,
     error: error
 };
