@@ -32,6 +32,10 @@ export default class LoginService {
         this.$window.location.href = '/api/auth/github/auth';
     }
 
+    getMe() {
+        return this.$http.get('http://localhost:9000/api/user/me');
+    }
+
     signOut() {
         return this.$state.go('login');
     }

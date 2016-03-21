@@ -68,8 +68,13 @@ The `sprites` mixin generates identical output to the CSS template
 
 @include sprites($spritesheet-sprites);
 */
-p {
-  height: 10px; }
+.content {
+  margin: 30px;
+  padding: 40px; }
+
+body {
+  margin: 30px;
+  padding: 40px; }
 
 html, body {
   height: 100%;

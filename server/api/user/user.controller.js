@@ -44,6 +44,12 @@ const   get = (req, res) => {
         });
 };
 
+const   me = (req, res) => {
+    console.log('req: ', req.cookies);
+    var cookies = req.cookies;
+    res.send(cookies);
+};
+
 const   add = (req, res) => {
     var modelInstance = new User(req.body);
     return modelInstance.save()
@@ -104,5 +110,6 @@ module.exports = {
     add: add,
     getById: getById,
     update: update,
-    remove: remove
+    remove: remove,
+    me: me
 }

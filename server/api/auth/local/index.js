@@ -9,6 +9,7 @@ const   auth = require('../auth.service'),
 router
     .post(['/', ''],
         (req, res, next) => {
+            console.log(req.user);
             req.params.name = req.body.name;
             req.params.password = req.body.password;
             next();

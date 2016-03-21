@@ -86,7 +86,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "ee024ea31095b3b231b3"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "0de16c7f5b69a1fa4f93"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -35645,9 +35645,13 @@ Object.defineProperty(Array.prototype, 'find', {
 
 	var _main2 = _interopRequireDefault(_main);
 
+	var _landing = __webpack_require__(35);
+
+	var _landing2 = _interopRequireDefault(_landing);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	exports.default = [_shared2.default, _login2.default, _poker2.default, _auth2.default, _main2.default];
+	exports.default = [_shared2.default, _login2.default, _poker2.default, _auth2.default, _main2.default, _landing2.default];
 
 /***/ },
 /* 6 */
@@ -43153,6 +43157,11 @@ Object.defineProperty(Array.prototype, 'find', {
 	            this.$window.location.href = '/api/auth/github/auth';
 	        }
 	    }, {
+	        key: 'getMe',
+	        value: function getMe() {
+	            return this.$http.get('http://localhost:9000/api/user/me');
+	        }
+	    }, {
 	        key: 'signOut',
 	        value: function signOut() {
 	            return this.$state.go('login');
@@ -43190,7 +43199,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	    'ngInject';
 
 	    $stateProvider.state('main.login', {
-	        url: '/',
+	        url: '/login',
 	        views: {
 	            'content@main': {
 	                template: _login2.default,
@@ -43205,7 +43214,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /* 13 */
 /***/ function(module, exports) {
 
-	module.exports = "<form name=\"loginCtrl.signInForm\"\n      novalidate\n      autocomplete=\"off\"\n      ng-submit=\"loginCtrl.signIn()\">\n\n    <div>\n        <header>\n            <p><span>SignIn</span></p>\n        </header>\n\n        <div>\n            <label>Login</label>\n            <input type=\"text\"\n                   placeholder=\"Enter Login\"\n                   required\n                   ng-model=\"loginCtrl.input.login\">\n        </div>\n        <div>\n            <label>Password</label>\n            <input type=\"password\"\n                   placeholder=\"Enter Password\"\n                   required\n                   ng-model=\"loginCtrl.input.password\">\n        </div>\n        <div>\n            <md-button class=\"md-raised md-primary\" type=\"submit\">\n                <span class=\"text\">SignIn</span>\n            </md-button>\n        </div>\n    </div>\n\n</form>\n\n<button ng-click=\"loginCtrl.signInWithGitHub()\">Sign In With GitHub</button>\n\n<hr>\n\n<form name=\"loginCtrl.signUpForm\"\n      novalidate\n      autocomplete=\"off\"\n      ng-submit=\"loginCtrl.signUp()\">\n\n    <div>\n        <header>\n            <p><span>SignIn</span></p>\n        </header>\n\n        <div>\n            <label>Login</label>\n            <input type=\"text\"\n                   placeholder=\"Enter Login\"\n                   required\n                   ng-model=\"loginCtrl.input.name\">\n        </div>\n        <div>\n            <label>Password</label>\n            <input type=\"password\"\n                   placeholder=\"Enter Password\"\n                   required\n                   ng-model=\"loginCtrl.input.password\">\n        </div>\n        <div>\n            <button type=\"submit\">\n                <span class=\"text\">SignUp</span>\n            </button>\n        </div>\n    </div>\n\n</form>\n\n<input type=\"button\" ng-click=\"loginCtrl.signUpWithGinhub()\">\n"
+	module.exports = "<form name=\"loginCtrl.signInForm\"\n      novalidate\n      autocomplete=\"off\"\n      ng-submit=\"loginCtrl.signIn()\">\n\n    <div>\n        <header>\n            <h2>Sign In</h2>\n        </header>\n\n        <md-input-container>\n            <label>Login</label>\n            <input ng-model=\"loginCtrl.input.login\"\n                required>\n        </md-input-container>\n        <md-input-container>\n            <label>Password</label>\n            <input ng-model=\"loginCtrl.input.password\"\n                required>\n        </md-input-container>\n        <md-button class=\"md-raised md-primary\" type=\"submit\">\n            <span class=\"text\">Sign In</span>\n        </md-button>\n\n        <md-button class=\"md-raised md-primary\"\n            ng-click=\"loginCtrl.signInWithGitHub()\">\n            Sign In With GitHub\n        </md-button>\n    </div>\n\n</form>\n\n<br>\n<br>\n\n<md-divider md-inset></md-divider>\n\n\n<br>\n<br>\n\n<form name=\"loginCtrl.signUpForm\"\n      novalidate\n      autocomplete=\"off\"\n      ng-submit=\"loginCtrl.signUp()\">\n\n    <div>\n        <header>\n            <h2>Sign Up</h2>\n        </header>\n\n        <md-input-container>\n            <label>Login</label>\n            <input ng-model=\"loginCtrl.input.name\"\n                required>\n        </md-input-container>\n        <md-input-container>\n            <label>Password</label>\n            <input ng-model=\"loginCtrl.input.password\"\n                required>\n        </md-input-container>\n        <md-button type=\"submit\"\n            class=\"md-raised md-primary\">\n            <span class=\"text\">SignUp</span>\n        </md-button>\n\n        <md-button type=\"button\"\n            class=\"md-raised md-primary\"\n            ng-click=\"loginCtrl.signUpWithGinhub()\">\n            Sign up with github\n        </md-button>\n    </div>\n\n</form>\n\n<br>\n<br>\n\n<md-divider md-inset></md-divider>\n\n\n<br>\n<br>\n\n<md-button type=\"button\"\n    class=\"md-raised md-primary\"\n    ng-click=\"loginCtrl.getMe()\">\n    Get me\n</md-button>\n\n"
 
 /***/ },
 /* 14 */
@@ -43257,6 +43266,11 @@ Object.defineProperty(Array.prototype, 'find', {
 	        key: 'signInWithGitHub',
 	        value: function signInWithGitHub() {
 	            this.LoginService.signInWithGitHub();
+	        }
+	    }, {
+	        key: 'getMe',
+	        value: function getMe() {
+	            this.LoginService.getMe();
 	        }
 	    }, {
 	        key: 'signUpWithGitGub',
@@ -72698,6 +72712,10 @@ Object.defineProperty(Array.prototype, 'find', {
 
 	var _header2 = _interopRequireDefault(_header);
 
+	var _HeaderController = __webpack_require__(38);
+
+	var _HeaderController2 = _interopRequireDefault(_HeaderController);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function mainRoutes($stateProvider) {
@@ -72711,12 +72729,22 @@ Object.defineProperty(Array.prototype, 'find', {
 	                template: _main2.default
 	            },
 	            'header@main': {
-	                template: _header2.default
+	                template: _header2.default,
+	                controller: _HeaderController2.default,
+	                controllerAs: 'headerCtrl'
 	            },
 	            'content@main': {
 	                template: '<div>Main</div>'
 	            }
-	        }
+	        },
+	        onEnter: ["$http", "IdentityStore", function onEnter($http, IdentityStore) {
+	            'ngInject';
+
+	            $http.get('/api/user/me').then(function (data) {
+	                IdentityStore.update(data.data);
+	                console.log(IdentityStore.get());
+	            });
+	        }]
 	    });
 	};
 
@@ -72724,13 +72752,96 @@ Object.defineProperty(Array.prototype, 'find', {
 /* 33 */
 /***/ function(module, exports) {
 
-	module.exports = "<div ui-view=\"header\" class=\"header\"></div>\n<div ui-view=\"content\"></div>"
+	module.exports = "<div ui-view=\"header\" class=\"header\"></div>\n<div ui-view=\"content\" class=\"content\"></div>"
 
 /***/ },
 /* 34 */
 /***/ function(module, exports) {
 
-	module.exports = "<md-toolbar layout=\"row\" class=\"md-whiteframe-z2 header-panel\" data-ng-cloak>\n    <div class=\"md-toolbar-tools\">\n        <a href=\"#/\" id=\"logo\">\n            <h1>PP</h1>\n        </a>\n        <a ui-sref=\"main.poker\">\n            <h1>poker</h1>\n        </a>\n    </div>\n    <roles layout=\"row\" flex=\"15\" layout-align=\"space-between center\"></roles>\n</md-toolbar>"
+	module.exports = "<md-toolbar layout=\"row\" class=\"md-whiteframe-z2 header-panel\" data-ng-cloak>\n    <div class=\"md-toolbar-tools\">\n        <a href=\"#/\" id=\"logo\">PP</a>\n        <a ui-sref=\"main.poker\">poker</a>\n        <a ui-sref=\"main.login\">login</a>\n    </div>\n    <roles layout=\"row\" flex=\"15\" layout-align=\"space-between center\"></roles>\n</md-toolbar>"
+
+/***/ },
+/* 35 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _angular = __webpack_require__(2);
+
+	var _angular2 = _interopRequireDefault(_angular);
+
+	var _angularUiRouter = __webpack_require__(4);
+
+	var _angularUiRouter2 = _interopRequireDefault(_angularUiRouter);
+
+	var _landingRoutes = __webpack_require__(36);
+
+	var _landingRoutes2 = _interopRequireDefault(_landingRoutes);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.default = _angular2.default.module('app.landing', [_angularUiRouter2.default]).config(_landingRoutes2.default).name;
+
+/***/ },
+/* 36 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	loginRoutes.$inject = ["$stateProvider"];
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = loginRoutes;
+
+	var _landing = __webpack_require__(37);
+
+	var _landing2 = _interopRequireDefault(_landing);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function loginRoutes($stateProvider) {
+	    'ngInject';
+
+	    $stateProvider.state('main.landing', {
+	        url: '/',
+	        views: {
+	            'content@main': {
+	                template: _landing2.default
+	            }
+	        }
+	    });
+	}
+
+/***/ },
+/* 37 */
+/***/ function(module, exports) {
+
+	module.exports = "<div>Landing</div>"
+
+/***/ },
+/* 38 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var LoginController = function LoginController() {
+	    'ngInject';
+
+	    _classCallCheck(this, LoginController);
+	};
+
+	exports.default = LoginController;
 
 /***/ }
 /******/ ]);

@@ -6,7 +6,7 @@ export default function loginRoutes($stateProvider) {
 
     $stateProvider
         .state('main.login', {
-            url: '/',
+            url: '/login',
             views: {
             	'content@main': {
             		template: loginTemplate,

@@ -25,6 +25,10 @@ export default class LoginController {
         this.LoginService.signInWithGitHub();
     }
 
+    getMe() {
+        this.LoginService.getMe();
+    }
+
     signUpWithGitGub() {
 
     }

@@ -5,35 +5,39 @@
 
     <div>
         <header>
-            <p><span>SignIn</span></p>
+            <h2>Sign In</h2>
         </header>
 
-        <div>
+        <md-input-container>
             <label>Login</label>
-            <input type="text"
-                   placeholder="Enter Login"
-                   required
-                   ng-model="loginCtrl.input.login">
-        </div>
-        <div>
+            <input ng-model="loginCtrl.input.login"
+                required>
+        </md-input-container>
+        <md-input-container>
             <label>Password</label>
-            <input type="password"
-                   placeholder="Enter Password"
-                   required
-                   ng-model="loginCtrl.input.password">
-        </div>
-        <div>
-            <md-button class="md-raised md-primary" type="submit">
-                <span class="text">SignIn</span>
-            </md-button>
-        </div>
+            <input ng-model="loginCtrl.input.password"
+                required>
+        </md-input-container>
+        <md-button class="md-raised md-primary" type="submit">
+            <span class="text">Sign In</span>
+        </md-button>
+
+        <md-button class="md-raised md-primary"
+            ng-click="loginCtrl.signInWithGitHub()">
+            Sign In With GitHub
+        </md-button>
     </div>
 
 </form>
 
-<button ng-click="loginCtrl.signInWithGitHub()">Sign In With GitHub</button>
+<br>
+<br>
 
-<hr>
+<md-divider md-inset></md-divider>
+
+
+<br>
+<br>
 
 <form name="loginCtrl.signUpForm"
       novalidate
@@ -42,30 +46,45 @@
 
     <div>
         <header>
-            <p><span>SignIn</span></p>
+            <h2>Sign Up</h2>
         </header>
 
-        <div>
+        <md-input-container>
             <label>Login</label>
-            <input type="text"
-                   placeholder="Enter Login"
-                   required
-                   ng-model="loginCtrl.input.name">
-        </div>
-        <div>
+            <input ng-model="loginCtrl.input.name"
+                required>
+        </md-input-container>
+        <md-input-container>
             <label>Password</label>
-            <input type="password"
-                   placeholder="Enter Password"
-                   required
-                   ng-model="loginCtrl.input.password">
-        </div>
-        <div>
-            <button type="submit">
-                <span class="text">SignUp</span>
-            </button>
-        </div>
+            <input ng-model="loginCtrl.input.password"
+                required>
+        </md-input-container>
+        <md-button type="submit"
+            class="md-raised md-primary">
+            <span class="text">SignUp</span>
+        </md-button>
+
+        <md-button type="button"
+            class="md-raised md-primary"
+            ng-click="loginCtrl.signUpWithGinhub()">
+            Sign up with github
+        </md-button>
     </div>
 
 </form>
 
-<input type="button" ng-click="loginCtrl.signUpWithGinhub()">
+<br>
+<br>
+
+<md-divider md-inset></md-divider>
+
+
+<br>
+<br>
+
+<md-button type="button"
+    class="md-raised md-primary"
+    ng-click="loginCtrl.getMe()">
+    Get me
+</md-button>
+

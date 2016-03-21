@@ -54,10 +54,13 @@ const   setTokenCookie = (req, res) => {
     if (!req.user) {
         return res.status(404).json({message: 'Something went wrong, please try again.'});
     }
-    var token = signToken(req.user._id);
+    console.log(req.user.id);
+    var token = signToken(req.user.profile.id);
+    console.log(token);
     res.cookie('token', JSON.stringify(token));
     console.log('setTokenCookie');
-    res.send(req.user);
+    // res.send(req.user);
+    res.redirect('/');
 }
 
 const   callback = (req, res) => {
