@@ -1,20 +1,33 @@
+'use strict';
+
 const User = require('../user/user.model');
 
-const joinPoker = (socket, data) => {
+const joinPoker = (socket, activeUsers, data) => {
     console.log('joinPoker', data);
     User.findById(data.userId)
-        .then(result => {
-            console.log('joined', result);
-            socket.broadcast.emit('newUser', {
-                userId: result._id,
-                userName: result.name
+        .then(user => {
+            var newComer = !activeUsers.some(nuser => {
+                return nuser.userId == user._id.toString();
             });
+            if (newComer){
+                activeUsers.push({
+                    userId: user._id,
+                    userName: user.name,
+                    mark: ''
+                });
+            }
+            socket.broadcast.emit('newUser', activeUsers);
+            socket.emit('newUser', activeUsers);
         });
 };
 
-const selectMark = (socket, data) => {
+const selectMark = (socket, activeUsers, data) => {
     console.log('selectMark', data);
+    activeUsers.forEach(user => {
+        if(user.userId == data.userId) user.mark = data.mark;
+    });
     socket.broadcast.emit('onMarkSelect', data)
+    socket.emit('onMarkSelect', data)
 }
 
 module.exports = {

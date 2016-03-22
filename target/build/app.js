@@ -86,7 +86,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "9f5c5e6c1555e3624a87"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "cd157917aac9f449eab1"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -606,15 +606,15 @@ Object.defineProperty(Array.prototype, 'find', {
 
 	var _angularUiRouter2 = _interopRequireDefault(_angularUiRouter);
 
-	var _angularMaterial = __webpack_require__(26);
+	var _angularMaterial = __webpack_require__(5);
 
 	var _angularMaterial2 = _interopRequireDefault(_angularMaterial);
 
-	var _modules = __webpack_require__(5);
+	var _modules = __webpack_require__(11);
 
 	var _modules2 = _interopRequireDefault(_modules);
 
-	var _router = __webpack_require__(24);
+	var _router = __webpack_require__(38);
 
 	var _router2 = _interopRequireDefault(_router);
 
@@ -35619,7947 +35619,4558 @@ Object.defineProperty(Array.prototype, 'find', {
 /* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	// Should already be required, here for clarity
+	__webpack_require__(2);
 
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
+	// Load Angular and dependent libs
+	__webpack_require__(6);
+	__webpack_require__(8);
 
-	var _shared = __webpack_require__(6);
+	// Now load Angular Material
+	__webpack_require__(10);
 
-	var _shared2 = _interopRequireDefault(_shared);
+	// Export namespace
+	module.exports = 'ngMaterial';
 
-	var _login = __webpack_require__(10);
-
-	var _login2 = _interopRequireDefault(_login);
-
-	var _poker = __webpack_require__(17);
-
-	var _poker2 = _interopRequireDefault(_poker);
-
-	var _auth = __webpack_require__(22);
-
-	var _auth2 = _interopRequireDefault(_auth);
-
-	var _main = __webpack_require__(31);
-
-	var _main2 = _interopRequireDefault(_main);
-
-	var _landing = __webpack_require__(35);
-
-	var _landing2 = _interopRequireDefault(_landing);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	exports.default = [_shared2.default, _login2.default, _poker2.default, _auth2.default, _main2.default, _landing2.default];
 
 /***/ },
 /* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	__webpack_require__(7);
+	module.exports = 'ngAnimate';
 
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-
-	var _angular = __webpack_require__(2);
-
-	var _angular2 = _interopRequireDefault(_angular);
-
-	var _SocketService = __webpack_require__(7);
-
-	var _SocketService2 = _interopRequireDefault(_SocketService);
-
-	var _MemoryStore = __webpack_require__(9);
-
-	var _MemoryStore2 = _interopRequireDefault(_MemoryStore);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	exports.default = _angular2.default.module('shared', []).service('SocketService', _SocketService2.default).service('MemoryStore', _MemoryStore2.default).name;
 
 /***/ },
 /* 7 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	'use strict';
+	/**
+	 * @license AngularJS v1.5.2
+	 * (c) 2010-2016 Google, Inc. http://angularjs.org
+	 * License: MIT
+	 */
+	(function(window, angular, undefined) {'use strict';
 
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
+	/* jshint ignore:start */
+	var noop        = angular.noop;
+	var copy        = angular.copy;
+	var extend      = angular.extend;
+	var jqLite      = angular.element;
+	var forEach     = angular.forEach;
+	var isArray     = angular.isArray;
+	var isString    = angular.isString;
+	var isObject    = angular.isObject;
+	var isUndefined = angular.isUndefined;
+	var isDefined   = angular.isDefined;
+	var isFunction  = angular.isFunction;
+	var isElement   = angular.isElement;
 
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	var ELEMENT_NODE = 1;
+	var COMMENT_NODE = 8;
 
-	var _socketIo = __webpack_require__(8);
+	var ADD_CLASS_SUFFIX = '-add';
+	var REMOVE_CLASS_SUFFIX = '-remove';
+	var EVENT_CLASS_PREFIX = 'ng-';
+	var ACTIVE_CLASS_SUFFIX = '-active';
+	var PREPARE_CLASS_SUFFIX = '-prepare';
 
-	var _socketIo2 = _interopRequireDefault(_socketIo);
+	var NG_ANIMATE_CLASSNAME = 'ng-animate';
+	var NG_ANIMATE_CHILDREN_DATA = '$$ngAnimateChildren';
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	// Detect proper transitionend/animationend event names.
+	var CSS_PREFIX = '', TRANSITION_PROP, TRANSITIONEND_EVENT, ANIMATION_PROP, ANIMATIONEND_EVENT;
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	// If unprefixed events are not supported but webkit-prefixed are, use the latter.
+	// Otherwise, just use W3C names, browsers not supporting them at all will just ignore them.
+	// Note: Chrome implements `window.onwebkitanimationend` and doesn't implement `window.onanimationend`
+	// but at the same time dispatches the `animationend` event and not `webkitAnimationEnd`.
+	// Register both events in case `window.onanimationend` is not supported because of that,
+	// do the same for `transitionend` as Safari is likely to exhibit similar behavior.
+	// Also, the only modern browser that uses vendor prefixes for transitions/keyframes is webkit
+	// therefore there is no reason to test anymore for other vendor prefixes:
+	// http://caniuse.com/#search=transition
+	if (isUndefined(window.ontransitionend) && isDefined(window.onwebkittransitionend)) {
+	  CSS_PREFIX = '-webkit-';
+	  TRANSITION_PROP = 'WebkitTransition';
+	  TRANSITIONEND_EVENT = 'webkitTransitionEnd transitionend';
+	} else {
+	  TRANSITION_PROP = 'transition';
+	  TRANSITIONEND_EVENT = 'transitionend';
+	}
 
-	var SocketService = function () {
-	    SocketService.$inject = ["$rootScope"];
-	    function SocketService($rootScope) {
-	        'ngInject';
+	if (isUndefined(window.onanimationend) && isDefined(window.onwebkitanimationend)) {
+	  CSS_PREFIX = '-webkit-';
+	  ANIMATION_PROP = 'WebkitAnimation';
+	  ANIMATIONEND_EVENT = 'webkitAnimationEnd animationend';
+	} else {
+	  ANIMATION_PROP = 'animation';
+	  ANIMATIONEND_EVENT = 'animationend';
+	}
 
-	        _classCallCheck(this, SocketService);
+	var DURATION_KEY = 'Duration';
+	var PROPERTY_KEY = 'Property';
+	var DELAY_KEY = 'Delay';
+	var TIMING_KEY = 'TimingFunction';
+	var ANIMATION_ITERATION_COUNT_KEY = 'IterationCount';
+	var ANIMATION_PLAYSTATE_KEY = 'PlayState';
+	var SAFE_FAST_FORWARD_DURATION_VALUE = 9999;
 
-	        this.$rootScope = $rootScope;
-	        this.socket = _socketIo2.default.connect();
+	var ANIMATION_DELAY_PROP = ANIMATION_PROP + DELAY_KEY;
+	var ANIMATION_DURATION_PROP = ANIMATION_PROP + DURATION_KEY;
+	var TRANSITION_DELAY_PROP = TRANSITION_PROP + DELAY_KEY;
+	var TRANSITION_DURATION_PROP = TRANSITION_PROP + DURATION_KEY;
+
+	var isPromiseLike = function(p) {
+	  return p && p.then ? true : false;
+	};
+
+	var ngMinErr = angular.$$minErr('ng');
+	function assertArg(arg, name, reason) {
+	  if (!arg) {
+	    throw ngMinErr('areq', "Argument '{0}' is {1}", (name || '?'), (reason || "required"));
+	  }
+	  return arg;
+	}
+
+	function mergeClasses(a,b) {
+	  if (!a && !b) return '';
+	  if (!a) return b;
+	  if (!b) return a;
+	  if (isArray(a)) a = a.join(' ');
+	  if (isArray(b)) b = b.join(' ');
+	  return a + ' ' + b;
+	}
+
+	function packageStyles(options) {
+	  var styles = {};
+	  if (options && (options.to || options.from)) {
+	    styles.to = options.to;
+	    styles.from = options.from;
+	  }
+	  return styles;
+	}
+
+	function pendClasses(classes, fix, isPrefix) {
+	  var className = '';
+	  classes = isArray(classes)
+	      ? classes
+	      : classes && isString(classes) && classes.length
+	          ? classes.split(/\s+/)
+	          : [];
+	  forEach(classes, function(klass, i) {
+	    if (klass && klass.length > 0) {
+	      className += (i > 0) ? ' ' : '';
+	      className += isPrefix ? fix + klass
+	                            : klass + fix;
+	    }
+	  });
+	  return className;
+	}
+
+	function removeFromArray(arr, val) {
+	  var index = arr.indexOf(val);
+	  if (val >= 0) {
+	    arr.splice(index, 1);
+	  }
+	}
+
+	function stripCommentsFromElement(element) {
+	  if (element instanceof jqLite) {
+	    switch (element.length) {
+	      case 0:
+	        return [];
+	        break;
+
+	      case 1:
+	        // there is no point of stripping anything if the element
+	        // is the only element within the jqLite wrapper.
+	        // (it's important that we retain the element instance.)
+	        if (element[0].nodeType === ELEMENT_NODE) {
+	          return element;
+	        }
+	        break;
+
+	      default:
+	        return jqLite(extractElementNode(element));
+	        break;
+	    }
+	  }
+
+	  if (element.nodeType === ELEMENT_NODE) {
+	    return jqLite(element);
+	  }
+	}
+
+	function extractElementNode(element) {
+	  if (!element[0]) return element;
+	  for (var i = 0; i < element.length; i++) {
+	    var elm = element[i];
+	    if (elm.nodeType == ELEMENT_NODE) {
+	      return elm;
+	    }
+	  }
+	}
+
+	function $$addClass($$jqLite, element, className) {
+	  forEach(element, function(elm) {
+	    $$jqLite.addClass(elm, className);
+	  });
+	}
+
+	function $$removeClass($$jqLite, element, className) {
+	  forEach(element, function(elm) {
+	    $$jqLite.removeClass(elm, className);
+	  });
+	}
+
+	function applyAnimationClassesFactory($$jqLite) {
+	  return function(element, options) {
+	    if (options.addClass) {
+	      $$addClass($$jqLite, element, options.addClass);
+	      options.addClass = null;
+	    }
+	    if (options.removeClass) {
+	      $$removeClass($$jqLite, element, options.removeClass);
+	      options.removeClass = null;
+	    }
+	  }
+	}
+
+	function prepareAnimationOptions(options) {
+	  options = options || {};
+	  if (!options.$$prepared) {
+	    var domOperation = options.domOperation || noop;
+	    options.domOperation = function() {
+	      options.$$domOperationFired = true;
+	      domOperation();
+	      domOperation = noop;
+	    };
+	    options.$$prepared = true;
+	  }
+	  return options;
+	}
+
+	function applyAnimationStyles(element, options) {
+	  applyAnimationFromStyles(element, options);
+	  applyAnimationToStyles(element, options);
+	}
+
+	function applyAnimationFromStyles(element, options) {
+	  if (options.from) {
+	    element.css(options.from);
+	    options.from = null;
+	  }
+	}
+
+	function applyAnimationToStyles(element, options) {
+	  if (options.to) {
+	    element.css(options.to);
+	    options.to = null;
+	  }
+	}
+
+	function mergeAnimationDetails(element, oldAnimation, newAnimation) {
+	  var target = oldAnimation.options || {};
+	  var newOptions = newAnimation.options || {};
+
+	  var toAdd = (target.addClass || '') + ' ' + (newOptions.addClass || '');
+	  var toRemove = (target.removeClass || '') + ' ' + (newOptions.removeClass || '');
+	  var classes = resolveElementClasses(element.attr('class'), toAdd, toRemove);
+
+	  if (newOptions.preparationClasses) {
+	    target.preparationClasses = concatWithSpace(newOptions.preparationClasses, target.preparationClasses);
+	    delete newOptions.preparationClasses;
+	  }
+
+	  // noop is basically when there is no callback; otherwise something has been set
+	  var realDomOperation = target.domOperation !== noop ? target.domOperation : null;
+
+	  extend(target, newOptions);
+
+	  // TODO(matsko or sreeramu): proper fix is to maintain all animation callback in array and call at last,but now only leave has the callback so no issue with this.
+	  if (realDomOperation) {
+	    target.domOperation = realDomOperation;
+	  }
+
+	  if (classes.addClass) {
+	    target.addClass = classes.addClass;
+	  } else {
+	    target.addClass = null;
+	  }
+
+	  if (classes.removeClass) {
+	    target.removeClass = classes.removeClass;
+	  } else {
+	    target.removeClass = null;
+	  }
+
+	  oldAnimation.addClass = target.addClass;
+	  oldAnimation.removeClass = target.removeClass;
+
+	  return target;
+	}
+
+	function resolveElementClasses(existing, toAdd, toRemove) {
+	  var ADD_CLASS = 1;
+	  var REMOVE_CLASS = -1;
+
+	  var flags = {};
+	  existing = splitClassesToLookup(existing);
+
+	  toAdd = splitClassesToLookup(toAdd);
+	  forEach(toAdd, function(value, key) {
+	    flags[key] = ADD_CLASS;
+	  });
+
+	  toRemove = splitClassesToLookup(toRemove);
+	  forEach(toRemove, function(value, key) {
+	    flags[key] = flags[key] === ADD_CLASS ? null : REMOVE_CLASS;
+	  });
+
+	  var classes = {
+	    addClass: '',
+	    removeClass: ''
+	  };
+
+	  forEach(flags, function(val, klass) {
+	    var prop, allow;
+	    if (val === ADD_CLASS) {
+	      prop = 'addClass';
+	      allow = !existing[klass];
+	    } else if (val === REMOVE_CLASS) {
+	      prop = 'removeClass';
+	      allow = existing[klass];
+	    }
+	    if (allow) {
+	      if (classes[prop].length) {
+	        classes[prop] += ' ';
+	      }
+	      classes[prop] += klass;
+	    }
+	  });
+
+	  function splitClassesToLookup(classes) {
+	    if (isString(classes)) {
+	      classes = classes.split(' ');
 	    }
 
-	    _createClass(SocketService, [{
-	        key: 'on',
-	        value: function on(eventName, callback) {
-	            function wrapper() {
-	                var _this = this;
+	    var obj = {};
+	    forEach(classes, function(klass) {
+	      // sometimes the split leaves empty string values
+	      // incase extra spaces were applied to the options
+	      if (klass.length) {
+	        obj[klass] = true;
+	      }
+	    });
+	    return obj;
+	  }
 
-	                var args = arguments;
-	                this.$rootScope.$apply(function () {
-	                    callback.apply(_this.socket, args);
-	                });
+	  return classes;
+	}
+
+	function getDomNode(element) {
+	  return (element instanceof angular.element) ? element[0] : element;
+	}
+
+	function applyGeneratedPreparationClasses(element, event, options) {
+	  var classes = '';
+	  if (event) {
+	    classes = pendClasses(event, EVENT_CLASS_PREFIX, true);
+	  }
+	  if (options.addClass) {
+	    classes = concatWithSpace(classes, pendClasses(options.addClass, ADD_CLASS_SUFFIX));
+	  }
+	  if (options.removeClass) {
+	    classes = concatWithSpace(classes, pendClasses(options.removeClass, REMOVE_CLASS_SUFFIX));
+	  }
+	  if (classes.length) {
+	    options.preparationClasses = classes;
+	    element.addClass(classes);
+	  }
+	}
+
+	function clearGeneratedClasses(element, options) {
+	  if (options.preparationClasses) {
+	    element.removeClass(options.preparationClasses);
+	    options.preparationClasses = null;
+	  }
+	  if (options.activeClasses) {
+	    element.removeClass(options.activeClasses);
+	    options.activeClasses = null;
+	  }
+	}
+
+	function blockTransitions(node, duration) {
+	  // we use a negative delay value since it performs blocking
+	  // yet it doesn't kill any existing transitions running on the
+	  // same element which makes this safe for class-based animations
+	  var value = duration ? '-' + duration + 's' : '';
+	  applyInlineStyle(node, [TRANSITION_DELAY_PROP, value]);
+	  return [TRANSITION_DELAY_PROP, value];
+	}
+
+	function blockKeyframeAnimations(node, applyBlock) {
+	  var value = applyBlock ? 'paused' : '';
+	  var key = ANIMATION_PROP + ANIMATION_PLAYSTATE_KEY;
+	  applyInlineStyle(node, [key, value]);
+	  return [key, value];
+	}
+
+	function applyInlineStyle(node, styleTuple) {
+	  var prop = styleTuple[0];
+	  var value = styleTuple[1];
+	  node.style[prop] = value;
+	}
+
+	function concatWithSpace(a,b) {
+	  if (!a) return b;
+	  if (!b) return a;
+	  return a + ' ' + b;
+	}
+
+	var $$rAFSchedulerFactory = ['$$rAF', function($$rAF) {
+	  var queue, cancelFn;
+
+	  function scheduler(tasks) {
+	    // we make a copy since RAFScheduler mutates the state
+	    // of the passed in array variable and this would be difficult
+	    // to track down on the outside code
+	    queue = queue.concat(tasks);
+	    nextTick();
+	  }
+
+	  queue = scheduler.queue = [];
+
+	  /* waitUntilQuiet does two things:
+	   * 1. It will run the FINAL `fn` value only when an uncanceled RAF has passed through
+	   * 2. It will delay the next wave of tasks from running until the quiet `fn` has run.
+	   *
+	   * The motivation here is that animation code can request more time from the scheduler
+	   * before the next wave runs. This allows for certain DOM properties such as classes to
+	   * be resolved in time for the next animation to run.
+	   */
+	  scheduler.waitUntilQuiet = function(fn) {
+	    if (cancelFn) cancelFn();
+
+	    cancelFn = $$rAF(function() {
+	      cancelFn = null;
+	      fn();
+	      nextTick();
+	    });
+	  };
+
+	  return scheduler;
+
+	  function nextTick() {
+	    if (!queue.length) return;
+
+	    var items = queue.shift();
+	    for (var i = 0; i < items.length; i++) {
+	      items[i]();
+	    }
+
+	    if (!cancelFn) {
+	      $$rAF(function() {
+	        if (!cancelFn) nextTick();
+	      });
+	    }
+	  }
+	}];
+
+	/**
+	 * @ngdoc directive
+	 * @name ngAnimateChildren
+	 * @restrict AE
+	 * @element ANY
+	 *
+	 * @description
+	 *
+	 * ngAnimateChildren allows you to specify that children of this element should animate even if any
+	 * of the children's parents are currently animating. By default, when an element has an active `enter`, `leave`, or `move`
+	 * (structural) animation, child elements that also have an active structural animation are not animated.
+	 *
+	 * Note that even if `ngAnimteChildren` is set, no child animations will run when the parent element is removed from the DOM (`leave` animation).
+	 *
+	 *
+	 * @param {string} ngAnimateChildren If the value is empty, `true` or `on`,
+	 *     then child animations are allowed. If the value is `false`, child animations are not allowed.
+	 *
+	 * @example
+	 * <example module="ngAnimateChildren" name="ngAnimateChildren" deps="angular-animate.js" animations="true">
+	     <file name="index.html">
+	       <div ng-controller="mainController as main">
+	         <label>Show container? <input type="checkbox" ng-model="main.enterElement" /></label>
+	         <label>Animate children? <input type="checkbox" ng-model="main.animateChildren" /></label>
+	         <hr>
+	         <div ng-animate-children="{{main.animateChildren}}">
+	           <div ng-if="main.enterElement" class="container">
+	             List of items:
+	             <div ng-repeat="item in [0, 1, 2, 3]" class="item">Item {{item}}</div>
+	           </div>
+	         </div>
+	       </div>
+	     </file>
+	     <file name="animations.css">
+
+	      .container.ng-enter,
+	      .container.ng-leave {
+	        transition: all ease 1.5s;
+	      }
+
+	      .container.ng-enter,
+	      .container.ng-leave-active {
+	        opacity: 0;
+	      }
+
+	      .container.ng-leave,
+	      .container.ng-enter-active {
+	        opacity: 1;
+	      }
+
+	      .item {
+	        background: firebrick;
+	        color: #FFF;
+	        margin-bottom: 10px;
+	      }
+
+	      .item.ng-enter,
+	      .item.ng-leave {
+	        transition: transform 1.5s ease;
+	      }
+
+	      .item.ng-enter {
+	        transform: translateX(50px);
+	      }
+
+	      .item.ng-enter-active {
+	        transform: translateX(0);
+	      }
+	    </file>
+	    <file name="script.js">
+	      angular.module('ngAnimateChildren', ['ngAnimate'])
+	        .controller('mainController', function() {
+	          this.animateChildren = false;
+	          this.enterElement = false;
+	        });
+	    </file>
+	  </example>
+	 */
+	var $$AnimateChildrenDirective = ['$interpolate', function($interpolate) {
+	  return {
+	    link: function(scope, element, attrs) {
+	      var val = attrs.ngAnimateChildren;
+	      if (angular.isString(val) && val.length === 0) { //empty attribute
+	        element.data(NG_ANIMATE_CHILDREN_DATA, true);
+	      } else {
+	        // Interpolate and set the value, so that it is available to
+	        // animations that run right after compilation
+	        setData($interpolate(val)(scope));
+	        attrs.$observe('ngAnimateChildren', setData);
+	      }
+
+	      function setData(value) {
+	        value = value === 'on' || value === 'true';
+	        element.data(NG_ANIMATE_CHILDREN_DATA, value);
+	      }
+	    }
+	  };
+	}];
+
+	var ANIMATE_TIMER_KEY = '$$animateCss';
+
+	/**
+	 * @ngdoc service
+	 * @name $animateCss
+	 * @kind object
+	 *
+	 * @description
+	 * The `$animateCss` service is a useful utility to trigger customized CSS-based transitions/keyframes
+	 * from a JavaScript-based animation or directly from a directive. The purpose of `$animateCss` is NOT
+	 * to side-step how `$animate` and ngAnimate work, but the goal is to allow pre-existing animations or
+	 * directives to create more complex animations that can be purely driven using CSS code.
+	 *
+	 * Note that only browsers that support CSS transitions and/or keyframe animations are capable of
+	 * rendering animations triggered via `$animateCss` (bad news for IE9 and lower).
+	 *
+	 * ## Usage
+	 * Once again, `$animateCss` is designed to be used inside of a registered JavaScript animation that
+	 * is powered by ngAnimate. It is possible to use `$animateCss` directly inside of a directive, however,
+	 * any automatic control over cancelling animations and/or preventing animations from being run on
+	 * child elements will not be handled by Angular. For this to work as expected, please use `$animate` to
+	 * trigger the animation and then setup a JavaScript animation that injects `$animateCss` to trigger
+	 * the CSS animation.
+	 *
+	 * The example below shows how we can create a folding animation on an element using `ng-if`:
+	 *
+	 * ```html
+	 * <!-- notice the `fold-animation` CSS class -->
+	 * <div ng-if="onOff" class="fold-animation">
+	 *   This element will go BOOM
+	 * </div>
+	 * <button ng-click="onOff=true">Fold In</button>
+	 * ```
+	 *
+	 * Now we create the **JavaScript animation** that will trigger the CSS transition:
+	 *
+	 * ```js
+	 * ngModule.animation('.fold-animation', ['$animateCss', function($animateCss) {
+	 *   return {
+	 *     enter: function(element, doneFn) {
+	 *       var height = element[0].offsetHeight;
+	 *       return $animateCss(element, {
+	 *         from: { height:'0px' },
+	 *         to: { height:height + 'px' },
+	 *         duration: 1 // one second
+	 *       });
+	 *     }
+	 *   }
+	 * }]);
+	 * ```
+	 *
+	 * ## More Advanced Uses
+	 *
+	 * `$animateCss` is the underlying code that ngAnimate uses to power **CSS-based animations** behind the scenes. Therefore CSS hooks
+	 * like `.ng-EVENT`, `.ng-EVENT-active`, `.ng-EVENT-stagger` are all features that can be triggered using `$animateCss` via JavaScript code.
+	 *
+	 * This also means that just about any combination of adding classes, removing classes, setting styles, dynamically setting a keyframe animation,
+	 * applying a hardcoded duration or delay value, changing the animation easing or applying a stagger animation are all options that work with
+	 * `$animateCss`. The service itself is smart enough to figure out the combination of options and examine the element styling properties in order
+	 * to provide a working animation that will run in CSS.
+	 *
+	 * The example below showcases a more advanced version of the `.fold-animation` from the example above:
+	 *
+	 * ```js
+	 * ngModule.animation('.fold-animation', ['$animateCss', function($animateCss) {
+	 *   return {
+	 *     enter: function(element, doneFn) {
+	 *       var height = element[0].offsetHeight;
+	 *       return $animateCss(element, {
+	 *         addClass: 'red large-text pulse-twice',
+	 *         easing: 'ease-out',
+	 *         from: { height:'0px' },
+	 *         to: { height:height + 'px' },
+	 *         duration: 1 // one second
+	 *       });
+	 *     }
+	 *   }
+	 * }]);
+	 * ```
+	 *
+	 * Since we're adding/removing CSS classes then the CSS transition will also pick those up:
+	 *
+	 * ```css
+	 * /&#42; since a hardcoded duration value of 1 was provided in the JavaScript animation code,
+	 * the CSS classes below will be transitioned despite them being defined as regular CSS classes &#42;/
+	 * .red { background:red; }
+	 * .large-text { font-size:20px; }
+	 *
+	 * /&#42; we can also use a keyframe animation and $animateCss will make it work alongside the transition &#42;/
+	 * .pulse-twice {
+	 *   animation: 0.5s pulse linear 2;
+	 *   -webkit-animation: 0.5s pulse linear 2;
+	 * }
+	 *
+	 * @keyframes pulse {
+	 *   from { transform: scale(0.5); }
+	 *   to { transform: scale(1.5); }
+	 * }
+	 *
+	 * @-webkit-keyframes pulse {
+	 *   from { -webkit-transform: scale(0.5); }
+	 *   to { -webkit-transform: scale(1.5); }
+	 * }
+	 * ```
+	 *
+	 * Given this complex combination of CSS classes, styles and options, `$animateCss` will figure everything out and make the animation happen.
+	 *
+	 * ## How the Options are handled
+	 *
+	 * `$animateCss` is very versatile and intelligent when it comes to figuring out what configurations to apply to the element to ensure the animation
+	 * works with the options provided. Say for example we were adding a class that contained a keyframe value and we wanted to also animate some inline
+	 * styles using the `from` and `to` properties.
+	 *
+	 * ```js
+	 * var animator = $animateCss(element, {
+	 *   from: { background:'red' },
+	 *   to: { background:'blue' }
+	 * });
+	 * animator.start();
+	 * ```
+	 *
+	 * ```css
+	 * .rotating-animation {
+	 *   animation:0.5s rotate linear;
+	 *   -webkit-animation:0.5s rotate linear;
+	 * }
+	 *
+	 * @keyframes rotate {
+	 *   from { transform: rotate(0deg); }
+	 *   to { transform: rotate(360deg); }
+	 * }
+	 *
+	 * @-webkit-keyframes rotate {
+	 *   from { -webkit-transform: rotate(0deg); }
+	 *   to { -webkit-transform: rotate(360deg); }
+	 * }
+	 * ```
+	 *
+	 * The missing pieces here are that we do not have a transition set (within the CSS code nor within the `$animateCss` options) and the duration of the animation is
+	 * going to be detected from what the keyframe styles on the CSS class are. In this event, `$animateCss` will automatically create an inline transition
+	 * style matching the duration detected from the keyframe style (which is present in the CSS class that is being added) and then prepare both the transition
+	 * and keyframe animations to run in parallel on the element. Then when the animation is underway the provided `from` and `to` CSS styles will be applied
+	 * and spread across the transition and keyframe animation.
+	 *
+	 * ## What is returned
+	 *
+	 * `$animateCss` works in two stages: a preparation phase and an animation phase. Therefore when `$animateCss` is first called it will NOT actually
+	 * start the animation. All that is going on here is that the element is being prepared for the animation (which means that the generated CSS classes are
+	 * added and removed on the element). Once `$animateCss` is called it will return an object with the following properties:
+	 *
+	 * ```js
+	 * var animator = $animateCss(element, { ... });
+	 * ```
+	 *
+	 * Now what do the contents of our `animator` variable look like:
+	 *
+	 * ```js
+	 * {
+	 *   // starts the animation
+	 *   start: Function,
+	 *
+	 *   // ends (aborts) the animation
+	 *   end: Function
+	 * }
+	 * ```
+	 *
+	 * To actually start the animation we need to run `animation.start()` which will then return a promise that we can hook into to detect when the animation ends.
+	 * If we choose not to run the animation then we MUST run `animation.end()` to perform a cleanup on the element (since some CSS classes and styles may have been
+	 * applied to the element during the preparation phase). Note that all other properties such as duration, delay, transitions and keyframes are just properties
+	 * and that changing them will not reconfigure the parameters of the animation.
+	 *
+	 * ### runner.done() vs runner.then()
+	 * It is documented that `animation.start()` will return a promise object and this is true, however, there is also an additional method available on the
+	 * runner called `.done(callbackFn)`. The done method works the same as `.finally(callbackFn)`, however, it does **not trigger a digest to occur**.
+	 * Therefore, for performance reasons, it's always best to use `runner.done(callback)` instead of `runner.then()`, `runner.catch()` or `runner.finally()`
+	 * unless you really need a digest to kick off afterwards.
+	 *
+	 * Keep in mind that, to make this easier, ngAnimate has tweaked the JS animations API to recognize when a runner instance is returned from $animateCss
+	 * (so there is no need to call `runner.done(doneFn)` inside of your JavaScript animation code).
+	 * Check the {@link ngAnimate.$animateCss#usage animation code above} to see how this works.
+	 *
+	 * @param {DOMElement} element the element that will be animated
+	 * @param {object} options the animation-related options that will be applied during the animation
+	 *
+	 * * `event` - The DOM event (e.g. enter, leave, move). When used, a generated CSS class of `ng-EVENT` and `ng-EVENT-active` will be applied
+	 * to the element during the animation. Multiple events can be provided when spaces are used as a separator. (Note that this will not perform any DOM operation.)
+	 * * `structural` - Indicates that the `ng-` prefix will be added to the event class. Setting to `false` or omitting will turn `ng-EVENT` and
+	 * `ng-EVENT-active` in `EVENT` and `EVENT-active`. Unused if `event` is omitted.
+	 * * `easing` - The CSS easing value that will be applied to the transition or keyframe animation (or both).
+	 * * `transitionStyle` - The raw CSS transition style that will be used (e.g. `1s linear all`).
+	 * * `keyframeStyle` - The raw CSS keyframe animation style that will be used (e.g. `1s my_animation linear`).
+	 * * `from` - The starting CSS styles (a key/value object) that will be applied at the start of the animation.
+	 * * `to` - The ending CSS styles (a key/value object) that will be applied across the animation via a CSS transition.
+	 * * `addClass` - A space separated list of CSS classes that will be added to the element and spread across the animation.
+	 * * `removeClass` - A space separated list of CSS classes that will be removed from the element and spread across the animation.
+	 * * `duration` - A number value representing the total duration of the transition and/or keyframe (note that a value of 1 is 1000ms). If a value of `0`
+	 * is provided then the animation will be skipped entirely.
+	 * * `delay` - A number value representing the total delay of the transition and/or keyframe (note that a value of 1 is 1000ms). If a value of `true` is
+	 * used then whatever delay value is detected from the CSS classes will be mirrored on the elements styles (e.g. by setting delay true then the style value
+	 * of the element will be `transition-delay: DETECTED_VALUE`). Using `true` is useful when you want the CSS classes and inline styles to all share the same
+	 * CSS delay value.
+	 * * `stagger` - A numeric time value representing the delay between successively animated elements
+	 * ({@link ngAnimate#css-staggering-animations Click here to learn how CSS-based staggering works in ngAnimate.})
+	 * * `staggerIndex` - The numeric index representing the stagger item (e.g. a value of 5 is equal to the sixth item in the stagger; therefore when a
+	 *   `stagger` option value of `0.1` is used then there will be a stagger delay of `600ms`)
+	 * * `applyClassesEarly` - Whether or not the classes being added or removed will be used when detecting the animation. This is set by `$animate` when enter/leave/move animations are fired to ensure that the CSS classes are resolved in time. (Note that this will prevent any transitions from occurring on the classes being added and removed.)
+	 * * `cleanupStyles` - Whether or not the provided `from` and `to` styles will be removed once
+	 *    the animation is closed. This is useful for when the styles are used purely for the sake of
+	 *    the animation and do not have a lasting visual effect on the element (e.g. a collapse and open animation).
+	 *    By default this value is set to `false`.
+	 *
+	 * @return {object} an object with start and end methods and details about the animation.
+	 *
+	 * * `start` - The method to start the animation. This will return a `Promise` when called.
+	 * * `end` - This method will cancel the animation and remove all applied CSS classes and styles.
+	 */
+	var ONE_SECOND = 1000;
+	var BASE_TEN = 10;
+
+	var ELAPSED_TIME_MAX_DECIMAL_PLACES = 3;
+	var CLOSING_TIME_BUFFER = 1.5;
+
+	var DETECT_CSS_PROPERTIES = {
+	  transitionDuration:      TRANSITION_DURATION_PROP,
+	  transitionDelay:         TRANSITION_DELAY_PROP,
+	  transitionProperty:      TRANSITION_PROP + PROPERTY_KEY,
+	  animationDuration:       ANIMATION_DURATION_PROP,
+	  animationDelay:          ANIMATION_DELAY_PROP,
+	  animationIterationCount: ANIMATION_PROP + ANIMATION_ITERATION_COUNT_KEY
+	};
+
+	var DETECT_STAGGER_CSS_PROPERTIES = {
+	  transitionDuration:      TRANSITION_DURATION_PROP,
+	  transitionDelay:         TRANSITION_DELAY_PROP,
+	  animationDuration:       ANIMATION_DURATION_PROP,
+	  animationDelay:          ANIMATION_DELAY_PROP
+	};
+
+	function getCssKeyframeDurationStyle(duration) {
+	  return [ANIMATION_DURATION_PROP, duration + 's'];
+	}
+
+	function getCssDelayStyle(delay, isKeyframeAnimation) {
+	  var prop = isKeyframeAnimation ? ANIMATION_DELAY_PROP : TRANSITION_DELAY_PROP;
+	  return [prop, delay + 's'];
+	}
+
+	function computeCssStyles($window, element, properties) {
+	  var styles = Object.create(null);
+	  var detectedStyles = $window.getComputedStyle(element) || {};
+	  forEach(properties, function(formalStyleName, actualStyleName) {
+	    var val = detectedStyles[formalStyleName];
+	    if (val) {
+	      var c = val.charAt(0);
+
+	      // only numerical-based values have a negative sign or digit as the first value
+	      if (c === '-' || c === '+' || c >= 0) {
+	        val = parseMaxTime(val);
+	      }
+
+	      // by setting this to null in the event that the delay is not set or is set directly as 0
+	      // then we can still allow for negative values to be used later on and not mistake this
+	      // value for being greater than any other negative value.
+	      if (val === 0) {
+	        val = null;
+	      }
+	      styles[actualStyleName] = val;
+	    }
+	  });
+
+	  return styles;
+	}
+
+	function parseMaxTime(str) {
+	  var maxValue = 0;
+	  var values = str.split(/\s*,\s*/);
+	  forEach(values, function(value) {
+	    // it's always safe to consider only second values and omit `ms` values since
+	    // getComputedStyle will always handle the conversion for us
+	    if (value.charAt(value.length - 1) == 's') {
+	      value = value.substring(0, value.length - 1);
+	    }
+	    value = parseFloat(value) || 0;
+	    maxValue = maxValue ? Math.max(value, maxValue) : value;
+	  });
+	  return maxValue;
+	}
+
+	function truthyTimingValue(val) {
+	  return val === 0 || val != null;
+	}
+
+	function getCssTransitionDurationStyle(duration, applyOnlyDuration) {
+	  var style = TRANSITION_PROP;
+	  var value = duration + 's';
+	  if (applyOnlyDuration) {
+	    style += DURATION_KEY;
+	  } else {
+	    value += ' linear all';
+	  }
+	  return [style, value];
+	}
+
+	function createLocalCacheLookup() {
+	  var cache = Object.create(null);
+	  return {
+	    flush: function() {
+	      cache = Object.create(null);
+	    },
+
+	    count: function(key) {
+	      var entry = cache[key];
+	      return entry ? entry.total : 0;
+	    },
+
+	    get: function(key) {
+	      var entry = cache[key];
+	      return entry && entry.value;
+	    },
+
+	    put: function(key, value) {
+	      if (!cache[key]) {
+	        cache[key] = { total: 1, value: value };
+	      } else {
+	        cache[key].total++;
+	      }
+	    }
+	  };
+	}
+
+	// we do not reassign an already present style value since
+	// if we detect the style property value again we may be
+	// detecting styles that were added via the `from` styles.
+	// We make use of `isDefined` here since an empty string
+	// or null value (which is what getPropertyValue will return
+	// for a non-existing style) will still be marked as a valid
+	// value for the style (a falsy value implies that the style
+	// is to be removed at the end of the animation). If we had a simple
+	// "OR" statement then it would not be enough to catch that.
+	function registerRestorableStyles(backup, node, properties) {
+	  forEach(properties, function(prop) {
+	    backup[prop] = isDefined(backup[prop])
+	        ? backup[prop]
+	        : node.style.getPropertyValue(prop);
+	  });
+	}
+
+	var $AnimateCssProvider = ['$animateProvider', function($animateProvider) {
+	  var gcsLookup = createLocalCacheLookup();
+	  var gcsStaggerLookup = createLocalCacheLookup();
+
+	  this.$get = ['$window', '$$jqLite', '$$AnimateRunner', '$timeout',
+	               '$$forceReflow', '$sniffer', '$$rAFScheduler', '$$animateQueue',
+	       function($window,   $$jqLite,   $$AnimateRunner,   $timeout,
+	                $$forceReflow,   $sniffer,   $$rAFScheduler, $$animateQueue) {
+
+	    var applyAnimationClasses = applyAnimationClassesFactory($$jqLite);
+
+	    var parentCounter = 0;
+	    function gcsHashFn(node, extraClasses) {
+	      var KEY = "$$ngAnimateParentKey";
+	      var parentNode = node.parentNode;
+	      var parentID = parentNode[KEY] || (parentNode[KEY] = ++parentCounter);
+	      return parentID + '-' + node.getAttribute('class') + '-' + extraClasses;
+	    }
+
+	    function computeCachedCssStyles(node, className, cacheKey, properties) {
+	      var timings = gcsLookup.get(cacheKey);
+
+	      if (!timings) {
+	        timings = computeCssStyles($window, node, properties);
+	        if (timings.animationIterationCount === 'infinite') {
+	          timings.animationIterationCount = 1;
+	        }
+	      }
+
+	      // we keep putting this in multiple times even though the value and the cacheKey are the same
+	      // because we're keeping an internal tally of how many duplicate animations are detected.
+	      gcsLookup.put(cacheKey, timings);
+	      return timings;
+	    }
+
+	    function computeCachedCssStaggerStyles(node, className, cacheKey, properties) {
+	      var stagger;
+
+	      // if we have one or more existing matches of matching elements
+	      // containing the same parent + CSS styles (which is how cacheKey works)
+	      // then staggering is possible
+	      if (gcsLookup.count(cacheKey) > 0) {
+	        stagger = gcsStaggerLookup.get(cacheKey);
+
+	        if (!stagger) {
+	          var staggerClassName = pendClasses(className, '-stagger');
+
+	          $$jqLite.addClass(node, staggerClassName);
+
+	          stagger = computeCssStyles($window, node, properties);
+
+	          // force the conversion of a null value to zero incase not set
+	          stagger.animationDuration = Math.max(stagger.animationDuration, 0);
+	          stagger.transitionDuration = Math.max(stagger.transitionDuration, 0);
+
+	          $$jqLite.removeClass(node, staggerClassName);
+
+	          gcsStaggerLookup.put(cacheKey, stagger);
+	        }
+	      }
+
+	      return stagger || {};
+	    }
+
+	    var cancelLastRAFRequest;
+	    var rafWaitQueue = [];
+	    function waitUntilQuiet(callback) {
+	      rafWaitQueue.push(callback);
+	      $$rAFScheduler.waitUntilQuiet(function() {
+	        gcsLookup.flush();
+	        gcsStaggerLookup.flush();
+
+	        // DO NOT REMOVE THIS LINE OR REFACTOR OUT THE `pageWidth` variable.
+	        // PLEASE EXAMINE THE `$$forceReflow` service to understand why.
+	        var pageWidth = $$forceReflow();
+
+	        // we use a for loop to ensure that if the queue is changed
+	        // during this looping then it will consider new requests
+	        for (var i = 0; i < rafWaitQueue.length; i++) {
+	          rafWaitQueue[i](pageWidth);
+	        }
+	        rafWaitQueue.length = 0;
+	      });
+	    }
+
+	    function computeTimings(node, className, cacheKey) {
+	      var timings = computeCachedCssStyles(node, className, cacheKey, DETECT_CSS_PROPERTIES);
+	      var aD = timings.animationDelay;
+	      var tD = timings.transitionDelay;
+	      timings.maxDelay = aD && tD
+	          ? Math.max(aD, tD)
+	          : (aD || tD);
+	      timings.maxDuration = Math.max(
+	          timings.animationDuration * timings.animationIterationCount,
+	          timings.transitionDuration);
+
+	      return timings;
+	    }
+
+	    return function init(element, initialOptions) {
+	      // all of the animation functions should create
+	      // a copy of the options data, however, if a
+	      // parent service has already created a copy then
+	      // we should stick to using that
+	      var options = initialOptions || {};
+	      if (!options.$$prepared) {
+	        options = prepareAnimationOptions(copy(options));
+	      }
+
+	      var restoreStyles = {};
+	      var node = getDomNode(element);
+	      if (!node
+	          || !node.parentNode
+	          || !$$animateQueue.enabled()) {
+	        return closeAndReturnNoopAnimator();
+	      }
+
+	      var temporaryStyles = [];
+	      var classes = element.attr('class');
+	      var styles = packageStyles(options);
+	      var animationClosed;
+	      var animationPaused;
+	      var animationCompleted;
+	      var runner;
+	      var runnerHost;
+	      var maxDelay;
+	      var maxDelayTime;
+	      var maxDuration;
+	      var maxDurationTime;
+	      var startTime;
+	      var events = [];
+
+	      if (options.duration === 0 || (!$sniffer.animations && !$sniffer.transitions)) {
+	        return closeAndReturnNoopAnimator();
+	      }
+
+	      var method = options.event && isArray(options.event)
+	            ? options.event.join(' ')
+	            : options.event;
+
+	      var isStructural = method && options.structural;
+	      var structuralClassName = '';
+	      var addRemoveClassName = '';
+
+	      if (isStructural) {
+	        structuralClassName = pendClasses(method, EVENT_CLASS_PREFIX, true);
+	      } else if (method) {
+	        structuralClassName = method;
+	      }
+
+	      if (options.addClass) {
+	        addRemoveClassName += pendClasses(options.addClass, ADD_CLASS_SUFFIX);
+	      }
+
+	      if (options.removeClass) {
+	        if (addRemoveClassName.length) {
+	          addRemoveClassName += ' ';
+	        }
+	        addRemoveClassName += pendClasses(options.removeClass, REMOVE_CLASS_SUFFIX);
+	      }
+
+	      // there may be a situation where a structural animation is combined together
+	      // with CSS classes that need to resolve before the animation is computed.
+	      // However this means that there is no explicit CSS code to block the animation
+	      // from happening (by setting 0s none in the class name). If this is the case
+	      // we need to apply the classes before the first rAF so we know to continue if
+	      // there actually is a detected transition or keyframe animation
+	      if (options.applyClassesEarly && addRemoveClassName.length) {
+	        applyAnimationClasses(element, options);
+	      }
+
+	      var preparationClasses = [structuralClassName, addRemoveClassName].join(' ').trim();
+	      var fullClassName = classes + ' ' + preparationClasses;
+	      var activeClasses = pendClasses(preparationClasses, ACTIVE_CLASS_SUFFIX);
+	      var hasToStyles = styles.to && Object.keys(styles.to).length > 0;
+	      var containsKeyframeAnimation = (options.keyframeStyle || '').length > 0;
+
+	      // there is no way we can trigger an animation if no styles and
+	      // no classes are being applied which would then trigger a transition,
+	      // unless there a is raw keyframe value that is applied to the element.
+	      if (!containsKeyframeAnimation
+	           && !hasToStyles
+	           && !preparationClasses) {
+	        return closeAndReturnNoopAnimator();
+	      }
+
+	      var cacheKey, stagger;
+	      if (options.stagger > 0) {
+	        var staggerVal = parseFloat(options.stagger);
+	        stagger = {
+	          transitionDelay: staggerVal,
+	          animationDelay: staggerVal,
+	          transitionDuration: 0,
+	          animationDuration: 0
+	        };
+	      } else {
+	        cacheKey = gcsHashFn(node, fullClassName);
+	        stagger = computeCachedCssStaggerStyles(node, preparationClasses, cacheKey, DETECT_STAGGER_CSS_PROPERTIES);
+	      }
+
+	      if (!options.$$skipPreparationClasses) {
+	        $$jqLite.addClass(element, preparationClasses);
+	      }
+
+	      var applyOnlyDuration;
+
+	      if (options.transitionStyle) {
+	        var transitionStyle = [TRANSITION_PROP, options.transitionStyle];
+	        applyInlineStyle(node, transitionStyle);
+	        temporaryStyles.push(transitionStyle);
+	      }
+
+	      if (options.duration >= 0) {
+	        applyOnlyDuration = node.style[TRANSITION_PROP].length > 0;
+	        var durationStyle = getCssTransitionDurationStyle(options.duration, applyOnlyDuration);
+
+	        // we set the duration so that it will be picked up by getComputedStyle later
+	        applyInlineStyle(node, durationStyle);
+	        temporaryStyles.push(durationStyle);
+	      }
+
+	      if (options.keyframeStyle) {
+	        var keyframeStyle = [ANIMATION_PROP, options.keyframeStyle];
+	        applyInlineStyle(node, keyframeStyle);
+	        temporaryStyles.push(keyframeStyle);
+	      }
+
+	      var itemIndex = stagger
+	          ? options.staggerIndex >= 0
+	              ? options.staggerIndex
+	              : gcsLookup.count(cacheKey)
+	          : 0;
+
+	      var isFirst = itemIndex === 0;
+
+	      // this is a pre-emptive way of forcing the setup classes to be added and applied INSTANTLY
+	      // without causing any combination of transitions to kick in. By adding a negative delay value
+	      // it forces the setup class' transition to end immediately. We later then remove the negative
+	      // transition delay to allow for the transition to naturally do it's thing. The beauty here is
+	      // that if there is no transition defined then nothing will happen and this will also allow
+	      // other transitions to be stacked on top of each other without any chopping them out.
+	      if (isFirst && !options.skipBlocking) {
+	        blockTransitions(node, SAFE_FAST_FORWARD_DURATION_VALUE);
+	      }
+
+	      var timings = computeTimings(node, fullClassName, cacheKey);
+	      var relativeDelay = timings.maxDelay;
+	      maxDelay = Math.max(relativeDelay, 0);
+	      maxDuration = timings.maxDuration;
+
+	      var flags = {};
+	      flags.hasTransitions          = timings.transitionDuration > 0;
+	      flags.hasAnimations           = timings.animationDuration > 0;
+	      flags.hasTransitionAll        = flags.hasTransitions && timings.transitionProperty == 'all';
+	      flags.applyTransitionDuration = hasToStyles && (
+	                                        (flags.hasTransitions && !flags.hasTransitionAll)
+	                                         || (flags.hasAnimations && !flags.hasTransitions));
+	      flags.applyAnimationDuration  = options.duration && flags.hasAnimations;
+	      flags.applyTransitionDelay    = truthyTimingValue(options.delay) && (flags.applyTransitionDuration || flags.hasTransitions);
+	      flags.applyAnimationDelay     = truthyTimingValue(options.delay) && flags.hasAnimations;
+	      flags.recalculateTimingStyles = addRemoveClassName.length > 0;
+
+	      if (flags.applyTransitionDuration || flags.applyAnimationDuration) {
+	        maxDuration = options.duration ? parseFloat(options.duration) : maxDuration;
+
+	        if (flags.applyTransitionDuration) {
+	          flags.hasTransitions = true;
+	          timings.transitionDuration = maxDuration;
+	          applyOnlyDuration = node.style[TRANSITION_PROP + PROPERTY_KEY].length > 0;
+	          temporaryStyles.push(getCssTransitionDurationStyle(maxDuration, applyOnlyDuration));
+	        }
+
+	        if (flags.applyAnimationDuration) {
+	          flags.hasAnimations = true;
+	          timings.animationDuration = maxDuration;
+	          temporaryStyles.push(getCssKeyframeDurationStyle(maxDuration));
+	        }
+	      }
+
+	      if (maxDuration === 0 && !flags.recalculateTimingStyles) {
+	        return closeAndReturnNoopAnimator();
+	      }
+
+	      if (options.delay != null) {
+	        var delayStyle;
+	        if (typeof options.delay !== "boolean") {
+	          delayStyle = parseFloat(options.delay);
+	          // number in options.delay means we have to recalculate the delay for the closing timeout
+	          maxDelay = Math.max(delayStyle, 0);
+	        }
+
+	        if (flags.applyTransitionDelay) {
+	          temporaryStyles.push(getCssDelayStyle(delayStyle));
+	        }
+
+	        if (flags.applyAnimationDelay) {
+	          temporaryStyles.push(getCssDelayStyle(delayStyle, true));
+	        }
+	      }
+
+	      // we need to recalculate the delay value since we used a pre-emptive negative
+	      // delay value and the delay value is required for the final event checking. This
+	      // property will ensure that this will happen after the RAF phase has passed.
+	      if (options.duration == null && timings.transitionDuration > 0) {
+	        flags.recalculateTimingStyles = flags.recalculateTimingStyles || isFirst;
+	      }
+
+	      maxDelayTime = maxDelay * ONE_SECOND;
+	      maxDurationTime = maxDuration * ONE_SECOND;
+	      if (!options.skipBlocking) {
+	        flags.blockTransition = timings.transitionDuration > 0;
+	        flags.blockKeyframeAnimation = timings.animationDuration > 0 &&
+	                                       stagger.animationDelay > 0 &&
+	                                       stagger.animationDuration === 0;
+	      }
+
+	      if (options.from) {
+	        if (options.cleanupStyles) {
+	          registerRestorableStyles(restoreStyles, node, Object.keys(options.from));
+	        }
+	        applyAnimationFromStyles(element, options);
+	      }
+
+	      if (flags.blockTransition || flags.blockKeyframeAnimation) {
+	        applyBlocking(maxDuration);
+	      } else if (!options.skipBlocking) {
+	        blockTransitions(node, false);
+	      }
+
+	      // TODO(matsko): for 1.5 change this code to have an animator object for better debugging
+	      return {
+	        $$willAnimate: true,
+	        end: endFn,
+	        start: function() {
+	          if (animationClosed) return;
+
+	          runnerHost = {
+	            end: endFn,
+	            cancel: cancelFn,
+	            resume: null, //this will be set during the start() phase
+	            pause: null
+	          };
+
+	          runner = new $$AnimateRunner(runnerHost);
+
+	          waitUntilQuiet(start);
+
+	          // we don't have access to pause/resume the animation
+	          // since it hasn't run yet. AnimateRunner will therefore
+	          // set noop functions for resume and pause and they will
+	          // later be overridden once the animation is triggered
+	          return runner;
+	        }
+	      };
+
+	      function endFn() {
+	        close();
+	      }
+
+	      function cancelFn() {
+	        close(true);
+	      }
+
+	      function close(rejected) { // jshint ignore:line
+	        // if the promise has been called already then we shouldn't close
+	        // the animation again
+	        if (animationClosed || (animationCompleted && animationPaused)) return;
+	        animationClosed = true;
+	        animationPaused = false;
+
+	        if (!options.$$skipPreparationClasses) {
+	          $$jqLite.removeClass(element, preparationClasses);
+	        }
+	        $$jqLite.removeClass(element, activeClasses);
+
+	        blockKeyframeAnimations(node, false);
+	        blockTransitions(node, false);
+
+	        forEach(temporaryStyles, function(entry) {
+	          // There is only one way to remove inline style properties entirely from elements.
+	          // By using `removeProperty` this works, but we need to convert camel-cased CSS
+	          // styles down to hyphenated values.
+	          node.style[entry[0]] = '';
+	        });
+
+	        applyAnimationClasses(element, options);
+	        applyAnimationStyles(element, options);
+
+	        if (Object.keys(restoreStyles).length) {
+	          forEach(restoreStyles, function(value, prop) {
+	            value ? node.style.setProperty(prop, value)
+	                  : node.style.removeProperty(prop);
+	          });
+	        }
+
+	        // the reason why we have this option is to allow a synchronous closing callback
+	        // that is fired as SOON as the animation ends (when the CSS is removed) or if
+	        // the animation never takes off at all. A good example is a leave animation since
+	        // the element must be removed just after the animation is over or else the element
+	        // will appear on screen for one animation frame causing an overbearing flicker.
+	        if (options.onDone) {
+	          options.onDone();
+	        }
+
+	        if (events && events.length) {
+	          // Remove the transitionend / animationend listener(s)
+	          element.off(events.join(' '), onAnimationProgress);
+	        }
+
+	        //Cancel the fallback closing timeout and remove the timer data
+	        var animationTimerData = element.data(ANIMATE_TIMER_KEY);
+	        if (animationTimerData) {
+	          $timeout.cancel(animationTimerData[0].timer);
+	          element.removeData(ANIMATE_TIMER_KEY);
+	        }
+
+	        // if the preparation function fails then the promise is not setup
+	        if (runner) {
+	          runner.complete(!rejected);
+	        }
+	      }
+
+	      function applyBlocking(duration) {
+	        if (flags.blockTransition) {
+	          blockTransitions(node, duration);
+	        }
+
+	        if (flags.blockKeyframeAnimation) {
+	          blockKeyframeAnimations(node, !!duration);
+	        }
+	      }
+
+	      function closeAndReturnNoopAnimator() {
+	        runner = new $$AnimateRunner({
+	          end: endFn,
+	          cancel: cancelFn
+	        });
+
+	        // should flush the cache animation
+	        waitUntilQuiet(noop);
+	        close();
+
+	        return {
+	          $$willAnimate: false,
+	          start: function() {
+	            return runner;
+	          },
+	          end: endFn
+	        };
+	      }
+
+	      function onAnimationProgress(event) {
+	        event.stopPropagation();
+	        var ev = event.originalEvent || event;
+
+	        // we now always use `Date.now()` due to the recent changes with
+	        // event.timeStamp in Firefox, Webkit and Chrome (see #13494 for more info)
+	        var timeStamp = ev.$manualTimeStamp || Date.now();
+
+	        /* Firefox (or possibly just Gecko) likes to not round values up
+	         * when a ms measurement is used for the animation */
+	        var elapsedTime = parseFloat(ev.elapsedTime.toFixed(ELAPSED_TIME_MAX_DECIMAL_PLACES));
+
+	        /* $manualTimeStamp is a mocked timeStamp value which is set
+	         * within browserTrigger(). This is only here so that tests can
+	         * mock animations properly. Real events fallback to event.timeStamp,
+	         * or, if they don't, then a timeStamp is automatically created for them.
+	         * We're checking to see if the timeStamp surpasses the expected delay,
+	         * but we're using elapsedTime instead of the timeStamp on the 2nd
+	         * pre-condition since animationPauseds sometimes close off early */
+	        if (Math.max(timeStamp - startTime, 0) >= maxDelayTime && elapsedTime >= maxDuration) {
+	          // we set this flag to ensure that if the transition is paused then, when resumed,
+	          // the animation will automatically close itself since transitions cannot be paused.
+	          animationCompleted = true;
+	          close();
+	        }
+	      }
+
+	      function start() {
+	        if (animationClosed) return;
+	        if (!node.parentNode) {
+	          close();
+	          return;
+	        }
+
+	        // even though we only pause keyframe animations here the pause flag
+	        // will still happen when transitions are used. Only the transition will
+	        // not be paused since that is not possible. If the animation ends when
+	        // paused then it will not complete until unpaused or cancelled.
+	        var playPause = function(playAnimation) {
+	          if (!animationCompleted) {
+	            animationPaused = !playAnimation;
+	            if (timings.animationDuration) {
+	              var value = blockKeyframeAnimations(node, animationPaused);
+	              animationPaused
+	                  ? temporaryStyles.push(value)
+	                  : removeFromArray(temporaryStyles, value);
+	            }
+	          } else if (animationPaused && playAnimation) {
+	            animationPaused = false;
+	            close();
+	          }
+	        };
+
+	        // checking the stagger duration prevents an accidentally cascade of the CSS delay style
+	        // being inherited from the parent. If the transition duration is zero then we can safely
+	        // rely that the delay value is an intentional stagger delay style.
+	        var maxStagger = itemIndex > 0
+	                         && ((timings.transitionDuration && stagger.transitionDuration === 0) ||
+	                            (timings.animationDuration && stagger.animationDuration === 0))
+	                         && Math.max(stagger.animationDelay, stagger.transitionDelay);
+	        if (maxStagger) {
+	          $timeout(triggerAnimationStart,
+	                   Math.floor(maxStagger * itemIndex * ONE_SECOND),
+	                   false);
+	        } else {
+	          triggerAnimationStart();
+	        }
+
+	        // this will decorate the existing promise runner with pause/resume methods
+	        runnerHost.resume = function() {
+	          playPause(true);
+	        };
+
+	        runnerHost.pause = function() {
+	          playPause(false);
+	        };
+
+	        function triggerAnimationStart() {
+	          // just incase a stagger animation kicks in when the animation
+	          // itself was cancelled entirely
+	          if (animationClosed) return;
+
+	          applyBlocking(false);
+
+	          forEach(temporaryStyles, function(entry) {
+	            var key = entry[0];
+	            var value = entry[1];
+	            node.style[key] = value;
+	          });
+
+	          applyAnimationClasses(element, options);
+	          $$jqLite.addClass(element, activeClasses);
+
+	          if (flags.recalculateTimingStyles) {
+	            fullClassName = node.className + ' ' + preparationClasses;
+	            cacheKey = gcsHashFn(node, fullClassName);
+
+	            timings = computeTimings(node, fullClassName, cacheKey);
+	            relativeDelay = timings.maxDelay;
+	            maxDelay = Math.max(relativeDelay, 0);
+	            maxDuration = timings.maxDuration;
+
+	            if (maxDuration === 0) {
+	              close();
+	              return;
 	            }
 
-	            this.socket.on(eventName, wrapper.bind(this));
+	            flags.hasTransitions = timings.transitionDuration > 0;
+	            flags.hasAnimations = timings.animationDuration > 0;
+	          }
 
-	            return function () {
-	                socket.removeListener(eventName, wrapper);
+	          if (flags.applyAnimationDelay) {
+	            relativeDelay = typeof options.delay !== "boolean" && truthyTimingValue(options.delay)
+	                  ? parseFloat(options.delay)
+	                  : relativeDelay;
+
+	            maxDelay = Math.max(relativeDelay, 0);
+	            timings.animationDelay = relativeDelay;
+	            delayStyle = getCssDelayStyle(relativeDelay, true);
+	            temporaryStyles.push(delayStyle);
+	            node.style[delayStyle[0]] = delayStyle[1];
+	          }
+
+	          maxDelayTime = maxDelay * ONE_SECOND;
+	          maxDurationTime = maxDuration * ONE_SECOND;
+
+	          if (options.easing) {
+	            var easeProp, easeVal = options.easing;
+	            if (flags.hasTransitions) {
+	              easeProp = TRANSITION_PROP + TIMING_KEY;
+	              temporaryStyles.push([easeProp, easeVal]);
+	              node.style[easeProp] = easeVal;
+	            }
+	            if (flags.hasAnimations) {
+	              easeProp = ANIMATION_PROP + TIMING_KEY;
+	              temporaryStyles.push([easeProp, easeVal]);
+	              node.style[easeProp] = easeVal;
+	            }
+	          }
+
+	          if (timings.transitionDuration) {
+	            events.push(TRANSITIONEND_EVENT);
+	          }
+
+	          if (timings.animationDuration) {
+	            events.push(ANIMATIONEND_EVENT);
+	          }
+
+	          startTime = Date.now();
+	          var timerTime = maxDelayTime + CLOSING_TIME_BUFFER * maxDurationTime;
+	          var endTime = startTime + timerTime;
+
+	          var animationsData = element.data(ANIMATE_TIMER_KEY) || [];
+	          var setupFallbackTimer = true;
+	          if (animationsData.length) {
+	            var currentTimerData = animationsData[0];
+	            setupFallbackTimer = endTime > currentTimerData.expectedEndTime;
+	            if (setupFallbackTimer) {
+	              $timeout.cancel(currentTimerData.timer);
+	            } else {
+	              animationsData.push(close);
+	            }
+	          }
+
+	          if (setupFallbackTimer) {
+	            var timer = $timeout(onAnimationExpired, timerTime, false);
+	            animationsData[0] = {
+	              timer: timer,
+	              expectedEndTime: endTime
 	            };
-	        }
-	    }, {
-	        key: 'emit',
-	        value: function emit(eventName, data, callback) {
-	            var _arguments = arguments,
-	                _this2 = this;
+	            animationsData.push(close);
+	            element.data(ANIMATE_TIMER_KEY, animationsData);
+	          }
 
-	            this.socket.emit(eventName, data, function () {
-	                var args = _arguments;
-	                _this2.$rootScope.$apply(function () {
-	                    if (callback) {
-	                        callback.apply(_this2.socket, args);
-	                    }
+	          if (events.length) {
+	            element.on(events.join(' '), onAnimationProgress);
+	          }
+
+	          if (options.to) {
+	            if (options.cleanupStyles) {
+	              registerRestorableStyles(restoreStyles, node, Object.keys(options.to));
+	            }
+	            applyAnimationToStyles(element, options);
+	          }
+	        }
+
+	        function onAnimationExpired() {
+	          var animationsData = element.data(ANIMATE_TIMER_KEY);
+
+	          // this will be false in the event that the element was
+	          // removed from the DOM (via a leave animation or something
+	          // similar)
+	          if (animationsData) {
+	            for (var i = 1; i < animationsData.length; i++) {
+	              animationsData[i]();
+	            }
+	            element.removeData(ANIMATE_TIMER_KEY);
+	          }
+	        }
+	      }
+	    };
+	  }];
+	}];
+
+	var $$AnimateCssDriverProvider = ['$$animationProvider', function($$animationProvider) {
+	  $$animationProvider.drivers.push('$$animateCssDriver');
+
+	  var NG_ANIMATE_SHIM_CLASS_NAME = 'ng-animate-shim';
+	  var NG_ANIMATE_ANCHOR_CLASS_NAME = 'ng-anchor';
+
+	  var NG_OUT_ANCHOR_CLASS_NAME = 'ng-anchor-out';
+	  var NG_IN_ANCHOR_CLASS_NAME = 'ng-anchor-in';
+
+	  function isDocumentFragment(node) {
+	    return node.parentNode && node.parentNode.nodeType === 11;
+	  }
+
+	  this.$get = ['$animateCss', '$rootScope', '$$AnimateRunner', '$rootElement', '$sniffer', '$$jqLite', '$document',
+	       function($animateCss,   $rootScope,   $$AnimateRunner,   $rootElement,   $sniffer,   $$jqLite,   $document) {
+
+	    // only browsers that support these properties can render animations
+	    if (!$sniffer.animations && !$sniffer.transitions) return noop;
+
+	    var bodyNode = $document[0].body;
+	    var rootNode = getDomNode($rootElement);
+
+	    var rootBodyElement = jqLite(
+	      // this is to avoid using something that exists outside of the body
+	      // we also special case the doc fragment case because our unit test code
+	      // appends the $rootElement to the body after the app has been bootstrapped
+	      isDocumentFragment(rootNode) || bodyNode.contains(rootNode) ? rootNode : bodyNode
+	    );
+
+	    var applyAnimationClasses = applyAnimationClassesFactory($$jqLite);
+
+	    return function initDriverFn(animationDetails) {
+	      return animationDetails.from && animationDetails.to
+	          ? prepareFromToAnchorAnimation(animationDetails.from,
+	                                         animationDetails.to,
+	                                         animationDetails.classes,
+	                                         animationDetails.anchors)
+	          : prepareRegularAnimation(animationDetails);
+	    };
+
+	    function filterCssClasses(classes) {
+	      //remove all the `ng-` stuff
+	      return classes.replace(/\bng-\S+\b/g, '');
+	    }
+
+	    function getUniqueValues(a, b) {
+	      if (isString(a)) a = a.split(' ');
+	      if (isString(b)) b = b.split(' ');
+	      return a.filter(function(val) {
+	        return b.indexOf(val) === -1;
+	      }).join(' ');
+	    }
+
+	    function prepareAnchoredAnimation(classes, outAnchor, inAnchor) {
+	      var clone = jqLite(getDomNode(outAnchor).cloneNode(true));
+	      var startingClasses = filterCssClasses(getClassVal(clone));
+
+	      outAnchor.addClass(NG_ANIMATE_SHIM_CLASS_NAME);
+	      inAnchor.addClass(NG_ANIMATE_SHIM_CLASS_NAME);
+
+	      clone.addClass(NG_ANIMATE_ANCHOR_CLASS_NAME);
+
+	      rootBodyElement.append(clone);
+
+	      var animatorIn, animatorOut = prepareOutAnimation();
+
+	      // the user may not end up using the `out` animation and
+	      // only making use of the `in` animation or vice-versa.
+	      // In either case we should allow this and not assume the
+	      // animation is over unless both animations are not used.
+	      if (!animatorOut) {
+	        animatorIn = prepareInAnimation();
+	        if (!animatorIn) {
+	          return end();
+	        }
+	      }
+
+	      var startingAnimator = animatorOut || animatorIn;
+
+	      return {
+	        start: function() {
+	          var runner;
+
+	          var currentAnimation = startingAnimator.start();
+	          currentAnimation.done(function() {
+	            currentAnimation = null;
+	            if (!animatorIn) {
+	              animatorIn = prepareInAnimation();
+	              if (animatorIn) {
+	                currentAnimation = animatorIn.start();
+	                currentAnimation.done(function() {
+	                  currentAnimation = null;
+	                  end();
+	                  runner.complete();
 	                });
-	            });
+	                return currentAnimation;
+	              }
+	            }
+	            // in the event that there is no `in` animation
+	            end();
+	            runner.complete();
+	          });
+
+	          runner = new $$AnimateRunner({
+	            end: endFn,
+	            cancel: endFn
+	          });
+
+	          return runner;
+
+	          function endFn() {
+	            if (currentAnimation) {
+	              currentAnimation.end();
+	            }
+	          }
 	        }
-	    }]);
+	      };
 
-	    return SocketService;
-	}();
+	      function calculateAnchorStyles(anchor) {
+	        var styles = {};
 
-	exports.default = SocketService;
+	        var coords = getDomNode(anchor).getBoundingClientRect();
+
+	        // we iterate directly since safari messes up and doesn't return
+	        // all the keys for the coords object when iterated
+	        forEach(['width','height','top','left'], function(key) {
+	          var value = coords[key];
+	          switch (key) {
+	            case 'top':
+	              value += bodyNode.scrollTop;
+	              break;
+	            case 'left':
+	              value += bodyNode.scrollLeft;
+	              break;
+	          }
+	          styles[key] = Math.floor(value) + 'px';
+	        });
+	        return styles;
+	      }
+
+	      function prepareOutAnimation() {
+	        var animator = $animateCss(clone, {
+	          addClass: NG_OUT_ANCHOR_CLASS_NAME,
+	          delay: true,
+	          from: calculateAnchorStyles(outAnchor)
+	        });
+
+	        // read the comment within `prepareRegularAnimation` to understand
+	        // why this check is necessary
+	        return animator.$$willAnimate ? animator : null;
+	      }
+
+	      function getClassVal(element) {
+	        return element.attr('class') || '';
+	      }
+
+	      function prepareInAnimation() {
+	        var endingClasses = filterCssClasses(getClassVal(inAnchor));
+	        var toAdd = getUniqueValues(endingClasses, startingClasses);
+	        var toRemove = getUniqueValues(startingClasses, endingClasses);
+
+	        var animator = $animateCss(clone, {
+	          to: calculateAnchorStyles(inAnchor),
+	          addClass: NG_IN_ANCHOR_CLASS_NAME + ' ' + toAdd,
+	          removeClass: NG_OUT_ANCHOR_CLASS_NAME + ' ' + toRemove,
+	          delay: true
+	        });
+
+	        // read the comment within `prepareRegularAnimation` to understand
+	        // why this check is necessary
+	        return animator.$$willAnimate ? animator : null;
+	      }
+
+	      function end() {
+	        clone.remove();
+	        outAnchor.removeClass(NG_ANIMATE_SHIM_CLASS_NAME);
+	        inAnchor.removeClass(NG_ANIMATE_SHIM_CLASS_NAME);
+	      }
+	    }
+
+	    function prepareFromToAnchorAnimation(from, to, classes, anchors) {
+	      var fromAnimation = prepareRegularAnimation(from, noop);
+	      var toAnimation = prepareRegularAnimation(to, noop);
+
+	      var anchorAnimations = [];
+	      forEach(anchors, function(anchor) {
+	        var outElement = anchor['out'];
+	        var inElement = anchor['in'];
+	        var animator = prepareAnchoredAnimation(classes, outElement, inElement);
+	        if (animator) {
+	          anchorAnimations.push(animator);
+	        }
+	      });
+
+	      // no point in doing anything when there are no elements to animate
+	      if (!fromAnimation && !toAnimation && anchorAnimations.length === 0) return;
+
+	      return {
+	        start: function() {
+	          var animationRunners = [];
+
+	          if (fromAnimation) {
+	            animationRunners.push(fromAnimation.start());
+	          }
+
+	          if (toAnimation) {
+	            animationRunners.push(toAnimation.start());
+	          }
+
+	          forEach(anchorAnimations, function(animation) {
+	            animationRunners.push(animation.start());
+	          });
+
+	          var runner = new $$AnimateRunner({
+	            end: endFn,
+	            cancel: endFn // CSS-driven animations cannot be cancelled, only ended
+	          });
+
+	          $$AnimateRunner.all(animationRunners, function(status) {
+	            runner.complete(status);
+	          });
+
+	          return runner;
+
+	          function endFn() {
+	            forEach(animationRunners, function(runner) {
+	              runner.end();
+	            });
+	          }
+	        }
+	      };
+	    }
+
+	    function prepareRegularAnimation(animationDetails) {
+	      var element = animationDetails.element;
+	      var options = animationDetails.options || {};
+
+	      if (animationDetails.structural) {
+	        options.event = animationDetails.event;
+	        options.structural = true;
+	        options.applyClassesEarly = true;
+
+	        // we special case the leave animation since we want to ensure that
+	        // the element is removed as soon as the animation is over. Otherwise
+	        // a flicker might appear or the element may not be removed at all
+	        if (animationDetails.event === 'leave') {
+	          options.onDone = options.domOperation;
+	        }
+	      }
+
+	      // We assign the preparationClasses as the actual animation event since
+	      // the internals of $animateCss will just suffix the event token values
+	      // with `-active` to trigger the animation.
+	      if (options.preparationClasses) {
+	        options.event = concatWithSpace(options.event, options.preparationClasses);
+	      }
+
+	      var animator = $animateCss(element, options);
+
+	      // the driver lookup code inside of $$animation attempts to spawn a
+	      // driver one by one until a driver returns a.$$willAnimate animator object.
+	      // $animateCss will always return an object, however, it will pass in
+	      // a flag as a hint as to whether an animation was detected or not
+	      return animator.$$willAnimate ? animator : null;
+	    }
+	  }];
+	}];
+
+	// TODO(matsko): use caching here to speed things up for detection
+	// TODO(matsko): add documentation
+	//  by the time...
+
+	var $$AnimateJsProvider = ['$animateProvider', function($animateProvider) {
+	  this.$get = ['$injector', '$$AnimateRunner', '$$jqLite',
+	       function($injector,   $$AnimateRunner,   $$jqLite) {
+
+	    var applyAnimationClasses = applyAnimationClassesFactory($$jqLite);
+	         // $animateJs(element, 'enter');
+	    return function(element, event, classes, options) {
+	      var animationClosed = false;
+
+	      // the `classes` argument is optional and if it is not used
+	      // then the classes will be resolved from the element's className
+	      // property as well as options.addClass/options.removeClass.
+	      if (arguments.length === 3 && isObject(classes)) {
+	        options = classes;
+	        classes = null;
+	      }
+
+	      options = prepareAnimationOptions(options);
+	      if (!classes) {
+	        classes = element.attr('class') || '';
+	        if (options.addClass) {
+	          classes += ' ' + options.addClass;
+	        }
+	        if (options.removeClass) {
+	          classes += ' ' + options.removeClass;
+	        }
+	      }
+
+	      var classesToAdd = options.addClass;
+	      var classesToRemove = options.removeClass;
+
+	      // the lookupAnimations function returns a series of animation objects that are
+	      // matched up with one or more of the CSS classes. These animation objects are
+	      // defined via the module.animation factory function. If nothing is detected then
+	      // we don't return anything which then makes $animation query the next driver.
+	      var animations = lookupAnimations(classes);
+	      var before, after;
+	      if (animations.length) {
+	        var afterFn, beforeFn;
+	        if (event == 'leave') {
+	          beforeFn = 'leave';
+	          afterFn = 'afterLeave'; // TODO(matsko): get rid of this
+	        } else {
+	          beforeFn = 'before' + event.charAt(0).toUpperCase() + event.substr(1);
+	          afterFn = event;
+	        }
+
+	        if (event !== 'enter' && event !== 'move') {
+	          before = packageAnimations(element, event, options, animations, beforeFn);
+	        }
+	        after  = packageAnimations(element, event, options, animations, afterFn);
+	      }
+
+	      // no matching animations
+	      if (!before && !after) return;
+
+	      function applyOptions() {
+	        options.domOperation();
+	        applyAnimationClasses(element, options);
+	      }
+
+	      function close() {
+	        animationClosed = true;
+	        applyOptions();
+	        applyAnimationStyles(element, options);
+	      }
+
+	      var runner;
+
+	      return {
+	        $$willAnimate: true,
+	        end: function() {
+	          if (runner) {
+	            runner.end();
+	          } else {
+	            close();
+	            runner = new $$AnimateRunner();
+	            runner.complete(true);
+	          }
+	          return runner;
+	        },
+	        start: function() {
+	          if (runner) {
+	            return runner;
+	          }
+
+	          runner = new $$AnimateRunner();
+	          var closeActiveAnimations;
+	          var chain = [];
+
+	          if (before) {
+	            chain.push(function(fn) {
+	              closeActiveAnimations = before(fn);
+	            });
+	          }
+
+	          if (chain.length) {
+	            chain.push(function(fn) {
+	              applyOptions();
+	              fn(true);
+	            });
+	          } else {
+	            applyOptions();
+	          }
+
+	          if (after) {
+	            chain.push(function(fn) {
+	              closeActiveAnimations = after(fn);
+	            });
+	          }
+
+	          runner.setHost({
+	            end: function() {
+	              endAnimations();
+	            },
+	            cancel: function() {
+	              endAnimations(true);
+	            }
+	          });
+
+	          $$AnimateRunner.chain(chain, onComplete);
+	          return runner;
+
+	          function onComplete(success) {
+	            close(success);
+	            runner.complete(success);
+	          }
+
+	          function endAnimations(cancelled) {
+	            if (!animationClosed) {
+	              (closeActiveAnimations || noop)(cancelled);
+	              onComplete(cancelled);
+	            }
+	          }
+	        }
+	      };
+
+	      function executeAnimationFn(fn, element, event, options, onDone) {
+	        var args;
+	        switch (event) {
+	          case 'animate':
+	            args = [element, options.from, options.to, onDone];
+	            break;
+
+	          case 'setClass':
+	            args = [element, classesToAdd, classesToRemove, onDone];
+	            break;
+
+	          case 'addClass':
+	            args = [element, classesToAdd, onDone];
+	            break;
+
+	          case 'removeClass':
+	            args = [element, classesToRemove, onDone];
+	            break;
+
+	          default:
+	            args = [element, onDone];
+	            break;
+	        }
+
+	        args.push(options);
+
+	        var value = fn.apply(fn, args);
+	        if (value) {
+	          if (isFunction(value.start)) {
+	            value = value.start();
+	          }
+
+	          if (value instanceof $$AnimateRunner) {
+	            value.done(onDone);
+	          } else if (isFunction(value)) {
+	            // optional onEnd / onCancel callback
+	            return value;
+	          }
+	        }
+
+	        return noop;
+	      }
+
+	      function groupEventedAnimations(element, event, options, animations, fnName) {
+	        var operations = [];
+	        forEach(animations, function(ani) {
+	          var animation = ani[fnName];
+	          if (!animation) return;
+
+	          // note that all of these animations will run in parallel
+	          operations.push(function() {
+	            var runner;
+	            var endProgressCb;
+
+	            var resolved = false;
+	            var onAnimationComplete = function(rejected) {
+	              if (!resolved) {
+	                resolved = true;
+	                (endProgressCb || noop)(rejected);
+	                runner.complete(!rejected);
+	              }
+	            };
+
+	            runner = new $$AnimateRunner({
+	              end: function() {
+	                onAnimationComplete();
+	              },
+	              cancel: function() {
+	                onAnimationComplete(true);
+	              }
+	            });
+
+	            endProgressCb = executeAnimationFn(animation, element, event, options, function(result) {
+	              var cancelled = result === false;
+	              onAnimationComplete(cancelled);
+	            });
+
+	            return runner;
+	          });
+	        });
+
+	        return operations;
+	      }
+
+	      function packageAnimations(element, event, options, animations, fnName) {
+	        var operations = groupEventedAnimations(element, event, options, animations, fnName);
+	        if (operations.length === 0) {
+	          var a,b;
+	          if (fnName === 'beforeSetClass') {
+	            a = groupEventedAnimations(element, 'removeClass', options, animations, 'beforeRemoveClass');
+	            b = groupEventedAnimations(element, 'addClass', options, animations, 'beforeAddClass');
+	          } else if (fnName === 'setClass') {
+	            a = groupEventedAnimations(element, 'removeClass', options, animations, 'removeClass');
+	            b = groupEventedAnimations(element, 'addClass', options, animations, 'addClass');
+	          }
+
+	          if (a) {
+	            operations = operations.concat(a);
+	          }
+	          if (b) {
+	            operations = operations.concat(b);
+	          }
+	        }
+
+	        if (operations.length === 0) return;
+
+	        // TODO(matsko): add documentation
+	        return function startAnimation(callback) {
+	          var runners = [];
+	          if (operations.length) {
+	            forEach(operations, function(animateFn) {
+	              runners.push(animateFn());
+	            });
+	          }
+
+	          runners.length ? $$AnimateRunner.all(runners, callback) : callback();
+
+	          return function endFn(reject) {
+	            forEach(runners, function(runner) {
+	              reject ? runner.cancel() : runner.end();
+	            });
+	          };
+	        };
+	      }
+	    };
+
+	    function lookupAnimations(classes) {
+	      classes = isArray(classes) ? classes : classes.split(' ');
+	      var matches = [], flagMap = {};
+	      for (var i=0; i < classes.length; i++) {
+	        var klass = classes[i],
+	            animationFactory = $animateProvider.$$registeredAnimations[klass];
+	        if (animationFactory && !flagMap[klass]) {
+	          matches.push($injector.get(animationFactory));
+	          flagMap[klass] = true;
+	        }
+	      }
+	      return matches;
+	    }
+	  }];
+	}];
+
+	var $$AnimateJsDriverProvider = ['$$animationProvider', function($$animationProvider) {
+	  $$animationProvider.drivers.push('$$animateJsDriver');
+	  this.$get = ['$$animateJs', '$$AnimateRunner', function($$animateJs, $$AnimateRunner) {
+	    return function initDriverFn(animationDetails) {
+	      if (animationDetails.from && animationDetails.to) {
+	        var fromAnimation = prepareAnimation(animationDetails.from);
+	        var toAnimation = prepareAnimation(animationDetails.to);
+	        if (!fromAnimation && !toAnimation) return;
+
+	        return {
+	          start: function() {
+	            var animationRunners = [];
+
+	            if (fromAnimation) {
+	              animationRunners.push(fromAnimation.start());
+	            }
+
+	            if (toAnimation) {
+	              animationRunners.push(toAnimation.start());
+	            }
+
+	            $$AnimateRunner.all(animationRunners, done);
+
+	            var runner = new $$AnimateRunner({
+	              end: endFnFactory(),
+	              cancel: endFnFactory()
+	            });
+
+	            return runner;
+
+	            function endFnFactory() {
+	              return function() {
+	                forEach(animationRunners, function(runner) {
+	                  // at this point we cannot cancel animations for groups just yet. 1.5+
+	                  runner.end();
+	                });
+	              };
+	            }
+
+	            function done(status) {
+	              runner.complete(status);
+	            }
+	          }
+	        };
+	      } else {
+	        return prepareAnimation(animationDetails);
+	      }
+	    };
+
+	    function prepareAnimation(animationDetails) {
+	      // TODO(matsko): make sure to check for grouped animations and delegate down to normal animations
+	      var element = animationDetails.element;
+	      var event = animationDetails.event;
+	      var options = animationDetails.options;
+	      var classes = animationDetails.classes;
+	      return $$animateJs(element, event, classes, options);
+	    }
+	  }];
+	}];
+
+	var NG_ANIMATE_ATTR_NAME = 'data-ng-animate';
+	var NG_ANIMATE_PIN_DATA = '$ngAnimatePin';
+	var $$AnimateQueueProvider = ['$animateProvider', function($animateProvider) {
+	  var PRE_DIGEST_STATE = 1;
+	  var RUNNING_STATE = 2;
+	  var ONE_SPACE = ' ';
+
+	  var rules = this.rules = {
+	    skip: [],
+	    cancel: [],
+	    join: []
+	  };
+
+	  function makeTruthyCssClassMap(classString) {
+	    if (!classString) {
+	      return null;
+	    }
+
+	    var keys = classString.split(ONE_SPACE);
+	    var map = Object.create(null);
+
+	    forEach(keys, function(key) {
+	      map[key] = true;
+	    });
+	    return map;
+	  }
+
+	  function hasMatchingClasses(newClassString, currentClassString) {
+	    if (newClassString && currentClassString) {
+	      var currentClassMap = makeTruthyCssClassMap(currentClassString);
+	      return newClassString.split(ONE_SPACE).some(function(className) {
+	        return currentClassMap[className];
+	      });
+	    }
+	  }
+
+	  function isAllowed(ruleType, element, currentAnimation, previousAnimation) {
+	    return rules[ruleType].some(function(fn) {
+	      return fn(element, currentAnimation, previousAnimation);
+	    });
+	  }
+
+	  function hasAnimationClasses(animation, and) {
+	    var a = (animation.addClass || '').length > 0;
+	    var b = (animation.removeClass || '').length > 0;
+	    return and ? a && b : a || b;
+	  }
+
+	  rules.join.push(function(element, newAnimation, currentAnimation) {
+	    // if the new animation is class-based then we can just tack that on
+	    return !newAnimation.structural && hasAnimationClasses(newAnimation);
+	  });
+
+	  rules.skip.push(function(element, newAnimation, currentAnimation) {
+	    // there is no need to animate anything if no classes are being added and
+	    // there is no structural animation that will be triggered
+	    return !newAnimation.structural && !hasAnimationClasses(newAnimation);
+	  });
+
+	  rules.skip.push(function(element, newAnimation, currentAnimation) {
+	    // why should we trigger a new structural animation if the element will
+	    // be removed from the DOM anyway?
+	    return currentAnimation.event == 'leave' && newAnimation.structural;
+	  });
+
+	  rules.skip.push(function(element, newAnimation, currentAnimation) {
+	    // if there is an ongoing current animation then don't even bother running the class-based animation
+	    return currentAnimation.structural && currentAnimation.state === RUNNING_STATE && !newAnimation.structural;
+	  });
+
+	  rules.cancel.push(function(element, newAnimation, currentAnimation) {
+	    // there can never be two structural animations running at the same time
+	    return currentAnimation.structural && newAnimation.structural;
+	  });
+
+	  rules.cancel.push(function(element, newAnimation, currentAnimation) {
+	    // if the previous animation is already running, but the new animation will
+	    // be triggered, but the new animation is structural
+	    return currentAnimation.state === RUNNING_STATE && newAnimation.structural;
+	  });
+
+	  rules.cancel.push(function(element, newAnimation, currentAnimation) {
+	    var nA = newAnimation.addClass;
+	    var nR = newAnimation.removeClass;
+	    var cA = currentAnimation.addClass;
+	    var cR = currentAnimation.removeClass;
+
+	    // early detection to save the global CPU shortage :)
+	    if ((isUndefined(nA) && isUndefined(nR)) || (isUndefined(cA) && isUndefined(cR))) {
+	      return false;
+	    }
+
+	    return hasMatchingClasses(nA, cR) || hasMatchingClasses(nR, cA);
+	  });
+
+	  this.$get = ['$$rAF', '$rootScope', '$rootElement', '$document', '$$HashMap',
+	               '$$animation', '$$AnimateRunner', '$templateRequest', '$$jqLite', '$$forceReflow',
+	       function($$rAF,   $rootScope,   $rootElement,   $document,   $$HashMap,
+	                $$animation,   $$AnimateRunner,   $templateRequest,   $$jqLite,   $$forceReflow) {
+
+	    var activeAnimationsLookup = new $$HashMap();
+	    var disabledElementsLookup = new $$HashMap();
+	    var animationsEnabled = null;
+
+	    function postDigestTaskFactory() {
+	      var postDigestCalled = false;
+	      return function(fn) {
+	        // we only issue a call to postDigest before
+	        // it has first passed. This prevents any callbacks
+	        // from not firing once the animation has completed
+	        // since it will be out of the digest cycle.
+	        if (postDigestCalled) {
+	          fn();
+	        } else {
+	          $rootScope.$$postDigest(function() {
+	            postDigestCalled = true;
+	            fn();
+	          });
+	        }
+	      };
+	    }
+
+	    // Wait until all directive and route-related templates are downloaded and
+	    // compiled. The $templateRequest.totalPendingRequests variable keeps track of
+	    // all of the remote templates being currently downloaded. If there are no
+	    // templates currently downloading then the watcher will still fire anyway.
+	    var deregisterWatch = $rootScope.$watch(
+	      function() { return $templateRequest.totalPendingRequests === 0; },
+	      function(isEmpty) {
+	        if (!isEmpty) return;
+	        deregisterWatch();
+
+	        // Now that all templates have been downloaded, $animate will wait until
+	        // the post digest queue is empty before enabling animations. By having two
+	        // calls to $postDigest calls we can ensure that the flag is enabled at the
+	        // very end of the post digest queue. Since all of the animations in $animate
+	        // use $postDigest, it's important that the code below executes at the end.
+	        // This basically means that the page is fully downloaded and compiled before
+	        // any animations are triggered.
+	        $rootScope.$$postDigest(function() {
+	          $rootScope.$$postDigest(function() {
+	            // we check for null directly in the event that the application already called
+	            // .enabled() with whatever arguments that it provided it with
+	            if (animationsEnabled === null) {
+	              animationsEnabled = true;
+	            }
+	          });
+	        });
+	      }
+	    );
+
+	    var callbackRegistry = {};
+
+	    // remember that the classNameFilter is set during the provider/config
+	    // stage therefore we can optimize here and setup a helper function
+	    var classNameFilter = $animateProvider.classNameFilter();
+	    var isAnimatableClassName = !classNameFilter
+	              ? function() { return true; }
+	              : function(className) {
+	                return classNameFilter.test(className);
+	              };
+
+	    var applyAnimationClasses = applyAnimationClassesFactory($$jqLite);
+
+	    function normalizeAnimationDetails(element, animation) {
+	      return mergeAnimationDetails(element, animation, {});
+	    }
+
+	    // IE9-11 has no method "contains" in SVG element and in Node.prototype. Bug #10259.
+	    var contains = Node.prototype.contains || function(arg) {
+	      // jshint bitwise: false
+	      return this === arg || !!(this.compareDocumentPosition(arg) & 16);
+	      // jshint bitwise: true
+	    };
+
+	    function findCallbacks(parent, element, event) {
+	      var targetNode = getDomNode(element);
+	      var targetParentNode = getDomNode(parent);
+
+	      var matches = [];
+	      var entries = callbackRegistry[event];
+	      if (entries) {
+	        forEach(entries, function(entry) {
+	          if (contains.call(entry.node, targetNode)) {
+	            matches.push(entry.callback);
+	          } else if (event === 'leave' && contains.call(entry.node, targetParentNode)) {
+	            matches.push(entry.callback);
+	          }
+	        });
+	      }
+
+	      return matches;
+	    }
+
+	    var $animate = {
+	      on: function(event, container, callback) {
+	        var node = extractElementNode(container);
+	        callbackRegistry[event] = callbackRegistry[event] || [];
+	        callbackRegistry[event].push({
+	          node: node,
+	          callback: callback
+	        });
+
+	        // Remove the callback when the element is removed from the DOM
+	        jqLite(container).on('$destroy', function() {
+	          $animate.off(event, container, callback);
+	        });
+	      },
+
+	      off: function(event, container, callback) {
+	        var entries = callbackRegistry[event];
+	        if (!entries) return;
+
+	        callbackRegistry[event] = arguments.length === 1
+	            ? null
+	            : filterFromRegistry(entries, container, callback);
+
+	        function filterFromRegistry(list, matchContainer, matchCallback) {
+	          var containerNode = extractElementNode(matchContainer);
+	          return list.filter(function(entry) {
+	            var isMatch = entry.node === containerNode &&
+	                            (!matchCallback || entry.callback === matchCallback);
+	            return !isMatch;
+	          });
+	        }
+	      },
+
+	      pin: function(element, parentElement) {
+	        assertArg(isElement(element), 'element', 'not an element');
+	        assertArg(isElement(parentElement), 'parentElement', 'not an element');
+	        element.data(NG_ANIMATE_PIN_DATA, parentElement);
+	      },
+
+	      push: function(element, event, options, domOperation) {
+	        options = options || {};
+	        options.domOperation = domOperation;
+	        return queueAnimation(element, event, options);
+	      },
+
+	      // this method has four signatures:
+	      //  () - global getter
+	      //  (bool) - global setter
+	      //  (element) - element getter
+	      //  (element, bool) - element setter<F37>
+	      enabled: function(element, bool) {
+	        var argCount = arguments.length;
+
+	        if (argCount === 0) {
+	          // () - Global getter
+	          bool = !!animationsEnabled;
+	        } else {
+	          var hasElement = isElement(element);
+
+	          if (!hasElement) {
+	            // (bool) - Global setter
+	            bool = animationsEnabled = !!element;
+	          } else {
+	            var node = getDomNode(element);
+	            var recordExists = disabledElementsLookup.get(node);
+
+	            if (argCount === 1) {
+	              // (element) - Element getter
+	              bool = !recordExists;
+	            } else {
+	              // (element, bool) - Element setter
+	              disabledElementsLookup.put(node, !bool);
+	            }
+	          }
+	        }
+
+	        return bool;
+	      }
+	    };
+
+	    return $animate;
+
+	    function queueAnimation(element, event, initialOptions) {
+	      // we always make a copy of the options since
+	      // there should never be any side effects on
+	      // the input data when running `$animateCss`.
+	      var options = copy(initialOptions);
+
+	      var node, parent;
+	      element = stripCommentsFromElement(element);
+	      if (element) {
+	        node = getDomNode(element);
+	        parent = element.parent();
+	      }
+
+	      options = prepareAnimationOptions(options);
+
+	      // we create a fake runner with a working promise.
+	      // These methods will become available after the digest has passed
+	      var runner = new $$AnimateRunner();
+
+	      // this is used to trigger callbacks in postDigest mode
+	      var runInNextPostDigestOrNow = postDigestTaskFactory();
+
+	      if (isArray(options.addClass)) {
+	        options.addClass = options.addClass.join(' ');
+	      }
+
+	      if (options.addClass && !isString(options.addClass)) {
+	        options.addClass = null;
+	      }
+
+	      if (isArray(options.removeClass)) {
+	        options.removeClass = options.removeClass.join(' ');
+	      }
+
+	      if (options.removeClass && !isString(options.removeClass)) {
+	        options.removeClass = null;
+	      }
+
+	      if (options.from && !isObject(options.from)) {
+	        options.from = null;
+	      }
+
+	      if (options.to && !isObject(options.to)) {
+	        options.to = null;
+	      }
+
+	      // there are situations where a directive issues an animation for
+	      // a jqLite wrapper that contains only comment nodes... If this
+	      // happens then there is no way we can perform an animation
+	      if (!node) {
+	        close();
+	        return runner;
+	      }
+
+	      var className = [node.className, options.addClass, options.removeClass].join(' ');
+	      if (!isAnimatableClassName(className)) {
+	        close();
+	        return runner;
+	      }
+
+	      var isStructural = ['enter', 'move', 'leave'].indexOf(event) >= 0;
+
+	      // this is a hard disable of all animations for the application or on
+	      // the element itself, therefore  there is no need to continue further
+	      // past this point if not enabled
+	      // Animations are also disabled if the document is currently hidden (page is not visible
+	      // to the user), because browsers slow down or do not flush calls to requestAnimationFrame
+	      var skipAnimations = !animationsEnabled || $document[0].hidden || disabledElementsLookup.get(node);
+	      var existingAnimation = (!skipAnimations && activeAnimationsLookup.get(node)) || {};
+	      var hasExistingAnimation = !!existingAnimation.state;
+
+	      // there is no point in traversing the same collection of parent ancestors if a followup
+	      // animation will be run on the same element that already did all that checking work
+	      if (!skipAnimations && (!hasExistingAnimation || existingAnimation.state != PRE_DIGEST_STATE)) {
+	        skipAnimations = !areAnimationsAllowed(element, parent, event);
+	      }
+
+	      if (skipAnimations) {
+	        close();
+	        return runner;
+	      }
+
+	      if (isStructural) {
+	        closeChildAnimations(element);
+	      }
+
+	      var newAnimation = {
+	        structural: isStructural,
+	        element: element,
+	        event: event,
+	        addClass: options.addClass,
+	        removeClass: options.removeClass,
+	        close: close,
+	        options: options,
+	        runner: runner
+	      };
+
+	      if (hasExistingAnimation) {
+	        var skipAnimationFlag = isAllowed('skip', element, newAnimation, existingAnimation);
+	        if (skipAnimationFlag) {
+	          if (existingAnimation.state === RUNNING_STATE) {
+	            close();
+	            return runner;
+	          } else {
+	            mergeAnimationDetails(element, existingAnimation, newAnimation);
+	            return existingAnimation.runner;
+	          }
+	        }
+	        var cancelAnimationFlag = isAllowed('cancel', element, newAnimation, existingAnimation);
+	        if (cancelAnimationFlag) {
+	          if (existingAnimation.state === RUNNING_STATE) {
+	            // this will end the animation right away and it is safe
+	            // to do so since the animation is already running and the
+	            // runner callback code will run in async
+	            existingAnimation.runner.end();
+	          } else if (existingAnimation.structural) {
+	            // this means that the animation is queued into a digest, but
+	            // hasn't started yet. Therefore it is safe to run the close
+	            // method which will call the runner methods in async.
+	            existingAnimation.close();
+	          } else {
+	            // this will merge the new animation options into existing animation options
+	            mergeAnimationDetails(element, existingAnimation, newAnimation);
+
+	            return existingAnimation.runner;
+	          }
+	        } else {
+	          // a joined animation means that this animation will take over the existing one
+	          // so an example would involve a leave animation taking over an enter. Then when
+	          // the postDigest kicks in the enter will be ignored.
+	          var joinAnimationFlag = isAllowed('join', element, newAnimation, existingAnimation);
+	          if (joinAnimationFlag) {
+	            if (existingAnimation.state === RUNNING_STATE) {
+	              normalizeAnimationDetails(element, newAnimation);
+	            } else {
+	              applyGeneratedPreparationClasses(element, isStructural ? event : null, options);
+
+	              event = newAnimation.event = existingAnimation.event;
+	              options = mergeAnimationDetails(element, existingAnimation, newAnimation);
+
+	              //we return the same runner since only the option values of this animation will
+	              //be fed into the `existingAnimation`.
+	              return existingAnimation.runner;
+	            }
+	          }
+	        }
+	      } else {
+	        // normalization in this case means that it removes redundant CSS classes that
+	        // already exist (addClass) or do not exist (removeClass) on the element
+	        normalizeAnimationDetails(element, newAnimation);
+	      }
+
+	      // when the options are merged and cleaned up we may end up not having to do
+	      // an animation at all, therefore we should check this before issuing a post
+	      // digest callback. Structural animations will always run no matter what.
+	      var isValidAnimation = newAnimation.structural;
+	      if (!isValidAnimation) {
+	        // animate (from/to) can be quickly checked first, otherwise we check if any classes are present
+	        isValidAnimation = (newAnimation.event === 'animate' && Object.keys(newAnimation.options.to || {}).length > 0)
+	                            || hasAnimationClasses(newAnimation);
+	      }
+
+	      if (!isValidAnimation) {
+	        close();
+	        clearElementAnimationState(element);
+	        return runner;
+	      }
+
+	      // the counter keeps track of cancelled animations
+	      var counter = (existingAnimation.counter || 0) + 1;
+	      newAnimation.counter = counter;
+
+	      markElementAnimationState(element, PRE_DIGEST_STATE, newAnimation);
+
+	      $rootScope.$$postDigest(function() {
+	        var animationDetails = activeAnimationsLookup.get(node);
+	        var animationCancelled = !animationDetails;
+	        animationDetails = animationDetails || {};
+
+	        // if addClass/removeClass is called before something like enter then the
+	        // registered parent element may not be present. The code below will ensure
+	        // that a final value for parent element is obtained
+	        var parentElement = element.parent() || [];
+
+	        // animate/structural/class-based animations all have requirements. Otherwise there
+	        // is no point in performing an animation. The parent node must also be set.
+	        var isValidAnimation = parentElement.length > 0
+	                                && (animationDetails.event === 'animate'
+	                                    || animationDetails.structural
+	                                    || hasAnimationClasses(animationDetails));
+
+	        // this means that the previous animation was cancelled
+	        // even if the follow-up animation is the same event
+	        if (animationCancelled || animationDetails.counter !== counter || !isValidAnimation) {
+	          // if another animation did not take over then we need
+	          // to make sure that the domOperation and options are
+	          // handled accordingly
+	          if (animationCancelled) {
+	            applyAnimationClasses(element, options);
+	            applyAnimationStyles(element, options);
+	          }
+
+	          // if the event changed from something like enter to leave then we do
+	          // it, otherwise if it's the same then the end result will be the same too
+	          if (animationCancelled || (isStructural && animationDetails.event !== event)) {
+	            options.domOperation();
+	            runner.end();
+	          }
+
+	          // in the event that the element animation was not cancelled or a follow-up animation
+	          // isn't allowed to animate from here then we need to clear the state of the element
+	          // so that any future animations won't read the expired animation data.
+	          if (!isValidAnimation) {
+	            clearElementAnimationState(element);
+	          }
+
+	          return;
+	        }
+
+	        // this combined multiple class to addClass / removeClass into a setClass event
+	        // so long as a structural event did not take over the animation
+	        event = !animationDetails.structural && hasAnimationClasses(animationDetails, true)
+	            ? 'setClass'
+	            : animationDetails.event;
+
+	        markElementAnimationState(element, RUNNING_STATE);
+	        var realRunner = $$animation(element, event, animationDetails.options);
+
+	        realRunner.done(function(status) {
+	          close(!status);
+	          var animationDetails = activeAnimationsLookup.get(node);
+	          if (animationDetails && animationDetails.counter === counter) {
+	            clearElementAnimationState(getDomNode(element));
+	          }
+	          notifyProgress(runner, event, 'close', {});
+	        });
+
+	        // this will update the runner's flow-control events based on
+	        // the `realRunner` object.
+	        runner.setHost(realRunner);
+	        notifyProgress(runner, event, 'start', {});
+	      });
+
+	      return runner;
+
+	      function notifyProgress(runner, event, phase, data) {
+	        runInNextPostDigestOrNow(function() {
+	          var callbacks = findCallbacks(parent, element, event);
+	          if (callbacks.length) {
+	            // do not optimize this call here to RAF because
+	            // we don't know how heavy the callback code here will
+	            // be and if this code is buffered then this can
+	            // lead to a performance regression.
+	            $$rAF(function() {
+	              forEach(callbacks, function(callback) {
+	                callback(element, phase, data);
+	              });
+	            });
+	          }
+	        });
+	        runner.progress(event, phase, data);
+	      }
+
+	      function close(reject) { // jshint ignore:line
+	        clearGeneratedClasses(element, options);
+	        applyAnimationClasses(element, options);
+	        applyAnimationStyles(element, options);
+	        options.domOperation();
+	        runner.complete(!reject);
+	      }
+	    }
+
+	    function closeChildAnimations(element) {
+	      var node = getDomNode(element);
+	      var children = node.querySelectorAll('[' + NG_ANIMATE_ATTR_NAME + ']');
+	      forEach(children, function(child) {
+	        var state = parseInt(child.getAttribute(NG_ANIMATE_ATTR_NAME));
+	        var animationDetails = activeAnimationsLookup.get(child);
+	        if (animationDetails) {
+	          switch (state) {
+	            case RUNNING_STATE:
+	              animationDetails.runner.end();
+	              /* falls through */
+	            case PRE_DIGEST_STATE:
+	              activeAnimationsLookup.remove(child);
+	              break;
+	          }
+	        }
+	      });
+	    }
+
+	    function clearElementAnimationState(element) {
+	      var node = getDomNode(element);
+	      node.removeAttribute(NG_ANIMATE_ATTR_NAME);
+	      activeAnimationsLookup.remove(node);
+	    }
+
+	    function isMatchingElement(nodeOrElmA, nodeOrElmB) {
+	      return getDomNode(nodeOrElmA) === getDomNode(nodeOrElmB);
+	    }
+
+	    /**
+	     * This fn returns false if any of the following is true:
+	     * a) animations on any parent element are disabled, and animations on the element aren't explicitly allowed
+	     * b) a parent element has an ongoing structural animation, and animateChildren is false
+	     * c) the element is not a child of the body
+	     * d) the element is not a child of the $rootElement
+	     */
+	    function areAnimationsAllowed(element, parentElement, event) {
+	      var bodyElement = jqLite($document[0].body);
+	      var bodyElementDetected = isMatchingElement(element, bodyElement) || element[0].nodeName === 'HTML';
+	      var rootElementDetected = isMatchingElement(element, $rootElement);
+	      var parentAnimationDetected = false;
+	      var animateChildren;
+	      var elementDisabled = disabledElementsLookup.get(getDomNode(element));
+
+	      var parentHost = jqLite.data(element[0], NG_ANIMATE_PIN_DATA);
+	      if (parentHost) {
+	        parentElement = parentHost;
+	      }
+
+	      parentElement = getDomNode(parentElement);
+
+	      while (parentElement) {
+	        if (!rootElementDetected) {
+	          // angular doesn't want to attempt to animate elements outside of the application
+	          // therefore we need to ensure that the rootElement is an ancestor of the current element
+	          rootElementDetected = isMatchingElement(parentElement, $rootElement);
+	        }
+
+	        if (parentElement.nodeType !== ELEMENT_NODE) {
+	          // no point in inspecting the #document element
+	          break;
+	        }
+
+	        var details = activeAnimationsLookup.get(parentElement) || {};
+	        // either an enter, leave or move animation will commence
+	        // therefore we can't allow any animations to take place
+	        // but if a parent animation is class-based then that's ok
+	        if (!parentAnimationDetected) {
+	          var parentElementDisabled = disabledElementsLookup.get(parentElement);
+
+	          if (parentElementDisabled === true && elementDisabled !== false) {
+	            // disable animations if the user hasn't explicitly enabled animations on the
+	            // current element
+	            elementDisabled = true;
+	            // element is disabled via parent element, no need to check anything else
+	            break;
+	          } else if (parentElementDisabled === false) {
+	            elementDisabled = false;
+	          }
+	          parentAnimationDetected = details.structural;
+	        }
+
+	        if (isUndefined(animateChildren) || animateChildren === true) {
+	          var value = jqLite.data(parentElement, NG_ANIMATE_CHILDREN_DATA);
+	          if (isDefined(value)) {
+	            animateChildren = value;
+	          }
+	        }
+
+	        // there is no need to continue traversing at this point
+	        if (parentAnimationDetected && animateChildren === false) break;
+
+	        if (!bodyElementDetected) {
+	          // we also need to ensure that the element is or will be a part of the body element
+	          // otherwise it is pointless to even issue an animation to be rendered
+	          bodyElementDetected = isMatchingElement(parentElement, bodyElement);
+	        }
+
+	        if (bodyElementDetected && rootElementDetected) {
+	          // If both body and root have been found, any other checks are pointless,
+	          // as no animation data should live outside the application
+	          break;
+	        }
+
+	        if (!rootElementDetected) {
+	          // If no rootElement is detected, check if the parentElement is pinned to another element
+	          parentHost = jqLite.data(parentElement, NG_ANIMATE_PIN_DATA);
+	          if (parentHost) {
+	            // The pin target element becomes the next parent element
+	            parentElement = getDomNode(parentHost);
+	            continue;
+	          }
+	        }
+
+	        parentElement = parentElement.parentNode;
+	      }
+
+	      var allowAnimation = (!parentAnimationDetected || animateChildren) && elementDisabled !== true;
+	      return allowAnimation && rootElementDetected && bodyElementDetected;
+	    }
+
+	    function markElementAnimationState(element, state, details) {
+	      details = details || {};
+	      details.state = state;
+
+	      var node = getDomNode(element);
+	      node.setAttribute(NG_ANIMATE_ATTR_NAME, state);
+
+	      var oldValue = activeAnimationsLookup.get(node);
+	      var newValue = oldValue
+	          ? extend(oldValue, details)
+	          : details;
+	      activeAnimationsLookup.put(node, newValue);
+	    }
+	  }];
+	}];
+
+	var $$AnimationProvider = ['$animateProvider', function($animateProvider) {
+	  var NG_ANIMATE_REF_ATTR = 'ng-animate-ref';
+
+	  var drivers = this.drivers = [];
+
+	  var RUNNER_STORAGE_KEY = '$$animationRunner';
+
+	  function setRunner(element, runner) {
+	    element.data(RUNNER_STORAGE_KEY, runner);
+	  }
+
+	  function removeRunner(element) {
+	    element.removeData(RUNNER_STORAGE_KEY);
+	  }
+
+	  function getRunner(element) {
+	    return element.data(RUNNER_STORAGE_KEY);
+	  }
+
+	  this.$get = ['$$jqLite', '$rootScope', '$injector', '$$AnimateRunner', '$$HashMap', '$$rAFScheduler',
+	       function($$jqLite,   $rootScope,   $injector,   $$AnimateRunner,   $$HashMap,   $$rAFScheduler) {
+
+	    var animationQueue = [];
+	    var applyAnimationClasses = applyAnimationClassesFactory($$jqLite);
+
+	    function sortAnimations(animations) {
+	      var tree = { children: [] };
+	      var i, lookup = new $$HashMap();
+
+	      // this is done first beforehand so that the hashmap
+	      // is filled with a list of the elements that will be animated
+	      for (i = 0; i < animations.length; i++) {
+	        var animation = animations[i];
+	        lookup.put(animation.domNode, animations[i] = {
+	          domNode: animation.domNode,
+	          fn: animation.fn,
+	          children: []
+	        });
+	      }
+
+	      for (i = 0; i < animations.length; i++) {
+	        processNode(animations[i]);
+	      }
+
+	      return flatten(tree);
+
+	      function processNode(entry) {
+	        if (entry.processed) return entry;
+	        entry.processed = true;
+
+	        var elementNode = entry.domNode;
+	        var parentNode = elementNode.parentNode;
+	        lookup.put(elementNode, entry);
+
+	        var parentEntry;
+	        while (parentNode) {
+	          parentEntry = lookup.get(parentNode);
+	          if (parentEntry) {
+	            if (!parentEntry.processed) {
+	              parentEntry = processNode(parentEntry);
+	            }
+	            break;
+	          }
+	          parentNode = parentNode.parentNode;
+	        }
+
+	        (parentEntry || tree).children.push(entry);
+	        return entry;
+	      }
+
+	      function flatten(tree) {
+	        var result = [];
+	        var queue = [];
+	        var i;
+
+	        for (i = 0; i < tree.children.length; i++) {
+	          queue.push(tree.children[i]);
+	        }
+
+	        var remainingLevelEntries = queue.length;
+	        var nextLevelEntries = 0;
+	        var row = [];
+
+	        for (i = 0; i < queue.length; i++) {
+	          var entry = queue[i];
+	          if (remainingLevelEntries <= 0) {
+	            remainingLevelEntries = nextLevelEntries;
+	            nextLevelEntries = 0;
+	            result.push(row);
+	            row = [];
+	          }
+	          row.push(entry.fn);
+	          entry.children.forEach(function(childEntry) {
+	            nextLevelEntries++;
+	            queue.push(childEntry);
+	          });
+	          remainingLevelEntries--;
+	        }
+
+	        if (row.length) {
+	          result.push(row);
+	        }
+
+	        return result;
+	      }
+	    }
+
+	    // TODO(matsko): document the signature in a better way
+	    return function(element, event, options) {
+	      options = prepareAnimationOptions(options);
+	      var isStructural = ['enter', 'move', 'leave'].indexOf(event) >= 0;
+
+	      // there is no animation at the current moment, however
+	      // these runner methods will get later updated with the
+	      // methods leading into the driver's end/cancel methods
+	      // for now they just stop the animation from starting
+	      var runner = new $$AnimateRunner({
+	        end: function() { close(); },
+	        cancel: function() { close(true); }
+	      });
+
+	      if (!drivers.length) {
+	        close();
+	        return runner;
+	      }
+
+	      setRunner(element, runner);
+
+	      var classes = mergeClasses(element.attr('class'), mergeClasses(options.addClass, options.removeClass));
+	      var tempClasses = options.tempClasses;
+	      if (tempClasses) {
+	        classes += ' ' + tempClasses;
+	        options.tempClasses = null;
+	      }
+
+	      var prepareClassName;
+	      if (isStructural) {
+	        prepareClassName = 'ng-' + event + PREPARE_CLASS_SUFFIX;
+	        $$jqLite.addClass(element, prepareClassName);
+	      }
+
+	      animationQueue.push({
+	        // this data is used by the postDigest code and passed into
+	        // the driver step function
+	        element: element,
+	        classes: classes,
+	        event: event,
+	        structural: isStructural,
+	        options: options,
+	        beforeStart: beforeStart,
+	        close: close
+	      });
+
+	      element.on('$destroy', handleDestroyedElement);
+
+	      // we only want there to be one function called within the post digest
+	      // block. This way we can group animations for all the animations that
+	      // were apart of the same postDigest flush call.
+	      if (animationQueue.length > 1) return runner;
+
+	      $rootScope.$$postDigest(function() {
+	        var animations = [];
+	        forEach(animationQueue, function(entry) {
+	          // the element was destroyed early on which removed the runner
+	          // form its storage. This means we can't animate this element
+	          // at all and it already has been closed due to destruction.
+	          if (getRunner(entry.element)) {
+	            animations.push(entry);
+	          } else {
+	            entry.close();
+	          }
+	        });
+
+	        // now any future animations will be in another postDigest
+	        animationQueue.length = 0;
+
+	        var groupedAnimations = groupAnimations(animations);
+	        var toBeSortedAnimations = [];
+
+	        forEach(groupedAnimations, function(animationEntry) {
+	          toBeSortedAnimations.push({
+	            domNode: getDomNode(animationEntry.from ? animationEntry.from.element : animationEntry.element),
+	            fn: function triggerAnimationStart() {
+	              // it's important that we apply the `ng-animate` CSS class and the
+	              // temporary classes before we do any driver invoking since these
+	              // CSS classes may be required for proper CSS detection.
+	              animationEntry.beforeStart();
+
+	              var startAnimationFn, closeFn = animationEntry.close;
+
+	              // in the event that the element was removed before the digest runs or
+	              // during the RAF sequencing then we should not trigger the animation.
+	              var targetElement = animationEntry.anchors
+	                  ? (animationEntry.from.element || animationEntry.to.element)
+	                  : animationEntry.element;
+
+	              if (getRunner(targetElement)) {
+	                var operation = invokeFirstDriver(animationEntry);
+	                if (operation) {
+	                  startAnimationFn = operation.start;
+	                }
+	              }
+
+	              if (!startAnimationFn) {
+	                closeFn();
+	              } else {
+	                var animationRunner = startAnimationFn();
+	                animationRunner.done(function(status) {
+	                  closeFn(!status);
+	                });
+	                updateAnimationRunners(animationEntry, animationRunner);
+	              }
+	            }
+	          });
+	        });
+
+	        // we need to sort each of the animations in order of parent to child
+	        // relationships. This ensures that the child classes are applied at the
+	        // right time.
+	        $$rAFScheduler(sortAnimations(toBeSortedAnimations));
+	      });
+
+	      return runner;
+
+	      // TODO(matsko): change to reference nodes
+	      function getAnchorNodes(node) {
+	        var SELECTOR = '[' + NG_ANIMATE_REF_ATTR + ']';
+	        var items = node.hasAttribute(NG_ANIMATE_REF_ATTR)
+	              ? [node]
+	              : node.querySelectorAll(SELECTOR);
+	        var anchors = [];
+	        forEach(items, function(node) {
+	          var attr = node.getAttribute(NG_ANIMATE_REF_ATTR);
+	          if (attr && attr.length) {
+	            anchors.push(node);
+	          }
+	        });
+	        return anchors;
+	      }
+
+	      function groupAnimations(animations) {
+	        var preparedAnimations = [];
+	        var refLookup = {};
+	        forEach(animations, function(animation, index) {
+	          var element = animation.element;
+	          var node = getDomNode(element);
+	          var event = animation.event;
+	          var enterOrMove = ['enter', 'move'].indexOf(event) >= 0;
+	          var anchorNodes = animation.structural ? getAnchorNodes(node) : [];
+
+	          if (anchorNodes.length) {
+	            var direction = enterOrMove ? 'to' : 'from';
+
+	            forEach(anchorNodes, function(anchor) {
+	              var key = anchor.getAttribute(NG_ANIMATE_REF_ATTR);
+	              refLookup[key] = refLookup[key] || {};
+	              refLookup[key][direction] = {
+	                animationID: index,
+	                element: jqLite(anchor)
+	              };
+	            });
+	          } else {
+	            preparedAnimations.push(animation);
+	          }
+	        });
+
+	        var usedIndicesLookup = {};
+	        var anchorGroups = {};
+	        forEach(refLookup, function(operations, key) {
+	          var from = operations.from;
+	          var to = operations.to;
+
+	          if (!from || !to) {
+	            // only one of these is set therefore we can't have an
+	            // anchor animation since all three pieces are required
+	            var index = from ? from.animationID : to.animationID;
+	            var indexKey = index.toString();
+	            if (!usedIndicesLookup[indexKey]) {
+	              usedIndicesLookup[indexKey] = true;
+	              preparedAnimations.push(animations[index]);
+	            }
+	            return;
+	          }
+
+	          var fromAnimation = animations[from.animationID];
+	          var toAnimation = animations[to.animationID];
+	          var lookupKey = from.animationID.toString();
+	          if (!anchorGroups[lookupKey]) {
+	            var group = anchorGroups[lookupKey] = {
+	              structural: true,
+	              beforeStart: function() {
+	                fromAnimation.beforeStart();
+	                toAnimation.beforeStart();
+	              },
+	              close: function() {
+	                fromAnimation.close();
+	                toAnimation.close();
+	              },
+	              classes: cssClassesIntersection(fromAnimation.classes, toAnimation.classes),
+	              from: fromAnimation,
+	              to: toAnimation,
+	              anchors: [] // TODO(matsko): change to reference nodes
+	            };
+
+	            // the anchor animations require that the from and to elements both have at least
+	            // one shared CSS class which effectively marries the two elements together to use
+	            // the same animation driver and to properly sequence the anchor animation.
+	            if (group.classes.length) {
+	              preparedAnimations.push(group);
+	            } else {
+	              preparedAnimations.push(fromAnimation);
+	              preparedAnimations.push(toAnimation);
+	            }
+	          }
+
+	          anchorGroups[lookupKey].anchors.push({
+	            'out': from.element, 'in': to.element
+	          });
+	        });
+
+	        return preparedAnimations;
+	      }
+
+	      function cssClassesIntersection(a,b) {
+	        a = a.split(' ');
+	        b = b.split(' ');
+	        var matches = [];
+
+	        for (var i = 0; i < a.length; i++) {
+	          var aa = a[i];
+	          if (aa.substring(0,3) === 'ng-') continue;
+
+	          for (var j = 0; j < b.length; j++) {
+	            if (aa === b[j]) {
+	              matches.push(aa);
+	              break;
+	            }
+	          }
+	        }
+
+	        return matches.join(' ');
+	      }
+
+	      function invokeFirstDriver(animationDetails) {
+	        // we loop in reverse order since the more general drivers (like CSS and JS)
+	        // may attempt more elements, but custom drivers are more particular
+	        for (var i = drivers.length - 1; i >= 0; i--) {
+	          var driverName = drivers[i];
+	          if (!$injector.has(driverName)) continue; // TODO(matsko): remove this check
+
+	          var factory = $injector.get(driverName);
+	          var driver = factory(animationDetails);
+	          if (driver) {
+	            return driver;
+	          }
+	        }
+	      }
+
+	      function beforeStart() {
+	        element.addClass(NG_ANIMATE_CLASSNAME);
+	        if (tempClasses) {
+	          $$jqLite.addClass(element, tempClasses);
+	        }
+	        if (prepareClassName) {
+	          $$jqLite.removeClass(element, prepareClassName);
+	          prepareClassName = null;
+	        }
+	      }
+
+	      function updateAnimationRunners(animation, newRunner) {
+	        if (animation.from && animation.to) {
+	          update(animation.from.element);
+	          update(animation.to.element);
+	        } else {
+	          update(animation.element);
+	        }
+
+	        function update(element) {
+	          getRunner(element).setHost(newRunner);
+	        }
+	      }
+
+	      function handleDestroyedElement() {
+	        var runner = getRunner(element);
+	        if (runner && (event !== 'leave' || !options.$$domOperationFired)) {
+	          runner.end();
+	        }
+	      }
+
+	      function close(rejected) { // jshint ignore:line
+	        element.off('$destroy', handleDestroyedElement);
+	        removeRunner(element);
+
+	        applyAnimationClasses(element, options);
+	        applyAnimationStyles(element, options);
+	        options.domOperation();
+
+	        if (tempClasses) {
+	          $$jqLite.removeClass(element, tempClasses);
+	        }
+
+	        element.removeClass(NG_ANIMATE_CLASSNAME);
+	        runner.complete(!rejected);
+	      }
+	    };
+	  }];
+	}];
+
+	/**
+	 * @ngdoc directive
+	 * @name ngAnimateSwap
+	 * @restrict A
+	 * @scope
+	 *
+	 * @description
+	 *
+	 * ngAnimateSwap is a animation-oriented directive that allows for the container to
+	 * be removed and entered in whenever the associated expression changes. A
+	 * common usecase for this directive is a rotating banner or slider component which
+	 * contains one image being present at a time. When the active image changes
+	 * then the old image will perform a `leave` animation and the new element
+	 * will be inserted via an `enter` animation.
+	 *
+	 * @animations
+	 * | Animation                        | Occurs                               |
+	 * |----------------------------------|--------------------------------------|
+	 * | {@link ng.$animate#enter enter}  | when the new element is inserted to the DOM  |
+	 * | {@link ng.$animate#leave leave}  | when the old element is removed from the DOM |
+	 *
+	 * @example
+	 * <example name="ngAnimateSwap-directive" module="ngAnimateSwapExample"
+	 *          deps="angular-animate.js"
+	 *          animations="true" fixBase="true">
+	 *   <file name="index.html">
+	 *     <div class="container" ng-controller="AppCtrl">
+	 *       <div ng-animate-swap="number" class="cell swap-animation" ng-class="colorClass(number)">
+	 *         {{ number }}
+	 *       </div>
+	 *     </div>
+	 *   </file>
+	 *   <file name="script.js">
+	 *     angular.module('ngAnimateSwapExample', ['ngAnimate'])
+	 *       .controller('AppCtrl', ['$scope', '$interval', function($scope, $interval) {
+	 *         $scope.number = 0;
+	 *         $interval(function() {
+	 *           $scope.number++;
+	 *         }, 1000);
+	 *
+	 *         var colors = ['red','blue','green','yellow','orange'];
+	 *         $scope.colorClass = function(number) {
+	 *           return colors[number % colors.length];
+	 *         };
+	 *       }]);
+	 *   </file>
+	 *  <file name="animations.css">
+	 *  .container {
+	 *    height:250px;
+	 *    width:250px;
+	 *    position:relative;
+	 *    overflow:hidden;
+	 *    border:2px solid black;
+	 *  }
+	 *  .container .cell {
+	 *    font-size:150px;
+	 *    text-align:center;
+	 *    line-height:250px;
+	 *    position:absolute;
+	 *    top:0;
+	 *    left:0;
+	 *    right:0;
+	 *    border-bottom:2px solid black;
+	 *  }
+	 *  .swap-animation.ng-enter, .swap-animation.ng-leave {
+	 *    transition:0.5s linear all;
+	 *  }
+	 *  .swap-animation.ng-enter {
+	 *    top:-250px;
+	 *  }
+	 *  .swap-animation.ng-enter-active {
+	 *    top:0px;
+	 *  }
+	 *  .swap-animation.ng-leave {
+	 *    top:0px;
+	 *  }
+	 *  .swap-animation.ng-leave-active {
+	 *    top:250px;
+	 *  }
+	 *  .red { background:red; }
+	 *  .green { background:green; }
+	 *  .blue { background:blue; }
+	 *  .yellow { background:yellow; }
+	 *  .orange { background:orange; }
+	 *  </file>
+	 * </example>
+	 */
+	var ngAnimateSwapDirective = ['$animate', '$rootScope', function($animate, $rootScope) {
+	  return {
+	    restrict: 'A',
+	    transclude: 'element',
+	    terminal: true,
+	    priority: 600, // we use 600 here to ensure that the directive is caught before others
+	    link: function(scope, $element, attrs, ctrl, $transclude) {
+	      var previousElement, previousScope;
+	      scope.$watchCollection(attrs.ngAnimateSwap || attrs['for'], function(value) {
+	        if (previousElement) {
+	          $animate.leave(previousElement);
+	        }
+	        if (previousScope) {
+	          previousScope.$destroy();
+	          previousScope = null;
+	        }
+	        if (value || value === 0) {
+	          previousScope = scope.$new();
+	          $transclude(previousScope, function(element) {
+	            previousElement = element;
+	            $animate.enter(element, null, $element);
+	          });
+	        }
+	      });
+	    }
+	  };
+	}];
+
+	/* global angularAnimateModule: true,
+
+	   ngAnimateSwapDirective,
+	   $$AnimateAsyncRunFactory,
+	   $$rAFSchedulerFactory,
+	   $$AnimateChildrenDirective,
+	   $$AnimateQueueProvider,
+	   $$AnimationProvider,
+	   $AnimateCssProvider,
+	   $$AnimateCssDriverProvider,
+	   $$AnimateJsProvider,
+	   $$AnimateJsDriverProvider,
+	*/
+
+	/**
+	 * @ngdoc module
+	 * @name ngAnimate
+	 * @description
+	 *
+	 * The `ngAnimate` module provides support for CSS-based animations (keyframes and transitions) as well as JavaScript-based animations via
+	 * callback hooks. Animations are not enabled by default, however, by including `ngAnimate` the animation hooks are enabled for an Angular app.
+	 *
+	 * <div doc-module-components="ngAnimate"></div>
+	 *
+	 * # Usage
+	 * Simply put, there are two ways to make use of animations when ngAnimate is used: by using **CSS** and **JavaScript**. The former works purely based
+	 * using CSS (by using matching CSS selectors/styles) and the latter triggers animations that are registered via `module.animation()`. For
+	 * both CSS and JS animations the sole requirement is to have a matching `CSS class` that exists both in the registered animation and within
+	 * the HTML element that the animation will be triggered on.
+	 *
+	 * ## Directive Support
+	 * The following directives are "animation aware":
+	 *
+	 * | Directive                                                                                                | Supported Animations                                                     |
+	 * |----------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
+	 * | {@link ng.directive:ngRepeat#animations ngRepeat}                                                        | enter, leave and move                                                    |
+	 * | {@link ngRoute.directive:ngView#animations ngView}                                                       | enter and leave                                                          |
+	 * | {@link ng.directive:ngInclude#animations ngInclude}                                                      | enter and leave                                                          |
+	 * | {@link ng.directive:ngSwitch#animations ngSwitch}                                                        | enter and leave                                                          |
+	 * | {@link ng.directive:ngIf#animations ngIf}                                                                | enter and leave                                                          |
+	 * | {@link ng.directive:ngClass#animations ngClass}                                                          | add and remove (the CSS class(es) present)                               |
+	 * | {@link ng.directive:ngShow#animations ngShow} & {@link ng.directive:ngHide#animations ngHide}            | add and remove (the ng-hide class value)                                 |
+	 * | {@link ng.directive:form#animation-hooks form} & {@link ng.directive:ngModel#animation-hooks ngModel}    | add and remove (dirty, pristine, valid, invalid & all other validations) |
+	 * | {@link module:ngMessages#animations ngMessages}                                                          | add and remove (ng-active & ng-inactive)                                 |
+	 * | {@link module:ngMessages#animations ngMessage}                                                           | enter and leave                                                          |
+	 *
+	 * (More information can be found by visiting each the documentation associated with each directive.)
+	 *
+	 * ## CSS-based Animations
+	 *
+	 * CSS-based animations with ngAnimate are unique since they require no JavaScript code at all. By using a CSS class that we reference between our HTML
+	 * and CSS code we can create an animation that will be picked up by Angular when an the underlying directive performs an operation.
+	 *
+	 * The example below shows how an `enter` animation can be made possible on an element using `ng-if`:
+	 *
+	 * ```html
+	 * <div ng-if="bool" class="fade">
+	 *    Fade me in out
+	 * </div>
+	 * <button ng-click="bool=true">Fade In!</button>
+	 * <button ng-click="bool=false">Fade Out!</button>
+	 * ```
+	 *
+	 * Notice the CSS class **fade**? We can now create the CSS transition code that references this class:
+	 *
+	 * ```css
+	 * /&#42; The starting CSS styles for the enter animation &#42;/
+	 * .fade.ng-enter {
+	 *   transition:0.5s linear all;
+	 *   opacity:0;
+	 * }
+	 *
+	 * /&#42; The finishing CSS styles for the enter animation &#42;/
+	 * .fade.ng-enter.ng-enter-active {
+	 *   opacity:1;
+	 * }
+	 * ```
+	 *
+	 * The key thing to remember here is that, depending on the animation event (which each of the directives above trigger depending on what's going on) two
+	 * generated CSS classes will be applied to the element; in the example above we have `.ng-enter` and `.ng-enter-active`. For CSS transitions, the transition
+	 * code **must** be defined within the starting CSS class (in this case `.ng-enter`). The destination class is what the transition will animate towards.
+	 *
+	 * If for example we wanted to create animations for `leave` and `move` (ngRepeat triggers move) then we can do so using the same CSS naming conventions:
+	 *
+	 * ```css
+	 * /&#42; now the element will fade out before it is removed from the DOM &#42;/
+	 * .fade.ng-leave {
+	 *   transition:0.5s linear all;
+	 *   opacity:1;
+	 * }
+	 * .fade.ng-leave.ng-leave-active {
+	 *   opacity:0;
+	 * }
+	 * ```
+	 *
+	 * We can also make use of **CSS Keyframes** by referencing the keyframe animation within the starting CSS class:
+	 *
+	 * ```css
+	 * /&#42; there is no need to define anything inside of the destination
+	 * CSS class since the keyframe will take charge of the animation &#42;/
+	 * .fade.ng-leave {
+	 *   animation: my_fade_animation 0.5s linear;
+	 *   -webkit-animation: my_fade_animation 0.5s linear;
+	 * }
+	 *
+	 * @keyframes my_fade_animation {
+	 *   from { opacity:1; }
+	 *   to { opacity:0; }
+	 * }
+	 *
+	 * @-webkit-keyframes my_fade_animation {
+	 *   from { opacity:1; }
+	 *   to { opacity:0; }
+	 * }
+	 * ```
+	 *
+	 * Feel free also mix transitions and keyframes together as well as any other CSS classes on the same element.
+	 *
+	 * ### CSS Class-based Animations
+	 *
+	 * Class-based animations (animations that are triggered via `ngClass`, `ngShow`, `ngHide` and some other directives) have a slightly different
+	 * naming convention. Class-based animations are basic enough that a standard transition or keyframe can be referenced on the class being added
+	 * and removed.
+	 *
+	 * For example if we wanted to do a CSS animation for `ngHide` then we place an animation on the `.ng-hide` CSS class:
+	 *
+	 * ```html
+	 * <div ng-show="bool" class="fade">
+	 *   Show and hide me
+	 * </div>
+	 * <button ng-click="bool=true">Toggle</button>
+	 *
+	 * <style>
+	 * .fade.ng-hide {
+	 *   transition:0.5s linear all;
+	 *   opacity:0;
+	 * }
+	 * </style>
+	 * ```
+	 *
+	 * All that is going on here with ngShow/ngHide behind the scenes is the `.ng-hide` class is added/removed (when the hidden state is valid). Since
+	 * ngShow and ngHide are animation aware then we can match up a transition and ngAnimate handles the rest.
+	 *
+	 * In addition the addition and removal of the CSS class, ngAnimate also provides two helper methods that we can use to further decorate the animation
+	 * with CSS styles.
+	 *
+	 * ```html
+	 * <div ng-class="{on:onOff}" class="highlight">
+	 *   Highlight this box
+	 * </div>
+	 * <button ng-click="onOff=!onOff">Toggle</button>
+	 *
+	 * <style>
+	 * .highlight {
+	 *   transition:0.5s linear all;
+	 * }
+	 * .highlight.on-add {
+	 *   background:white;
+	 * }
+	 * .highlight.on {
+	 *   background:yellow;
+	 * }
+	 * .highlight.on-remove {
+	 *   background:black;
+	 * }
+	 * </style>
+	 * ```
+	 *
+	 * We can also make use of CSS keyframes by placing them within the CSS classes.
+	 *
+	 *
+	 * ### CSS Staggering Animations
+	 * A Staggering animation is a collection of animations that are issued with a slight delay in between each successive operation resulting in a
+	 * curtain-like effect. The ngAnimate module (versions >=1.2) supports staggering animations and the stagger effect can be
+	 * performed by creating a **ng-EVENT-stagger** CSS class and attaching that class to the base CSS class used for
+	 * the animation. The style property expected within the stagger class can either be a **transition-delay** or an
+	 * **animation-delay** property (or both if your animation contains both transitions and keyframe animations).
+	 *
+	 * ```css
+	 * .my-animation.ng-enter {
+	 *   /&#42; standard transition code &#42;/
+	 *   transition: 1s linear all;
+	 *   opacity:0;
+	 * }
+	 * .my-animation.ng-enter-stagger {
+	 *   /&#42; this will have a 100ms delay between each successive leave animation &#42;/
+	 *   transition-delay: 0.1s;
+	 *
+	 *   /&#42; As of 1.4.4, this must always be set: it signals ngAnimate
+	 *     to not accidentally inherit a delay property from another CSS class &#42;/
+	 *   transition-duration: 0s;
+	 * }
+	 * .my-animation.ng-enter.ng-enter-active {
+	 *   /&#42; standard transition styles &#42;/
+	 *   opacity:1;
+	 * }
+	 * ```
+	 *
+	 * Staggering animations work by default in ngRepeat (so long as the CSS class is defined). Outside of ngRepeat, to use staggering animations
+	 * on your own, they can be triggered by firing multiple calls to the same event on $animate. However, the restrictions surrounding this
+	 * are that each of the elements must have the same CSS className value as well as the same parent element. A stagger operation
+	 * will also be reset if one or more animation frames have passed since the multiple calls to `$animate` were fired.
+	 *
+	 * The following code will issue the **ng-leave-stagger** event on the element provided:
+	 *
+	 * ```js
+	 * var kids = parent.children();
+	 *
+	 * $animate.leave(kids[0]); //stagger index=0
+	 * $animate.leave(kids[1]); //stagger index=1
+	 * $animate.leave(kids[2]); //stagger index=2
+	 * $animate.leave(kids[3]); //stagger index=3
+	 * $animate.leave(kids[4]); //stagger index=4
+	 *
+	 * window.requestAnimationFrame(function() {
+	 *   //stagger has reset itself
+	 *   $animate.leave(kids[5]); //stagger index=0
+	 *   $animate.leave(kids[6]); //stagger index=1
+	 *
+	 *   $scope.$digest();
+	 * });
+	 * ```
+	 *
+	 * Stagger animations are currently only supported within CSS-defined animations.
+	 *
+	 * ### The `ng-animate` CSS class
+	 *
+	 * When ngAnimate is animating an element it will apply the `ng-animate` CSS class to the element for the duration of the animation.
+	 * This is a temporary CSS class and it will be removed once the animation is over (for both JavaScript and CSS-based animations).
+	 *
+	 * Therefore, animations can be applied to an element using this temporary class directly via CSS.
+	 *
+	 * ```css
+	 * .zipper.ng-animate {
+	 *   transition:0.5s linear all;
+	 * }
+	 * .zipper.ng-enter {
+	 *   opacity:0;
+	 * }
+	 * .zipper.ng-enter.ng-enter-active {
+	 *   opacity:1;
+	 * }
+	 * .zipper.ng-leave {
+	 *   opacity:1;
+	 * }
+	 * .zipper.ng-leave.ng-leave-active {
+	 *   opacity:0;
+	 * }
+	 * ```
+	 *
+	 * (Note that the `ng-animate` CSS class is reserved and it cannot be applied on an element directly since ngAnimate will always remove
+	 * the CSS class once an animation has completed.)
+	 *
+	 *
+	 * ### The `ng-[event]-prepare` class
+	 *
+	 * This is a special class that can be used to prevent unwanted flickering / flash of content before
+	 * the actual animation starts. The class is added as soon as an animation is initialized, but removed
+	 * before the actual animation starts (after waiting for a $digest).
+	 * It is also only added for *structural* animations (`enter`, `move`, and `leave`).
+	 *
+	 * In practice, flickering can appear when nesting elements with structural animations such as `ngIf`
+	 * into elements that have class-based animations such as `ngClass`.
+	 *
+	 * ```html
+	 * <div ng-class="{red: myProp}">
+	 *   <div ng-class="{blue: myProp}">
+	 *     <div class="message" ng-if="myProp"></div>
+	 *   </div>
+	 * </div>
+	 * ```
+	 *
+	 * It is possible that during the `enter` animation, the `.message` div will be briefly visible before it starts animating.
+	 * In that case, you can add styles to the CSS that make sure the element stays hidden before the animation starts:
+	 *
+	 * ```css
+	 * .message.ng-enter-prepare {
+	 *   opacity: 0;
+	 * }
+	 *
+	 * ```
+	 *
+	 * ## JavaScript-based Animations
+	 *
+	 * ngAnimate also allows for animations to be consumed by JavaScript code. The approach is similar to CSS-based animations (where there is a shared
+	 * CSS class that is referenced in our HTML code) but in addition we need to register the JavaScript animation on the module. By making use of the
+	 * `module.animation()` module function we can register the animation.
+	 *
+	 * Let's see an example of a enter/leave animation using `ngRepeat`:
+	 *
+	 * ```html
+	 * <div ng-repeat="item in items" class="slide">
+	 *   {{ item }}
+	 * </div>
+	 * ```
+	 *
+	 * See the **slide** CSS class? Let's use that class to define an animation that we'll structure in our module code by using `module.animation`:
+	 *
+	 * ```js
+	 * myModule.animation('.slide', [function() {
+	 *   return {
+	 *     // make note that other events (like addClass/removeClass)
+	 *     // have different function input parameters
+	 *     enter: function(element, doneFn) {
+	 *       jQuery(element).fadeIn(1000, doneFn);
+	 *
+	 *       // remember to call doneFn so that angular
+	 *       // knows that the animation has concluded
+	 *     },
+	 *
+	 *     move: function(element, doneFn) {
+	 *       jQuery(element).fadeIn(1000, doneFn);
+	 *     },
+	 *
+	 *     leave: function(element, doneFn) {
+	 *       jQuery(element).fadeOut(1000, doneFn);
+	 *     }
+	 *   }
+	 * }]);
+	 * ```
+	 *
+	 * The nice thing about JS-based animations is that we can inject other services and make use of advanced animation libraries such as
+	 * greensock.js and velocity.js.
+	 *
+	 * If our animation code class-based (meaning that something like `ngClass`, `ngHide` and `ngShow` triggers it) then we can still define
+	 * our animations inside of the same registered animation, however, the function input arguments are a bit different:
+	 *
+	 * ```html
+	 * <div ng-class="color" class="colorful">
+	 *   this box is moody
+	 * </div>
+	 * <button ng-click="color='red'">Change to red</button>
+	 * <button ng-click="color='blue'">Change to blue</button>
+	 * <button ng-click="color='green'">Change to green</button>
+	 * ```
+	 *
+	 * ```js
+	 * myModule.animation('.colorful', [function() {
+	 *   return {
+	 *     addClass: function(element, className, doneFn) {
+	 *       // do some cool animation and call the doneFn
+	 *     },
+	 *     removeClass: function(element, className, doneFn) {
+	 *       // do some cool animation and call the doneFn
+	 *     },
+	 *     setClass: function(element, addedClass, removedClass, doneFn) {
+	 *       // do some cool animation and call the doneFn
+	 *     }
+	 *   }
+	 * }]);
+	 * ```
+	 *
+	 * ## CSS + JS Animations Together
+	 *
+	 * AngularJS 1.4 and higher has taken steps to make the amalgamation of CSS and JS animations more flexible. However, unlike earlier versions of Angular,
+	 * defining CSS and JS animations to work off of the same CSS class will not work anymore. Therefore the example below will only result in **JS animations taking
+	 * charge of the animation**:
+	 *
+	 * ```html
+	 * <div ng-if="bool" class="slide">
+	 *   Slide in and out
+	 * </div>
+	 * ```
+	 *
+	 * ```js
+	 * myModule.animation('.slide', [function() {
+	 *   return {
+	 *     enter: function(element, doneFn) {
+	 *       jQuery(element).slideIn(1000, doneFn);
+	 *     }
+	 *   }
+	 * }]);
+	 * ```
+	 *
+	 * ```css
+	 * .slide.ng-enter {
+	 *   transition:0.5s linear all;
+	 *   transform:translateY(-100px);
+	 * }
+	 * .slide.ng-enter.ng-enter-active {
+	 *   transform:translateY(0);
+	 * }
+	 * ```
+	 *
+	 * Does this mean that CSS and JS animations cannot be used together? Do JS-based animations always have higher priority? We can make up for the
+	 * lack of CSS animations by using the `$animateCss` service to trigger our own tweaked-out, CSS-based animations directly from
+	 * our own JS-based animation code:
+	 *
+	 * ```js
+	 * myModule.animation('.slide', ['$animateCss', function($animateCss) {
+	 *   return {
+	 *     enter: function(element) {
+	*        // this will trigger `.slide.ng-enter` and `.slide.ng-enter-active`.
+	 *       return $animateCss(element, {
+	 *         event: 'enter',
+	 *         structural: true
+	 *       });
+	 *     }
+	 *   }
+	 * }]);
+	 * ```
+	 *
+	 * The nice thing here is that we can save bandwidth by sticking to our CSS-based animation code and we don't need to rely on a 3rd-party animation framework.
+	 *
+	 * The `$animateCss` service is very powerful since we can feed in all kinds of extra properties that will be evaluated and fed into a CSS transition or
+	 * keyframe animation. For example if we wanted to animate the height of an element while adding and removing classes then we can do so by providing that
+	 * data into `$animateCss` directly:
+	 *
+	 * ```js
+	 * myModule.animation('.slide', ['$animateCss', function($animateCss) {
+	 *   return {
+	 *     enter: function(element) {
+	 *       return $animateCss(element, {
+	 *         event: 'enter',
+	 *         structural: true,
+	 *         addClass: 'maroon-setting',
+	 *         from: { height:0 },
+	 *         to: { height: 200 }
+	 *       });
+	 *     }
+	 *   }
+	 * }]);
+	 * ```
+	 *
+	 * Now we can fill in the rest via our transition CSS code:
+	 *
+	 * ```css
+	 * /&#42; the transition tells ngAnimate to make the animation happen &#42;/
+	 * .slide.ng-enter { transition:0.5s linear all; }
+	 *
+	 * /&#42; this extra CSS class will be absorbed into the transition
+	 * since the $animateCss code is adding the class &#42;/
+	 * .maroon-setting { background:red; }
+	 * ```
+	 *
+	 * And `$animateCss` will figure out the rest. Just make sure to have the `done()` callback fire the `doneFn` function to signal when the animation is over.
+	 *
+	 * To learn more about what's possible be sure to visit the {@link ngAnimate.$animateCss $animateCss service}.
+	 *
+	 * ## Animation Anchoring (via `ng-animate-ref`)
+	 *
+	 * ngAnimate in AngularJS 1.4 comes packed with the ability to cross-animate elements between
+	 * structural areas of an application (like views) by pairing up elements using an attribute
+	 * called `ng-animate-ref`.
+	 *
+	 * Let's say for example we have two views that are managed by `ng-view` and we want to show
+	 * that there is a relationship between two components situated in within these views. By using the
+	 * `ng-animate-ref` attribute we can identify that the two components are paired together and we
+	 * can then attach an animation, which is triggered when the view changes.
+	 *
+	 * Say for example we have the following template code:
+	 *
+	 * ```html
+	 * <!-- index.html -->
+	 * <div ng-view class="view-animation">
+	 * </div>
+	 *
+	 * <!-- home.html -->
+	 * <a href="#/banner-page">
+	 *   <img src="./banner.jpg" class="banner" ng-animate-ref="banner">
+	 * </a>
+	 *
+	 * <!-- banner-page.html -->
+	 * <img src="./banner.jpg" class="banner" ng-animate-ref="banner">
+	 * ```
+	 *
+	 * Now, when the view changes (once the link is clicked), ngAnimate will examine the
+	 * HTML contents to see if there is a match reference between any components in the view
+	 * that is leaving and the view that is entering. It will scan both the view which is being
+	 * removed (leave) and inserted (enter) to see if there are any paired DOM elements that
+	 * contain a matching ref value.
+	 *
+	 * The two images match since they share the same ref value. ngAnimate will now create a
+	 * transport element (which is a clone of the first image element) and it will then attempt
+	 * to animate to the position of the second image element in the next view. For the animation to
+	 * work a special CSS class called `ng-anchor` will be added to the transported element.
+	 *
+	 * We can now attach a transition onto the `.banner.ng-anchor` CSS class and then
+	 * ngAnimate will handle the entire transition for us as well as the addition and removal of
+	 * any changes of CSS classes between the elements:
+	 *
+	 * ```css
+	 * .banner.ng-anchor {
+	 *   /&#42; this animation will last for 1 second since there are
+	 *          two phases to the animation (an `in` and an `out` phase) &#42;/
+	 *   transition:0.5s linear all;
+	 * }
+	 * ```
+	 *
+	 * We also **must** include animations for the views that are being entered and removed
+	 * (otherwise anchoring wouldn't be possible since the new view would be inserted right away).
+	 *
+	 * ```css
+	 * .view-animation.ng-enter, .view-animation.ng-leave {
+	 *   transition:0.5s linear all;
+	 *   position:fixed;
+	 *   left:0;
+	 *   top:0;
+	 *   width:100%;
+	 * }
+	 * .view-animation.ng-enter {
+	 *   transform:translateX(100%);
+	 * }
+	 * .view-animation.ng-leave,
+	 * .view-animation.ng-enter.ng-enter-active {
+	 *   transform:translateX(0%);
+	 * }
+	 * .view-animation.ng-leave.ng-leave-active {
+	 *   transform:translateX(-100%);
+	 * }
+	 * ```
+	 *
+	 * Now we can jump back to the anchor animation. When the animation happens, there are two stages that occur:
+	 * an `out` and an `in` stage. The `out` stage happens first and that is when the element is animated away
+	 * from its origin. Once that animation is over then the `in` stage occurs which animates the
+	 * element to its destination. The reason why there are two animations is to give enough time
+	 * for the enter animation on the new element to be ready.
+	 *
+	 * The example above sets up a transition for both the in and out phases, but we can also target the out or
+	 * in phases directly via `ng-anchor-out` and `ng-anchor-in`.
+	 *
+	 * ```css
+	 * .banner.ng-anchor-out {
+	 *   transition: 0.5s linear all;
+	 *
+	 *   /&#42; the scale will be applied during the out animation,
+	 *          but will be animated away when the in animation runs &#42;/
+	 *   transform: scale(1.2);
+	 * }
+	 *
+	 * .banner.ng-anchor-in {
+	 *   transition: 1s linear all;
+	 * }
+	 * ```
+	 *
+	 *
+	 *
+	 *
+	 * ### Anchoring Demo
+	 *
+	  <example module="anchoringExample"
+	           name="anchoringExample"
+	           id="anchoringExample"
+	           deps="angular-animate.js;angular-route.js"
+	           animations="true">
+	    <file name="index.html">
+	      <a href="#/">Home</a>
+	      <hr />
+	      <div class="view-container">
+	        <div ng-view class="view"></div>
+	      </div>
+	    </file>
+	    <file name="script.js">
+	      angular.module('anchoringExample', ['ngAnimate', 'ngRoute'])
+	        .config(['$routeProvider', function($routeProvider) {
+	          $routeProvider.when('/', {
+	            templateUrl: 'home.html',
+	            controller: 'HomeController as home'
+	          });
+	          $routeProvider.when('/profile/:id', {
+	            templateUrl: 'profile.html',
+	            controller: 'ProfileController as profile'
+	          });
+	        }])
+	        .run(['$rootScope', function($rootScope) {
+	          $rootScope.records = [
+	            { id:1, title: "Miss Beulah Roob" },
+	            { id:2, title: "Trent Morissette" },
+	            { id:3, title: "Miss Ava Pouros" },
+	            { id:4, title: "Rod Pouros" },
+	            { id:5, title: "Abdul Rice" },
+	            { id:6, title: "Laurie Rutherford Sr." },
+	            { id:7, title: "Nakia McLaughlin" },
+	            { id:8, title: "Jordon Blanda DVM" },
+	            { id:9, title: "Rhoda Hand" },
+	            { id:10, title: "Alexandrea Sauer" }
+	          ];
+	        }])
+	        .controller('HomeController', [function() {
+	          //empty
+	        }])
+	        .controller('ProfileController', ['$rootScope', '$routeParams', function($rootScope, $routeParams) {
+	          var index = parseInt($routeParams.id, 10);
+	          var record = $rootScope.records[index - 1];
+
+	          this.title = record.title;
+	          this.id = record.id;
+	        }]);
+	    </file>
+	    <file name="home.html">
+	      <h2>Welcome to the home page</h1>
+	      <p>Please click on an element</p>
+	      <a class="record"
+	         ng-href="#/profile/{{ record.id }}"
+	         ng-animate-ref="{{ record.id }}"
+	         ng-repeat="record in records">
+	        {{ record.title }}
+	      </a>
+	    </file>
+	    <file name="profile.html">
+	      <div class="profile record" ng-animate-ref="{{ profile.id }}">
+	        {{ profile.title }}
+	      </div>
+	    </file>
+	    <file name="animations.css">
+	      .record {
+	        display:block;
+	        font-size:20px;
+	      }
+	      .profile {
+	        background:black;
+	        color:white;
+	        font-size:100px;
+	      }
+	      .view-container {
+	        position:relative;
+	      }
+	      .view-container > .view.ng-animate {
+	        position:absolute;
+	        top:0;
+	        left:0;
+	        width:100%;
+	        min-height:500px;
+	      }
+	      .view.ng-enter, .view.ng-leave,
+	      .record.ng-anchor {
+	        transition:0.5s linear all;
+	      }
+	      .view.ng-enter {
+	        transform:translateX(100%);
+	      }
+	      .view.ng-enter.ng-enter-active, .view.ng-leave {
+	        transform:translateX(0%);
+	      }
+	      .view.ng-leave.ng-leave-active {
+	        transform:translateX(-100%);
+	      }
+	      .record.ng-anchor-out {
+	        background:red;
+	      }
+	    </file>
+	  </example>
+	 *
+	 * ### How is the element transported?
+	 *
+	 * When an anchor animation occurs, ngAnimate will clone the starting element and position it exactly where the starting
+	 * element is located on screen via absolute positioning. The cloned element will be placed inside of the root element
+	 * of the application (where ng-app was defined) and all of the CSS classes of the starting element will be applied. The
+	 * element will then animate into the `out` and `in` animations and will eventually reach the coordinates and match
+	 * the dimensions of the destination element. During the entire animation a CSS class of `.ng-animate-shim` will be applied
+	 * to both the starting and destination elements in order to hide them from being visible (the CSS styling for the class
+	 * is: `visibility:hidden`). Once the anchor reaches its destination then it will be removed and the destination element
+	 * will become visible since the shim class will be removed.
+	 *
+	 * ### How is the morphing handled?
+	 *
+	 * CSS Anchoring relies on transitions and keyframes and the internal code is intelligent enough to figure out
+	 * what CSS classes differ between the starting element and the destination element. These different CSS classes
+	 * will be added/removed on the anchor element and a transition will be applied (the transition that is provided
+	 * in the anchor class). Long story short, ngAnimate will figure out what classes to add and remove which will
+	 * make the transition of the element as smooth and automatic as possible. Be sure to use simple CSS classes that
+	 * do not rely on DOM nesting structure so that the anchor element appears the same as the starting element (since
+	 * the cloned element is placed inside of root element which is likely close to the body element).
+	 *
+	 * Note that if the root element is on the `<html>` element then the cloned node will be placed inside of body.
+	 *
+	 *
+	 * ## Using $animate in your directive code
+	 *
+	 * So far we've explored how to feed in animations into an Angular application, but how do we trigger animations within our own directives in our application?
+	 * By injecting the `$animate` service into our directive code, we can trigger structural and class-based hooks which can then be consumed by animations. Let's
+	 * imagine we have a greeting box that shows and hides itself when the data changes
+	 *
+	 * ```html
+	 * <greeting-box active="onOrOff">Hi there</greeting-box>
+	 * ```
+	 *
+	 * ```js
+	 * ngModule.directive('greetingBox', ['$animate', function($animate) {
+	 *   return function(scope, element, attrs) {
+	 *     attrs.$observe('active', function(value) {
+	 *       value ? $animate.addClass(element, 'on') : $animate.removeClass(element, 'on');
+	 *     });
+	 *   });
+	 * }]);
+	 * ```
+	 *
+	 * Now the `on` CSS class is added and removed on the greeting box component. Now if we add a CSS class on top of the greeting box element
+	 * in our HTML code then we can trigger a CSS or JS animation to happen.
+	 *
+	 * ```css
+	 * /&#42; normally we would create a CSS class to reference on the element &#42;/
+	 * greeting-box.on { transition:0.5s linear all; background:green; color:white; }
+	 * ```
+	 *
+	 * The `$animate` service contains a variety of other methods like `enter`, `leave`, `animate` and `setClass`. To learn more about what's
+	 * possible be sure to visit the {@link ng.$animate $animate service API page}.
+	 *
+	 *
+	 * ## Callbacks and Promises
+	 *
+	 * When `$animate` is called it returns a promise that can be used to capture when the animation has ended. Therefore if we were to trigger
+	 * an animation (within our directive code) then we can continue performing directive and scope related activities after the animation has
+	 * ended by chaining onto the returned promise that animation method returns.
+	 *
+	 * ```js
+	 * // somewhere within the depths of the directive
+	 * $animate.enter(element, parent).then(function() {
+	 *   //the animation has completed
+	 * });
+	 * ```
+	 *
+	 * (Note that earlier versions of Angular prior to v1.4 required the promise code to be wrapped using `$scope.$apply(...)`. This is not the case
+	 * anymore.)
+	 *
+	 * In addition to the animation promise, we can also make use of animation-related callbacks within our directives and controller code by registering
+	 * an event listener using the `$animate` service. Let's say for example that an animation was triggered on our view
+	 * routing controller to hook into that:
+	 *
+	 * ```js
+	 * ngModule.controller('HomePageController', ['$animate', function($animate) {
+	 *   $animate.on('enter', ngViewElement, function(element) {
+	 *     // the animation for this route has completed
+	 *   }]);
+	 * }])
+	 * ```
+	 *
+	 * (Note that you will need to trigger a digest within the callback to get angular to notice any scope-related changes.)
+	 */
+
+	/**
+	 * @ngdoc service
+	 * @name $animate
+	 * @kind object
+	 *
+	 * @description
+	 * The ngAnimate `$animate` service documentation is the same for the core `$animate` service.
+	 *
+	 * Click here {@link ng.$animate to learn more about animations with `$animate`}.
+	 */
+	angular.module('ngAnimate', [])
+	  .directive('ngAnimateSwap', ngAnimateSwapDirective)
+
+	  .directive('ngAnimateChildren', $$AnimateChildrenDirective)
+	  .factory('$$rAFScheduler', $$rAFSchedulerFactory)
+
+	  .provider('$$animateQueue', $$AnimateQueueProvider)
+	  .provider('$$animation', $$AnimationProvider)
+
+	  .provider('$animateCss', $AnimateCssProvider)
+	  .provider('$$animateCssDriver', $$AnimateCssDriverProvider)
+
+	  .provider('$$animateJs', $$AnimateJsProvider)
+	  .provider('$$animateJsDriver', $$AnimateJsDriverProvider);
+
+
+	})(window, window.angular);
+
 
 /***/ },
 /* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var require;var require;/* WEBPACK VAR INJECTION */(function(global) {(function(f){if(true){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.io = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return require(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+	__webpack_require__(9);
+	module.exports = 'ngAria';
 
-	module.exports =  _dereq_('./lib/');
-
-	},{"./lib/":2}],2:[function(_dereq_,module,exports){
-
-	module.exports = _dereq_('./socket');
-
-	/**
-	 * Exports parser
-	 *
-	 * @api public
-	 *
-	 */
-	module.exports.parser = _dereq_('engine.io-parser');
-
-	},{"./socket":3,"engine.io-parser":19}],3:[function(_dereq_,module,exports){
-	(function (global){
-	/**
-	 * Module dependencies.
-	 */
-
-	var transports = _dereq_('./transports');
-	var Emitter = _dereq_('component-emitter');
-	var debug = _dereq_('debug')('engine.io-client:socket');
-	var index = _dereq_('indexof');
-	var parser = _dereq_('engine.io-parser');
-	var parseuri = _dereq_('parseuri');
-	var parsejson = _dereq_('parsejson');
-	var parseqs = _dereq_('parseqs');
-
-	/**
-	 * Module exports.
-	 */
-
-	module.exports = Socket;
-
-	/**
-	 * Noop function.
-	 *
-	 * @api private
-	 */
-
-	function noop(){}
-
-	/**
-	 * Socket constructor.
-	 *
-	 * @param {String|Object} uri or options
-	 * @param {Object} options
-	 * @api public
-	 */
-
-	function Socket(uri, opts){
-	  if (!(this instanceof Socket)) return new Socket(uri, opts);
-
-	  opts = opts || {};
-
-	  if (uri && 'object' == typeof uri) {
-	    opts = uri;
-	    uri = null;
-	  }
-
-	  if (uri) {
-	    uri = parseuri(uri);
-	    opts.hostname = uri.host;
-	    opts.secure = uri.protocol == 'https' || uri.protocol == 'wss';
-	    opts.port = uri.port;
-	    if (uri.query) opts.query = uri.query;
-	  } else if (opts.host) {
-	    opts.hostname = parseuri(opts.host).host;
-	  }
-
-	  this.secure = null != opts.secure ? opts.secure :
-	    (global.location && 'https:' == location.protocol);
-
-	  if (opts.hostname && !opts.port) {
-	    // if no port is specified manually, use the protocol default
-	    opts.port = this.secure ? '443' : '80';
-	  }
-
-	  this.agent = opts.agent || false;
-	  this.hostname = opts.hostname ||
-	    (global.location ? location.hostname : 'localhost');
-	  this.port = opts.port || (global.location && location.port ?
-	       location.port :
-	       (this.secure ? 443 : 80));
-	  this.query = opts.query || {};
-	  if ('string' == typeof this.query) this.query = parseqs.decode(this.query);
-	  this.upgrade = false !== opts.upgrade;
-	  this.path = (opts.path || '/engine.io').replace(/\/$/, '') + '/';
-	  this.forceJSONP = !!opts.forceJSONP;
-	  this.jsonp = false !== opts.jsonp;
-	  this.forceBase64 = !!opts.forceBase64;
-	  this.enablesXDR = !!opts.enablesXDR;
-	  this.timestampParam = opts.timestampParam || 't';
-	  this.timestampRequests = opts.timestampRequests;
-	  this.transports = opts.transports || ['polling', 'websocket'];
-	  this.readyState = '';
-	  this.writeBuffer = [];
-	  this.policyPort = opts.policyPort || 843;
-	  this.rememberUpgrade = opts.rememberUpgrade || false;
-	  this.binaryType = null;
-	  this.onlyBinaryUpgrades = opts.onlyBinaryUpgrades;
-	  this.perMessageDeflate = false !== opts.perMessageDeflate ? (opts.perMessageDeflate || {}) : false;
-
-	  if (true === this.perMessageDeflate) this.perMessageDeflate = {};
-	  if (this.perMessageDeflate && null == this.perMessageDeflate.threshold) {
-	    this.perMessageDeflate.threshold = 1024;
-	  }
-
-	  // SSL options for Node.js client
-	  this.pfx = opts.pfx || null;
-	  this.key = opts.key || null;
-	  this.passphrase = opts.passphrase || null;
-	  this.cert = opts.cert || null;
-	  this.ca = opts.ca || null;
-	  this.ciphers = opts.ciphers || null;
-	  this.rejectUnauthorized = opts.rejectUnauthorized === undefined ? null : opts.rejectUnauthorized;
-
-	  // other options for Node.js client
-	  var freeGlobal = typeof global == 'object' && global;
-	  if (freeGlobal.global === freeGlobal) {
-	    if (opts.extraHeaders && Object.keys(opts.extraHeaders).length > 0) {
-	      this.extraHeaders = opts.extraHeaders;
-	    }
-	  }
-
-	  this.open();
-	}
-
-	Socket.priorWebsocketSuccess = false;
-
-	/**
-	 * Mix in `Emitter`.
-	 */
-
-	Emitter(Socket.prototype);
-
-	/**
-	 * Protocol version.
-	 *
-	 * @api public
-	 */
-
-	Socket.protocol = parser.protocol; // this is an int
-
-	/**
-	 * Expose deps for legacy compatibility
-	 * and standalone browser access.
-	 */
-
-	Socket.Socket = Socket;
-	Socket.Transport = _dereq_('./transport');
-	Socket.transports = _dereq_('./transports');
-	Socket.parser = _dereq_('engine.io-parser');
-
-	/**
-	 * Creates transport of the given type.
-	 *
-	 * @param {String} transport name
-	 * @return {Transport}
-	 * @api private
-	 */
-
-	Socket.prototype.createTransport = function (name) {
-	  debug('creating transport "%s"', name);
-	  var query = clone(this.query);
-
-	  // append engine.io protocol identifier
-	  query.EIO = parser.protocol;
-
-	  // transport name
-	  query.transport = name;
-
-	  // session id if we already have one
-	  if (this.id) query.sid = this.id;
-
-	  var transport = new transports[name]({
-	    agent: this.agent,
-	    hostname: this.hostname,
-	    port: this.port,
-	    secure: this.secure,
-	    path: this.path,
-	    query: query,
-	    forceJSONP: this.forceJSONP,
-	    jsonp: this.jsonp,
-	    forceBase64: this.forceBase64,
-	    enablesXDR: this.enablesXDR,
-	    timestampRequests: this.timestampRequests,
-	    timestampParam: this.timestampParam,
-	    policyPort: this.policyPort,
-	    socket: this,
-	    pfx: this.pfx,
-	    key: this.key,
-	    passphrase: this.passphrase,
-	    cert: this.cert,
-	    ca: this.ca,
-	    ciphers: this.ciphers,
-	    rejectUnauthorized: this.rejectUnauthorized,
-	    perMessageDeflate: this.perMessageDeflate,
-	    extraHeaders: this.extraHeaders
-	  });
-
-	  return transport;
-	};
-
-	function clone (obj) {
-	  var o = {};
-	  for (var i in obj) {
-	    if (obj.hasOwnProperty(i)) {
-	      o[i] = obj[i];
-	    }
-	  }
-	  return o;
-	}
-
-	/**
-	 * Initializes transport to use and starts probe.
-	 *
-	 * @api private
-	 */
-	Socket.prototype.open = function () {
-	  var transport;
-	  if (this.rememberUpgrade && Socket.priorWebsocketSuccess && this.transports.indexOf('websocket') != -1) {
-	    transport = 'websocket';
-	  } else if (0 === this.transports.length) {
-	    // Emit error on next tick so it can be listened to
-	    var self = this;
-	    setTimeout(function() {
-	      self.emit('error', 'No transports available');
-	    }, 0);
-	    return;
-	  } else {
-	    transport = this.transports[0];
-	  }
-	  this.readyState = 'opening';
-
-	  // Retry with the next transport if the transport is disabled (jsonp: false)
-	  try {
-	    transport = this.createTransport(transport);
-	  } catch (e) {
-	    this.transports.shift();
-	    this.open();
-	    return;
-	  }
-
-	  transport.open();
-	  this.setTransport(transport);
-	};
-
-	/**
-	 * Sets the current transport. Disables the existing one (if any).
-	 *
-	 * @api private
-	 */
-
-	Socket.prototype.setTransport = function(transport){
-	  debug('setting transport %s', transport.name);
-	  var self = this;
-
-	  if (this.transport) {
-	    debug('clearing existing transport %s', this.transport.name);
-	    this.transport.removeAllListeners();
-	  }
-
-	  // set up transport
-	  this.transport = transport;
-
-	  // set up transport listeners
-	  transport
-	  .on('drain', function(){
-	    self.onDrain();
-	  })
-	  .on('packet', function(packet){
-	    self.onPacket(packet);
-	  })
-	  .on('error', function(e){
-	    self.onError(e);
-	  })
-	  .on('close', function(){
-	    self.onClose('transport close');
-	  });
-	};
-
-	/**
-	 * Probes a transport.
-	 *
-	 * @param {String} transport name
-	 * @api private
-	 */
-
-	Socket.prototype.probe = function (name) {
-	  debug('probing transport "%s"', name);
-	  var transport = this.createTransport(name, { probe: 1 })
-	    , failed = false
-	    , self = this;
-
-	  Socket.priorWebsocketSuccess = false;
-
-	  function onTransportOpen(){
-	    if (self.onlyBinaryUpgrades) {
-	      var upgradeLosesBinary = !this.supportsBinary && self.transport.supportsBinary;
-	      failed = failed || upgradeLosesBinary;
-	    }
-	    if (failed) return;
-
-	    debug('probe transport "%s" opened', name);
-	    transport.send([{ type: 'ping', data: 'probe' }]);
-	    transport.once('packet', function (msg) {
-	      if (failed) return;
-	      if ('pong' == msg.type && 'probe' == msg.data) {
-	        debug('probe transport "%s" pong', name);
-	        self.upgrading = true;
-	        self.emit('upgrading', transport);
-	        if (!transport) return;
-	        Socket.priorWebsocketSuccess = 'websocket' == transport.name;
-
-	        debug('pausing current transport "%s"', self.transport.name);
-	        self.transport.pause(function () {
-	          if (failed) return;
-	          if ('closed' == self.readyState) return;
-	          debug('changing transport and sending upgrade packet');
-
-	          cleanup();
-
-	          self.setTransport(transport);
-	          transport.send([{ type: 'upgrade' }]);
-	          self.emit('upgrade', transport);
-	          transport = null;
-	          self.upgrading = false;
-	          self.flush();
-	        });
-	      } else {
-	        debug('probe transport "%s" failed', name);
-	        var err = new Error('probe error');
-	        err.transport = transport.name;
-	        self.emit('upgradeError', err);
-	      }
-	    });
-	  }
-
-	  function freezeTransport() {
-	    if (failed) return;
-
-	    // Any callback called by transport should be ignored since now
-	    failed = true;
-
-	    cleanup();
-
-	    transport.close();
-	    transport = null;
-	  }
-
-	  //Handle any error that happens while probing
-	  function onerror(err) {
-	    var error = new Error('probe error: ' + err);
-	    error.transport = transport.name;
-
-	    freezeTransport();
-
-	    debug('probe transport "%s" failed because of error: %s', name, err);
-
-	    self.emit('upgradeError', error);
-	  }
-
-	  function onTransportClose(){
-	    onerror("transport closed");
-	  }
-
-	  //When the socket is closed while we're probing
-	  function onclose(){
-	    onerror("socket closed");
-	  }
-
-	  //When the socket is upgraded while we're probing
-	  function onupgrade(to){
-	    if (transport && to.name != transport.name) {
-	      debug('"%s" works - aborting "%s"', to.name, transport.name);
-	      freezeTransport();
-	    }
-	  }
-
-	  //Remove all listeners on the transport and on self
-	  function cleanup(){
-	    transport.removeListener('open', onTransportOpen);
-	    transport.removeListener('error', onerror);
-	    transport.removeListener('close', onTransportClose);
-	    self.removeListener('close', onclose);
-	    self.removeListener('upgrading', onupgrade);
-	  }
-
-	  transport.once('open', onTransportOpen);
-	  transport.once('error', onerror);
-	  transport.once('close', onTransportClose);
-
-	  this.once('close', onclose);
-	  this.once('upgrading', onupgrade);
-
-	  transport.open();
-
-	};
-
-	/**
-	 * Called when connection is deemed open.
-	 *
-	 * @api public
-	 */
-
-	Socket.prototype.onOpen = function () {
-	  debug('socket open');
-	  this.readyState = 'open';
-	  Socket.priorWebsocketSuccess = 'websocket' == this.transport.name;
-	  this.emit('open');
-	  this.flush();
-
-	  // we check for `readyState` in case an `open`
-	  // listener already closed the socket
-	  if ('open' == this.readyState && this.upgrade && this.transport.pause) {
-	    debug('starting upgrade probes');
-	    for (var i = 0, l = this.upgrades.length; i < l; i++) {
-	      this.probe(this.upgrades[i]);
-	    }
-	  }
-	};
-
-	/**
-	 * Handles a packet.
-	 *
-	 * @api private
-	 */
-
-	Socket.prototype.onPacket = function (packet) {
-	  if ('opening' == this.readyState || 'open' == this.readyState) {
-	    debug('socket receive: type "%s", data "%s"', packet.type, packet.data);
-
-	    this.emit('packet', packet);
-
-	    // Socket is live - any packet counts
-	    this.emit('heartbeat');
-
-	    switch (packet.type) {
-	      case 'open':
-	        this.onHandshake(parsejson(packet.data));
-	        break;
-
-	      case 'pong':
-	        this.setPing();
-	        this.emit('pong');
-	        break;
-
-	      case 'error':
-	        var err = new Error('server error');
-	        err.code = packet.data;
-	        this.onError(err);
-	        break;
-
-	      case 'message':
-	        this.emit('data', packet.data);
-	        this.emit('message', packet.data);
-	        break;
-	    }
-	  } else {
-	    debug('packet received with socket readyState "%s"', this.readyState);
-	  }
-	};
-
-	/**
-	 * Called upon handshake completion.
-	 *
-	 * @param {Object} handshake obj
-	 * @api private
-	 */
-
-	Socket.prototype.onHandshake = function (data) {
-	  this.emit('handshake', data);
-	  this.id = data.sid;
-	  this.transport.query.sid = data.sid;
-	  this.upgrades = this.filterUpgrades(data.upgrades);
-	  this.pingInterval = data.pingInterval;
-	  this.pingTimeout = data.pingTimeout;
-	  this.onOpen();
-	  // In case open handler closes socket
-	  if  ('closed' == this.readyState) return;
-	  this.setPing();
-
-	  // Prolong liveness of socket on heartbeat
-	  this.removeListener('heartbeat', this.onHeartbeat);
-	  this.on('heartbeat', this.onHeartbeat);
-	};
-
-	/**
-	 * Resets ping timeout.
-	 *
-	 * @api private
-	 */
-
-	Socket.prototype.onHeartbeat = function (timeout) {
-	  clearTimeout(this.pingTimeoutTimer);
-	  var self = this;
-	  self.pingTimeoutTimer = setTimeout(function () {
-	    if ('closed' == self.readyState) return;
-	    self.onClose('ping timeout');
-	  }, timeout || (self.pingInterval + self.pingTimeout));
-	};
-
-	/**
-	 * Pings server every `this.pingInterval` and expects response
-	 * within `this.pingTimeout` or closes connection.
-	 *
-	 * @api private
-	 */
-
-	Socket.prototype.setPing = function () {
-	  var self = this;
-	  clearTimeout(self.pingIntervalTimer);
-	  self.pingIntervalTimer = setTimeout(function () {
-	    debug('writing ping packet - expecting pong within %sms', self.pingTimeout);
-	    self.ping();
-	    self.onHeartbeat(self.pingTimeout);
-	  }, self.pingInterval);
-	};
-
-	/**
-	* Sends a ping packet.
-	*
-	* @api private
-	*/
-
-	Socket.prototype.ping = function () {
-	  var self = this;
-	  this.sendPacket('ping', function(){
-	    self.emit('ping');
-	  });
-	};
-
-	/**
-	 * Called on `drain` event
-	 *
-	 * @api private
-	 */
-
-	Socket.prototype.onDrain = function() {
-	  this.writeBuffer.splice(0, this.prevBufferLen);
-
-	  // setting prevBufferLen = 0 is very important
-	  // for example, when upgrading, upgrade packet is sent over,
-	  // and a nonzero prevBufferLen could cause problems on `drain`
-	  this.prevBufferLen = 0;
-
-	  if (0 === this.writeBuffer.length) {
-	    this.emit('drain');
-	  } else {
-	    this.flush();
-	  }
-	};
-
-	/**
-	 * Flush write buffers.
-	 *
-	 * @api private
-	 */
-
-	Socket.prototype.flush = function () {
-	  if ('closed' != this.readyState && this.transport.writable &&
-	    !this.upgrading && this.writeBuffer.length) {
-	    debug('flushing %d packets in socket', this.writeBuffer.length);
-	    this.transport.send(this.writeBuffer);
-	    // keep track of current length of writeBuffer
-	    // splice writeBuffer and callbackBuffer on `drain`
-	    this.prevBufferLen = this.writeBuffer.length;
-	    this.emit('flush');
-	  }
-	};
-
-	/**
-	 * Sends a message.
-	 *
-	 * @param {String} message.
-	 * @param {Function} callback function.
-	 * @param {Object} options.
-	 * @return {Socket} for chaining.
-	 * @api public
-	 */
-
-	Socket.prototype.write =
-	Socket.prototype.send = function (msg, options, fn) {
-	  this.sendPacket('message', msg, options, fn);
-	  return this;
-	};
-
-	/**
-	 * Sends a packet.
-	 *
-	 * @param {String} packet type.
-	 * @param {String} data.
-	 * @param {Object} options.
-	 * @param {Function} callback function.
-	 * @api private
-	 */
-
-	Socket.prototype.sendPacket = function (type, data, options, fn) {
-	  if('function' == typeof data) {
-	    fn = data;
-	    data = undefined;
-	  }
-
-	  if ('function' == typeof options) {
-	    fn = options;
-	    options = null;
-	  }
-
-	  if ('closing' == this.readyState || 'closed' == this.readyState) {
-	    return;
-	  }
-
-	  options = options || {};
-	  options.compress = false !== options.compress;
-
-	  var packet = {
-	    type: type,
-	    data: data,
-	    options: options
-	  };
-	  this.emit('packetCreate', packet);
-	  this.writeBuffer.push(packet);
-	  if (fn) this.once('flush', fn);
-	  this.flush();
-	};
-
-	/**
-	 * Closes the connection.
-	 *
-	 * @api private
-	 */
-
-	Socket.prototype.close = function () {
-	  if ('opening' == this.readyState || 'open' == this.readyState) {
-	    this.readyState = 'closing';
-
-	    var self = this;
-
-	    if (this.writeBuffer.length) {
-	      this.once('drain', function() {
-	        if (this.upgrading) {
-	          waitForUpgrade();
-	        } else {
-	          close();
-	        }
-	      });
-	    } else if (this.upgrading) {
-	      waitForUpgrade();
-	    } else {
-	      close();
-	    }
-	  }
-
-	  function close() {
-	    self.onClose('forced close');
-	    debug('socket closing - telling transport to close');
-	    self.transport.close();
-	  }
-
-	  function cleanupAndClose() {
-	    self.removeListener('upgrade', cleanupAndClose);
-	    self.removeListener('upgradeError', cleanupAndClose);
-	    close();
-	  }
-
-	  function waitForUpgrade() {
-	    // wait for upgrade to finish since we can't send packets while pausing a transport
-	    self.once('upgrade', cleanupAndClose);
-	    self.once('upgradeError', cleanupAndClose);
-	  }
-
-	  return this;
-	};
-
-	/**
-	 * Called upon transport error
-	 *
-	 * @api private
-	 */
-
-	Socket.prototype.onError = function (err) {
-	  debug('socket error %j', err);
-	  Socket.priorWebsocketSuccess = false;
-	  this.emit('error', err);
-	  this.onClose('transport error', err);
-	};
-
-	/**
-	 * Called upon transport close.
-	 *
-	 * @api private
-	 */
-
-	Socket.prototype.onClose = function (reason, desc) {
-	  if ('opening' == this.readyState || 'open' == this.readyState || 'closing' == this.readyState) {
-	    debug('socket close with reason: "%s"', reason);
-	    var self = this;
-
-	    // clear timers
-	    clearTimeout(this.pingIntervalTimer);
-	    clearTimeout(this.pingTimeoutTimer);
-
-	    // stop event from firing again for transport
-	    this.transport.removeAllListeners('close');
-
-	    // ensure transport won't stay open
-	    this.transport.close();
-
-	    // ignore further transport communication
-	    this.transport.removeAllListeners();
-
-	    // set ready state
-	    this.readyState = 'closed';
-
-	    // clear session id
-	    this.id = null;
-
-	    // emit close event
-	    this.emit('close', reason, desc);
-
-	    // clean buffers after, so users can still
-	    // grab the buffers on `close` event
-	    self.writeBuffer = [];
-	    self.prevBufferLen = 0;
-	  }
-	};
-
-	/**
-	 * Filters upgrades, returning only those matching client transports.
-	 *
-	 * @param {Array} server upgrades
-	 * @api private
-	 *
-	 */
-
-	Socket.prototype.filterUpgrades = function (upgrades) {
-	  var filteredUpgrades = [];
-	  for (var i = 0, j = upgrades.length; i<j; i++) {
-	    if (~index(this.transports, upgrades[i])) filteredUpgrades.push(upgrades[i]);
-	  }
-	  return filteredUpgrades;
-	};
-
-	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
-	},{"./transport":4,"./transports":5,"component-emitter":15,"debug":17,"engine.io-parser":19,"indexof":23,"parsejson":26,"parseqs":27,"parseuri":28}],4:[function(_dereq_,module,exports){
-	/**
-	 * Module dependencies.
-	 */
-
-	var parser = _dereq_('engine.io-parser');
-	var Emitter = _dereq_('component-emitter');
-
-	/**
-	 * Module exports.
-	 */
-
-	module.exports = Transport;
-
-	/**
-	 * Transport abstract constructor.
-	 *
-	 * @param {Object} options.
-	 * @api private
-	 */
-
-	function Transport (opts) {
-	  this.path = opts.path;
-	  this.hostname = opts.hostname;
-	  this.port = opts.port;
-	  this.secure = opts.secure;
-	  this.query = opts.query;
-	  this.timestampParam = opts.timestampParam;
-	  this.timestampRequests = opts.timestampRequests;
-	  this.readyState = '';
-	  this.agent = opts.agent || false;
-	  this.socket = opts.socket;
-	  this.enablesXDR = opts.enablesXDR;
-
-	  // SSL options for Node.js client
-	  this.pfx = opts.pfx;
-	  this.key = opts.key;
-	  this.passphrase = opts.passphrase;
-	  this.cert = opts.cert;
-	  this.ca = opts.ca;
-	  this.ciphers = opts.ciphers;
-	  this.rejectUnauthorized = opts.rejectUnauthorized;
-
-	  // other options for Node.js client
-	  this.extraHeaders = opts.extraHeaders;
-	}
-
-	/**
-	 * Mix in `Emitter`.
-	 */
-
-	Emitter(Transport.prototype);
-
-	/**
-	 * Emits an error.
-	 *
-	 * @param {String} str
-	 * @return {Transport} for chaining
-	 * @api public
-	 */
-
-	Transport.prototype.onError = function (msg, desc) {
-	  var err = new Error(msg);
-	  err.type = 'TransportError';
-	  err.description = desc;
-	  this.emit('error', err);
-	  return this;
-	};
-
-	/**
-	 * Opens the transport.
-	 *
-	 * @api public
-	 */
-
-	Transport.prototype.open = function () {
-	  if ('closed' == this.readyState || '' == this.readyState) {
-	    this.readyState = 'opening';
-	    this.doOpen();
-	  }
-
-	  return this;
-	};
-
-	/**
-	 * Closes the transport.
-	 *
-	 * @api private
-	 */
-
-	Transport.prototype.close = function () {
-	  if ('opening' == this.readyState || 'open' == this.readyState) {
-	    this.doClose();
-	    this.onClose();
-	  }
-
-	  return this;
-	};
-
-	/**
-	 * Sends multiple packets.
-	 *
-	 * @param {Array} packets
-	 * @api private
-	 */
-
-	Transport.prototype.send = function(packets){
-	  if ('open' == this.readyState) {
-	    this.write(packets);
-	  } else {
-	    throw new Error('Transport not open');
-	  }
-	};
-
-	/**
-	 * Called upon open
-	 *
-	 * @api private
-	 */
-
-	Transport.prototype.onOpen = function () {
-	  this.readyState = 'open';
-	  this.writable = true;
-	  this.emit('open');
-	};
-
-	/**
-	 * Called with data.
-	 *
-	 * @param {String} data
-	 * @api private
-	 */
-
-	Transport.prototype.onData = function(data){
-	  var packet = parser.decodePacket(data, this.socket.binaryType);
-	  this.onPacket(packet);
-	};
-
-	/**
-	 * Called with a decoded packet.
-	 */
-
-	Transport.prototype.onPacket = function (packet) {
-	  this.emit('packet', packet);
-	};
-
-	/**
-	 * Called upon close.
-	 *
-	 * @api private
-	 */
-
-	Transport.prototype.onClose = function () {
-	  this.readyState = 'closed';
-	  this.emit('close');
-	};
-
-	},{"component-emitter":15,"engine.io-parser":19}],5:[function(_dereq_,module,exports){
-	(function (global){
-	/**
-	 * Module dependencies
-	 */
-
-	var XMLHttpRequest = _dereq_('xmlhttprequest-ssl');
-	var XHR = _dereq_('./polling-xhr');
-	var JSONP = _dereq_('./polling-jsonp');
-	var websocket = _dereq_('./websocket');
-
-	/**
-	 * Export transports.
-	 */
-
-	exports.polling = polling;
-	exports.websocket = websocket;
-
-	/**
-	 * Polling transport polymorphic constructor.
-	 * Decides on xhr vs jsonp based on feature detection.
-	 *
-	 * @api private
-	 */
-
-	function polling(opts){
-	  var xhr;
-	  var xd = false;
-	  var xs = false;
-	  var jsonp = false !== opts.jsonp;
-
-	  if (global.location) {
-	    var isSSL = 'https:' == location.protocol;
-	    var port = location.port;
-
-	    // some user agents have empty `location.port`
-	    if (!port) {
-	      port = isSSL ? 443 : 80;
-	    }
-
-	    xd = opts.hostname != location.hostname || port != opts.port;
-	    xs = opts.secure != isSSL;
-	  }
-
-	  opts.xdomain = xd;
-	  opts.xscheme = xs;
-	  xhr = new XMLHttpRequest(opts);
-
-	  if ('open' in xhr && !opts.forceJSONP) {
-	    return new XHR(opts);
-	  } else {
-	    if (!jsonp) throw new Error('JSONP disabled');
-	    return new JSONP(opts);
-	  }
-	}
-
-	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
-	},{"./polling-jsonp":6,"./polling-xhr":7,"./websocket":9,"xmlhttprequest-ssl":10}],6:[function(_dereq_,module,exports){
-	(function (global){
-
-	/**
-	 * Module requirements.
-	 */
-
-	var Polling = _dereq_('./polling');
-	var inherit = _dereq_('component-inherit');
-
-	/**
-	 * Module exports.
-	 */
-
-	module.exports = JSONPPolling;
-
-	/**
-	 * Cached regular expressions.
-	 */
-
-	var rNewline = /\n/g;
-	var rEscapedNewline = /\\n/g;
-
-	/**
-	 * Global JSONP callbacks.
-	 */
-
-	var callbacks;
-
-	/**
-	 * Callbacks count.
-	 */
-
-	var index = 0;
-
-	/**
-	 * Noop.
-	 */
-
-	function empty () { }
-
-	/**
-	 * JSONP Polling constructor.
-	 *
-	 * @param {Object} opts.
-	 * @api public
-	 */
-
-	function JSONPPolling (opts) {
-	  Polling.call(this, opts);
-
-	  this.query = this.query || {};
-
-	  // define global callbacks array if not present
-	  // we do this here (lazily) to avoid unneeded global pollution
-	  if (!callbacks) {
-	    // we need to consider multiple engines in the same page
-	    if (!global.___eio) global.___eio = [];
-	    callbacks = global.___eio;
-	  }
-
-	  // callback identifier
-	  this.index = callbacks.length;
-
-	  // add callback to jsonp global
-	  var self = this;
-	  callbacks.push(function (msg) {
-	    self.onData(msg);
-	  });
-
-	  // append to query string
-	  this.query.j = this.index;
-
-	  // prevent spurious errors from being emitted when the window is unloaded
-	  if (global.document && global.addEventListener) {
-	    global.addEventListener('beforeunload', function () {
-	      if (self.script) self.script.onerror = empty;
-	    }, false);
-	  }
-	}
-
-	/**
-	 * Inherits from Polling.
-	 */
-
-	inherit(JSONPPolling, Polling);
-
-	/*
-	 * JSONP only supports binary as base64 encoded strings
-	 */
-
-	JSONPPolling.prototype.supportsBinary = false;
-
-	/**
-	 * Closes the socket.
-	 *
-	 * @api private
-	 */
-
-	JSONPPolling.prototype.doClose = function () {
-	  if (this.script) {
-	    this.script.parentNode.removeChild(this.script);
-	    this.script = null;
-	  }
-
-	  if (this.form) {
-	    this.form.parentNode.removeChild(this.form);
-	    this.form = null;
-	    this.iframe = null;
-	  }
-
-	  Polling.prototype.doClose.call(this);
-	};
-
-	/**
-	 * Starts a poll cycle.
-	 *
-	 * @api private
-	 */
-
-	JSONPPolling.prototype.doPoll = function () {
-	  var self = this;
-	  var script = document.createElement('script');
-
-	  if (this.script) {
-	    this.script.parentNode.removeChild(this.script);
-	    this.script = null;
-	  }
-
-	  script.async = true;
-	  script.src = this.uri();
-	  script.onerror = function(e){
-	    self.onError('jsonp poll error',e);
-	  };
-
-	  var insertAt = document.getElementsByTagName('script')[0];
-	  if (insertAt) {
-	    insertAt.parentNode.insertBefore(script, insertAt);
-	  }
-	  else {
-	    (document.head || document.body).appendChild(script);
-	  }
-	  this.script = script;
-
-	  var isUAgecko = 'undefined' != typeof navigator && /gecko/i.test(navigator.userAgent);
-	  
-	  if (isUAgecko) {
-	    setTimeout(function () {
-	      var iframe = document.createElement('iframe');
-	      document.body.appendChild(iframe);
-	      document.body.removeChild(iframe);
-	    }, 100);
-	  }
-	};
-
-	/**
-	 * Writes with a hidden iframe.
-	 *
-	 * @param {String} data to send
-	 * @param {Function} called upon flush.
-	 * @api private
-	 */
-
-	JSONPPolling.prototype.doWrite = function (data, fn) {
-	  var self = this;
-
-	  if (!this.form) {
-	    var form = document.createElement('form');
-	    var area = document.createElement('textarea');
-	    var id = this.iframeId = 'eio_iframe_' + this.index;
-	    var iframe;
-
-	    form.className = 'socketio';
-	    form.style.position = 'absolute';
-	    form.style.top = '-1000px';
-	    form.style.left = '-1000px';
-	    form.target = id;
-	    form.method = 'POST';
-	    form.setAttribute('accept-charset', 'utf-8');
-	    area.name = 'd';
-	    form.appendChild(area);
-	    document.body.appendChild(form);
-
-	    this.form = form;
-	    this.area = area;
-	  }
-
-	  this.form.action = this.uri();
-
-	  function complete () {
-	    initIframe();
-	    fn();
-	  }
-
-	  function initIframe () {
-	    if (self.iframe) {
-	      try {
-	        self.form.removeChild(self.iframe);
-	      } catch (e) {
-	        self.onError('jsonp polling iframe removal error', e);
-	      }
-	    }
-
-	    try {
-	      // ie6 dynamic iframes with target="" support (thanks Chris Lambacher)
-	      var html = '<iframe src="javascript:0" name="'+ self.iframeId +'">';
-	      iframe = document.createElement(html);
-	    } catch (e) {
-	      iframe = document.createElement('iframe');
-	      iframe.name = self.iframeId;
-	      iframe.src = 'javascript:0';
-	    }
-
-	    iframe.id = self.iframeId;
-
-	    self.form.appendChild(iframe);
-	    self.iframe = iframe;
-	  }
-
-	  initIframe();
-
-	  // escape \n to prevent it from being converted into \r\n by some UAs
-	  // double escaping is required for escaped new lines because unescaping of new lines can be done safely on server-side
-	  data = data.replace(rEscapedNewline, '\\\n');
-	  this.area.value = data.replace(rNewline, '\\n');
-
-	  try {
-	    this.form.submit();
-	  } catch(e) {}
-
-	  if (this.iframe.attachEvent) {
-	    this.iframe.onreadystatechange = function(){
-	      if (self.iframe.readyState == 'complete') {
-	        complete();
-	      }
-	    };
-	  } else {
-	    this.iframe.onload = complete;
-	  }
-	};
-
-	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
-	},{"./polling":8,"component-inherit":16}],7:[function(_dereq_,module,exports){
-	(function (global){
-	/**
-	 * Module requirements.
-	 */
-
-	var XMLHttpRequest = _dereq_('xmlhttprequest-ssl');
-	var Polling = _dereq_('./polling');
-	var Emitter = _dereq_('component-emitter');
-	var inherit = _dereq_('component-inherit');
-	var debug = _dereq_('debug')('engine.io-client:polling-xhr');
-
-	/**
-	 * Module exports.
-	 */
-
-	module.exports = XHR;
-	module.exports.Request = Request;
-
-	/**
-	 * Empty function
-	 */
-
-	function empty(){}
-
-	/**
-	 * XHR Polling constructor.
-	 *
-	 * @param {Object} opts
-	 * @api public
-	 */
-
-	function XHR(opts){
-	  Polling.call(this, opts);
-
-	  if (global.location) {
-	    var isSSL = 'https:' == location.protocol;
-	    var port = location.port;
-
-	    // some user agents have empty `location.port`
-	    if (!port) {
-	      port = isSSL ? 443 : 80;
-	    }
-
-	    this.xd = opts.hostname != global.location.hostname ||
-	      port != opts.port;
-	    this.xs = opts.secure != isSSL;
-	  } else {
-	    this.extraHeaders = opts.extraHeaders;
-	  }
-	}
-
-	/**
-	 * Inherits from Polling.
-	 */
-
-	inherit(XHR, Polling);
-
-	/**
-	 * XHR supports binary
-	 */
-
-	XHR.prototype.supportsBinary = true;
-
-	/**
-	 * Creates a request.
-	 *
-	 * @param {String} method
-	 * @api private
-	 */
-
-	XHR.prototype.request = function(opts){
-	  opts = opts || {};
-	  opts.uri = this.uri();
-	  opts.xd = this.xd;
-	  opts.xs = this.xs;
-	  opts.agent = this.agent || false;
-	  opts.supportsBinary = this.supportsBinary;
-	  opts.enablesXDR = this.enablesXDR;
-
-	  // SSL options for Node.js client
-	  opts.pfx = this.pfx;
-	  opts.key = this.key;
-	  opts.passphrase = this.passphrase;
-	  opts.cert = this.cert;
-	  opts.ca = this.ca;
-	  opts.ciphers = this.ciphers;
-	  opts.rejectUnauthorized = this.rejectUnauthorized;
-
-	  // other options for Node.js client
-	  opts.extraHeaders = this.extraHeaders;
-
-	  return new Request(opts);
-	};
-
-	/**
-	 * Sends data.
-	 *
-	 * @param {String} data to send.
-	 * @param {Function} called upon flush.
-	 * @api private
-	 */
-
-	XHR.prototype.doWrite = function(data, fn){
-	  var isBinary = typeof data !== 'string' && data !== undefined;
-	  var req = this.request({ method: 'POST', data: data, isBinary: isBinary });
-	  var self = this;
-	  req.on('success', fn);
-	  req.on('error', function(err){
-	    self.onError('xhr post error', err);
-	  });
-	  this.sendXhr = req;
-	};
-
-	/**
-	 * Starts a poll cycle.
-	 *
-	 * @api private
-	 */
-
-	XHR.prototype.doPoll = function(){
-	  debug('xhr poll');
-	  var req = this.request();
-	  var self = this;
-	  req.on('data', function(data){
-	    self.onData(data);
-	  });
-	  req.on('error', function(err){
-	    self.onError('xhr poll error', err);
-	  });
-	  this.pollXhr = req;
-	};
-
-	/**
-	 * Request constructor
-	 *
-	 * @param {Object} options
-	 * @api public
-	 */
-
-	function Request(opts){
-	  this.method = opts.method || 'GET';
-	  this.uri = opts.uri;
-	  this.xd = !!opts.xd;
-	  this.xs = !!opts.xs;
-	  this.async = false !== opts.async;
-	  this.data = undefined != opts.data ? opts.data : null;
-	  this.agent = opts.agent;
-	  this.isBinary = opts.isBinary;
-	  this.supportsBinary = opts.supportsBinary;
-	  this.enablesXDR = opts.enablesXDR;
-
-	  // SSL options for Node.js client
-	  this.pfx = opts.pfx;
-	  this.key = opts.key;
-	  this.passphrase = opts.passphrase;
-	  this.cert = opts.cert;
-	  this.ca = opts.ca;
-	  this.ciphers = opts.ciphers;
-	  this.rejectUnauthorized = opts.rejectUnauthorized;
-
-	  // other options for Node.js client
-	  this.extraHeaders = opts.extraHeaders;
-
-	  this.create();
-	}
-
-	/**
-	 * Mix in `Emitter`.
-	 */
-
-	Emitter(Request.prototype);
-
-	/**
-	 * Creates the XHR object and sends the request.
-	 *
-	 * @api private
-	 */
-
-	Request.prototype.create = function(){
-	  var opts = { agent: this.agent, xdomain: this.xd, xscheme: this.xs, enablesXDR: this.enablesXDR };
-
-	  // SSL options for Node.js client
-	  opts.pfx = this.pfx;
-	  opts.key = this.key;
-	  opts.passphrase = this.passphrase;
-	  opts.cert = this.cert;
-	  opts.ca = this.ca;
-	  opts.ciphers = this.ciphers;
-	  opts.rejectUnauthorized = this.rejectUnauthorized;
-
-	  var xhr = this.xhr = new XMLHttpRequest(opts);
-	  var self = this;
-
-	  try {
-	    debug('xhr open %s: %s', this.method, this.uri);
-	    xhr.open(this.method, this.uri, this.async);
-	    try {
-	      if (this.extraHeaders) {
-	        xhr.setDisableHeaderCheck(true);
-	        for (var i in this.extraHeaders) {
-	          if (this.extraHeaders.hasOwnProperty(i)) {
-	            xhr.setRequestHeader(i, this.extraHeaders[i]);
-	          }
-	        }
-	      }
-	    } catch (e) {}
-	    if (this.supportsBinary) {
-	      // This has to be done after open because Firefox is stupid
-	      // http://stackoverflow.com/questions/13216903/get-binary-data-with-xmlhttprequest-in-a-firefox-extension
-	      xhr.responseType = 'arraybuffer';
-	    }
-
-	    if ('POST' == this.method) {
-	      try {
-	        if (this.isBinary) {
-	          xhr.setRequestHeader('Content-type', 'application/octet-stream');
-	        } else {
-	          xhr.setRequestHeader('Content-type', 'text/plain;charset=UTF-8');
-	        }
-	      } catch (e) {}
-	    }
-
-	    // ie6 check
-	    if ('withCredentials' in xhr) {
-	      xhr.withCredentials = true;
-	    }
-
-	    if (this.hasXDR()) {
-	      xhr.onload = function(){
-	        self.onLoad();
-	      };
-	      xhr.onerror = function(){
-	        self.onError(xhr.responseText);
-	      };
-	    } else {
-	      xhr.onreadystatechange = function(){
-	        if (4 != xhr.readyState) return;
-	        if (200 == xhr.status || 1223 == xhr.status) {
-	          self.onLoad();
-	        } else {
-	          // make sure the `error` event handler that's user-set
-	          // does not throw in the same tick and gets caught here
-	          setTimeout(function(){
-	            self.onError(xhr.status);
-	          }, 0);
-	        }
-	      };
-	    }
-
-	    debug('xhr data %s', this.data);
-	    xhr.send(this.data);
-	  } catch (e) {
-	    // Need to defer since .create() is called directly fhrom the constructor
-	    // and thus the 'error' event can only be only bound *after* this exception
-	    // occurs.  Therefore, also, we cannot throw here at all.
-	    setTimeout(function() {
-	      self.onError(e);
-	    }, 0);
-	    return;
-	  }
-
-	  if (global.document) {
-	    this.index = Request.requestsCount++;
-	    Request.requests[this.index] = this;
-	  }
-	};
-
-	/**
-	 * Called upon successful response.
-	 *
-	 * @api private
-	 */
-
-	Request.prototype.onSuccess = function(){
-	  this.emit('success');
-	  this.cleanup();
-	};
-
-	/**
-	 * Called if we have data.
-	 *
-	 * @api private
-	 */
-
-	Request.prototype.onData = function(data){
-	  this.emit('data', data);
-	  this.onSuccess();
-	};
-
-	/**
-	 * Called upon error.
-	 *
-	 * @api private
-	 */
-
-	Request.prototype.onError = function(err){
-	  this.emit('error', err);
-	  this.cleanup(true);
-	};
-
-	/**
-	 * Cleans up house.
-	 *
-	 * @api private
-	 */
-
-	Request.prototype.cleanup = function(fromError){
-	  if ('undefined' == typeof this.xhr || null === this.xhr) {
-	    return;
-	  }
-	  // xmlhttprequest
-	  if (this.hasXDR()) {
-	    this.xhr.onload = this.xhr.onerror = empty;
-	  } else {
-	    this.xhr.onreadystatechange = empty;
-	  }
-
-	  if (fromError) {
-	    try {
-	      this.xhr.abort();
-	    } catch(e) {}
-	  }
-
-	  if (global.document) {
-	    delete Request.requests[this.index];
-	  }
-
-	  this.xhr = null;
-	};
-
-	/**
-	 * Called upon load.
-	 *
-	 * @api private
-	 */
-
-	Request.prototype.onLoad = function(){
-	  var data;
-	  try {
-	    var contentType;
-	    try {
-	      contentType = this.xhr.getResponseHeader('Content-Type').split(';')[0];
-	    } catch (e) {}
-	    if (contentType === 'application/octet-stream') {
-	      data = this.xhr.response;
-	    } else {
-	      if (!this.supportsBinary) {
-	        data = this.xhr.responseText;
-	      } else {
-	        try {
-	          data = String.fromCharCode.apply(null, new Uint8Array(this.xhr.response));
-	        } catch (e) {
-	          var ui8Arr = new Uint8Array(this.xhr.response);
-	          var dataArray = [];
-	          for (var idx = 0, length = ui8Arr.length; idx < length; idx++) {
-	            dataArray.push(ui8Arr[idx]);
-	          }
-
-	          data = String.fromCharCode.apply(null, dataArray);
-	        }
-	      }
-	    }
-	  } catch (e) {
-	    this.onError(e);
-	  }
-	  if (null != data) {
-	    this.onData(data);
-	  }
-	};
-
-	/**
-	 * Check if it has XDomainRequest.
-	 *
-	 * @api private
-	 */
-
-	Request.prototype.hasXDR = function(){
-	  return 'undefined' !== typeof global.XDomainRequest && !this.xs && this.enablesXDR;
-	};
-
-	/**
-	 * Aborts the request.
-	 *
-	 * @api public
-	 */
-
-	Request.prototype.abort = function(){
-	  this.cleanup();
-	};
-
-	/**
-	 * Aborts pending requests when unloading the window. This is needed to prevent
-	 * memory leaks (e.g. when using IE) and to ensure that no spurious error is
-	 * emitted.
-	 */
-
-	if (global.document) {
-	  Request.requestsCount = 0;
-	  Request.requests = {};
-	  if (global.attachEvent) {
-	    global.attachEvent('onunload', unloadHandler);
-	  } else if (global.addEventListener) {
-	    global.addEventListener('beforeunload', unloadHandler, false);
-	  }
-	}
-
-	function unloadHandler() {
-	  for (var i in Request.requests) {
-	    if (Request.requests.hasOwnProperty(i)) {
-	      Request.requests[i].abort();
-	    }
-	  }
-	}
-
-	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
-	},{"./polling":8,"component-emitter":15,"component-inherit":16,"debug":17,"xmlhttprequest-ssl":10}],8:[function(_dereq_,module,exports){
-	/**
-	 * Module dependencies.
-	 */
-
-	var Transport = _dereq_('../transport');
-	var parseqs = _dereq_('parseqs');
-	var parser = _dereq_('engine.io-parser');
-	var inherit = _dereq_('component-inherit');
-	var yeast = _dereq_('yeast');
-	var debug = _dereq_('debug')('engine.io-client:polling');
-
-	/**
-	 * Module exports.
-	 */
-
-	module.exports = Polling;
-
-	/**
-	 * Is XHR2 supported?
-	 */
-
-	var hasXHR2 = (function() {
-	  var XMLHttpRequest = _dereq_('xmlhttprequest-ssl');
-	  var xhr = new XMLHttpRequest({ xdomain: false });
-	  return null != xhr.responseType;
-	})();
-
-	/**
-	 * Polling interface.
-	 *
-	 * @param {Object} opts
-	 * @api private
-	 */
-
-	function Polling(opts){
-	  var forceBase64 = (opts && opts.forceBase64);
-	  if (!hasXHR2 || forceBase64) {
-	    this.supportsBinary = false;
-	  }
-	  Transport.call(this, opts);
-	}
-
-	/**
-	 * Inherits from Transport.
-	 */
-
-	inherit(Polling, Transport);
-
-	/**
-	 * Transport name.
-	 */
-
-	Polling.prototype.name = 'polling';
-
-	/**
-	 * Opens the socket (triggers polling). We write a PING message to determine
-	 * when the transport is open.
-	 *
-	 * @api private
-	 */
-
-	Polling.prototype.doOpen = function(){
-	  this.poll();
-	};
-
-	/**
-	 * Pauses polling.
-	 *
-	 * @param {Function} callback upon buffers are flushed and transport is paused
-	 * @api private
-	 */
-
-	Polling.prototype.pause = function(onPause){
-	  var pending = 0;
-	  var self = this;
-
-	  this.readyState = 'pausing';
-
-	  function pause(){
-	    debug('paused');
-	    self.readyState = 'paused';
-	    onPause();
-	  }
-
-	  if (this.polling || !this.writable) {
-	    var total = 0;
-
-	    if (this.polling) {
-	      debug('we are currently polling - waiting to pause');
-	      total++;
-	      this.once('pollComplete', function(){
-	        debug('pre-pause polling complete');
-	        --total || pause();
-	      });
-	    }
-
-	    if (!this.writable) {
-	      debug('we are currently writing - waiting to pause');
-	      total++;
-	      this.once('drain', function(){
-	        debug('pre-pause writing complete');
-	        --total || pause();
-	      });
-	    }
-	  } else {
-	    pause();
-	  }
-	};
-
-	/**
-	 * Starts polling cycle.
-	 *
-	 * @api public
-	 */
-
-	Polling.prototype.poll = function(){
-	  debug('polling');
-	  this.polling = true;
-	  this.doPoll();
-	  this.emit('poll');
-	};
-
-	/**
-	 * Overloads onData to detect payloads.
-	 *
-	 * @api private
-	 */
-
-	Polling.prototype.onData = function(data){
-	  var self = this;
-	  debug('polling got data %s', data);
-	  var callback = function(packet, index, total) {
-	    // if its the first message we consider the transport open
-	    if ('opening' == self.readyState) {
-	      self.onOpen();
-	    }
-
-	    // if its a close packet, we close the ongoing requests
-	    if ('close' == packet.type) {
-	      self.onClose();
-	      return false;
-	    }
-
-	    // otherwise bypass onData and handle the message
-	    self.onPacket(packet);
-	  };
-
-	  // decode payload
-	  parser.decodePayload(data, this.socket.binaryType, callback);
-
-	  // if an event did not trigger closing
-	  if ('closed' != this.readyState) {
-	    // if we got data we're not polling
-	    this.polling = false;
-	    this.emit('pollComplete');
-
-	    if ('open' == this.readyState) {
-	      this.poll();
-	    } else {
-	      debug('ignoring poll - transport state "%s"', this.readyState);
-	    }
-	  }
-	};
-
-	/**
-	 * For polling, send a close packet.
-	 *
-	 * @api private
-	 */
-
-	Polling.prototype.doClose = function(){
-	  var self = this;
-
-	  function close(){
-	    debug('writing close packet');
-	    self.write([{ type: 'close' }]);
-	  }
-
-	  if ('open' == this.readyState) {
-	    debug('transport open - closing');
-	    close();
-	  } else {
-	    // in case we're trying to close while
-	    // handshaking is in progress (GH-164)
-	    debug('transport not open - deferring close');
-	    this.once('open', close);
-	  }
-	};
-
-	/**
-	 * Writes a packets payload.
-	 *
-	 * @param {Array} data packets
-	 * @param {Function} drain callback
-	 * @api private
-	 */
-
-	Polling.prototype.write = function(packets){
-	  var self = this;
-	  this.writable = false;
-	  var callbackfn = function() {
-	    self.writable = true;
-	    self.emit('drain');
-	  };
-
-	  var self = this;
-	  parser.encodePayload(packets, this.supportsBinary, function(data) {
-	    self.doWrite(data, callbackfn);
-	  });
-	};
-
-	/**
-	 * Generates uri for connection.
-	 *
-	 * @api private
-	 */
-
-	Polling.prototype.uri = function(){
-	  var query = this.query || {};
-	  var schema = this.secure ? 'https' : 'http';
-	  var port = '';
-
-	  // cache busting is forced
-	  if (false !== this.timestampRequests) {
-	    query[this.timestampParam] = yeast();
-	  }
-
-	  if (!this.supportsBinary && !query.sid) {
-	    query.b64 = 1;
-	  }
-
-	  query = parseqs.encode(query);
-
-	  // avoid port if default for schema
-	  if (this.port && (('https' == schema && this.port != 443) ||
-	     ('http' == schema && this.port != 80))) {
-	    port = ':' + this.port;
-	  }
-
-	  // prepend ? to query
-	  if (query.length) {
-	    query = '?' + query;
-	  }
-
-	  var ipv6 = this.hostname.indexOf(':') !== -1;
-	  return schema + '://' + (ipv6 ? '[' + this.hostname + ']' : this.hostname) + port + this.path + query;
-	};
-
-	},{"../transport":4,"component-inherit":16,"debug":17,"engine.io-parser":19,"parseqs":27,"xmlhttprequest-ssl":10,"yeast":30}],9:[function(_dereq_,module,exports){
-	(function (global){
-	/**
-	 * Module dependencies.
-	 */
-
-	var Transport = _dereq_('../transport');
-	var parser = _dereq_('engine.io-parser');
-	var parseqs = _dereq_('parseqs');
-	var inherit = _dereq_('component-inherit');
-	var yeast = _dereq_('yeast');
-	var debug = _dereq_('debug')('engine.io-client:websocket');
-	var BrowserWebSocket = global.WebSocket || global.MozWebSocket;
-
-	/**
-	 * Get either the `WebSocket` or `MozWebSocket` globals
-	 * in the browser or try to resolve WebSocket-compatible
-	 * interface exposed by `ws` for Node-like environment.
-	 */
-
-	var WebSocket = BrowserWebSocket;
-	if (!WebSocket && typeof window === 'undefined') {
-	  try {
-	    WebSocket = _dereq_('ws');
-	  } catch (e) { }
-	}
-
-	/**
-	 * Module exports.
-	 */
-
-	module.exports = WS;
-
-	/**
-	 * WebSocket transport constructor.
-	 *
-	 * @api {Object} connection options
-	 * @api public
-	 */
-
-	function WS(opts){
-	  var forceBase64 = (opts && opts.forceBase64);
-	  if (forceBase64) {
-	    this.supportsBinary = false;
-	  }
-	  this.perMessageDeflate = opts.perMessageDeflate;
-	  Transport.call(this, opts);
-	}
-
-	/**
-	 * Inherits from Transport.
-	 */
-
-	inherit(WS, Transport);
-
-	/**
-	 * Transport name.
-	 *
-	 * @api public
-	 */
-
-	WS.prototype.name = 'websocket';
-
-	/*
-	 * WebSockets support binary
-	 */
-
-	WS.prototype.supportsBinary = true;
-
-	/**
-	 * Opens socket.
-	 *
-	 * @api private
-	 */
-
-	WS.prototype.doOpen = function(){
-	  if (!this.check()) {
-	    // let probe timeout
-	    return;
-	  }
-
-	  var self = this;
-	  var uri = this.uri();
-	  var protocols = void(0);
-	  var opts = {
-	    agent: this.agent,
-	    perMessageDeflate: this.perMessageDeflate
-	  };
-
-	  // SSL options for Node.js client
-	  opts.pfx = this.pfx;
-	  opts.key = this.key;
-	  opts.passphrase = this.passphrase;
-	  opts.cert = this.cert;
-	  opts.ca = this.ca;
-	  opts.ciphers = this.ciphers;
-	  opts.rejectUnauthorized = this.rejectUnauthorized;
-	  if (this.extraHeaders) {
-	    opts.headers = this.extraHeaders;
-	  }
-
-	  this.ws = BrowserWebSocket ? new WebSocket(uri) : new WebSocket(uri, protocols, opts);
-
-	  if (this.ws.binaryType === undefined) {
-	    this.supportsBinary = false;
-	  }
-
-	  if (this.ws.supports && this.ws.supports.binary) {
-	    this.supportsBinary = true;
-	    this.ws.binaryType = 'buffer';
-	  } else {
-	    this.ws.binaryType = 'arraybuffer';
-	  }
-
-	  this.addEventListeners();
-	};
-
-	/**
-	 * Adds event listeners to the socket
-	 *
-	 * @api private
-	 */
-
-	WS.prototype.addEventListeners = function(){
-	  var self = this;
-
-	  this.ws.onopen = function(){
-	    self.onOpen();
-	  };
-	  this.ws.onclose = function(){
-	    self.onClose();
-	  };
-	  this.ws.onmessage = function(ev){
-	    self.onData(ev.data);
-	  };
-	  this.ws.onerror = function(e){
-	    self.onError('websocket error', e);
-	  };
-	};
-
-	/**
-	 * Override `onData` to use a timer on iOS.
-	 * See: https://gist.github.com/mloughran/2052006
-	 *
-	 * @api private
-	 */
-
-	if ('undefined' != typeof navigator
-	  && /iPad|iPhone|iPod/i.test(navigator.userAgent)) {
-	  WS.prototype.onData = function(data){
-	    var self = this;
-	    setTimeout(function(){
-	      Transport.prototype.onData.call(self, data);
-	    }, 0);
-	  };
-	}
-
-	/**
-	 * Writes data to socket.
-	 *
-	 * @param {Array} array of packets.
-	 * @api private
-	 */
-
-	WS.prototype.write = function(packets){
-	  var self = this;
-	  this.writable = false;
-
-	  // encodePacket efficient as it uses WS framing
-	  // no need for encodePayload
-	  var total = packets.length;
-	  for (var i = 0, l = total; i < l; i++) {
-	    (function(packet) {
-	      parser.encodePacket(packet, self.supportsBinary, function(data) {
-	        if (!BrowserWebSocket) {
-	          // always create a new object (GH-437)
-	          var opts = {};
-	          if (packet.options) {
-	            opts.compress = packet.options.compress;
-	          }
-
-	          if (self.perMessageDeflate) {
-	            var len = 'string' == typeof data ? global.Buffer.byteLength(data) : data.length;
-	            if (len < self.perMessageDeflate.threshold) {
-	              opts.compress = false;
-	            }
-	          }
-	        }
-
-	        //Sometimes the websocket has already been closed but the browser didn't
-	        //have a chance of informing us about it yet, in that case send will
-	        //throw an error
-	        try {
-	          if (BrowserWebSocket) {
-	            // TypeError is thrown when passing the second argument on Safari
-	            self.ws.send(data);
-	          } else {
-	            self.ws.send(data, opts);
-	          }
-	        } catch (e){
-	          debug('websocket closed before onclose event');
-	        }
-
-	        --total || done();
-	      });
-	    })(packets[i]);
-	  }
-
-	  function done(){
-	    self.emit('flush');
-
-	    // fake drain
-	    // defer to next tick to allow Socket to clear writeBuffer
-	    setTimeout(function(){
-	      self.writable = true;
-	      self.emit('drain');
-	    }, 0);
-	  }
-	};
-
-	/**
-	 * Called upon close
-	 *
-	 * @api private
-	 */
-
-	WS.prototype.onClose = function(){
-	  Transport.prototype.onClose.call(this);
-	};
-
-	/**
-	 * Closes socket.
-	 *
-	 * @api private
-	 */
-
-	WS.prototype.doClose = function(){
-	  if (typeof this.ws !== 'undefined') {
-	    this.ws.close();
-	  }
-	};
-
-	/**
-	 * Generates uri for connection.
-	 *
-	 * @api private
-	 */
-
-	WS.prototype.uri = function(){
-	  var query = this.query || {};
-	  var schema = this.secure ? 'wss' : 'ws';
-	  var port = '';
-
-	  // avoid port if default for schema
-	  if (this.port && (('wss' == schema && this.port != 443)
-	    || ('ws' == schema && this.port != 80))) {
-	    port = ':' + this.port;
-	  }
-
-	  // append timestamp to URI
-	  if (this.timestampRequests) {
-	    query[this.timestampParam] = yeast();
-	  }
-
-	  // communicate binary support capabilities
-	  if (!this.supportsBinary) {
-	    query.b64 = 1;
-	  }
-
-	  query = parseqs.encode(query);
-
-	  // prepend ? to query
-	  if (query.length) {
-	    query = '?' + query;
-	  }
-
-	  var ipv6 = this.hostname.indexOf(':') !== -1;
-	  return schema + '://' + (ipv6 ? '[' + this.hostname + ']' : this.hostname) + port + this.path + query;
-	};
-
-	/**
-	 * Feature detection for WebSocket.
-	 *
-	 * @return {Boolean} whether this transport is available.
-	 * @api public
-	 */
-
-	WS.prototype.check = function(){
-	  return !!WebSocket && !('__initialize' in WebSocket && this.name === WS.prototype.name);
-	};
-
-	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
-	},{"../transport":4,"component-inherit":16,"debug":17,"engine.io-parser":19,"parseqs":27,"ws":undefined,"yeast":30}],10:[function(_dereq_,module,exports){
-	// browser shim for xmlhttprequest module
-	var hasCORS = _dereq_('has-cors');
-
-	module.exports = function(opts) {
-	  var xdomain = opts.xdomain;
-
-	  // scheme must be same when usign XDomainRequest
-	  // http://blogs.msdn.com/b/ieinternals/archive/2010/05/13/xdomainrequest-restrictions-limitations-and-workarounds.aspx
-	  var xscheme = opts.xscheme;
-
-	  // XDomainRequest has a flow of not sending cookie, therefore it should be disabled as a default.
-	  // https://github.com/Automattic/engine.io-client/pull/217
-	  var enablesXDR = opts.enablesXDR;
-
-	  // XMLHttpRequest can be disabled on IE
-	  try {
-	    if ('undefined' != typeof XMLHttpRequest && (!xdomain || hasCORS)) {
-	      return new XMLHttpRequest();
-	    }
-	  } catch (e) { }
-
-	  // Use XDomainRequest for IE8 if enablesXDR is true
-	  // because loading bar keeps flashing when using jsonp-polling
-	  // https://github.com/yujiosaka/socke.io-ie8-loading-example
-	  try {
-	    if ('undefined' != typeof XDomainRequest && !xscheme && enablesXDR) {
-	      return new XDomainRequest();
-	    }
-	  } catch (e) { }
-
-	  if (!xdomain) {
-	    try {
-	      return new ActiveXObject('Microsoft.XMLHTTP');
-	    } catch(e) { }
-	  }
-	}
-
-	},{"has-cors":22}],11:[function(_dereq_,module,exports){
-	module.exports = after
-
-	function after(count, callback, err_cb) {
-	    var bail = false
-	    err_cb = err_cb || noop
-	    proxy.count = count
-
-	    return (count === 0) ? callback() : proxy
-
-	    function proxy(err, result) {
-	        if (proxy.count <= 0) {
-	            throw new Error('after called too many times')
-	        }
-	        --proxy.count
-
-	        // after first error, rest are passed to err_cb
-	        if (err) {
-	            bail = true
-	            callback(err)
-	            // future error callbacks will go to error handler
-	            callback = err_cb
-	        } else if (proxy.count === 0 && !bail) {
-	            callback(null, result)
-	        }
-	    }
-	}
-
-	function noop() {}
-
-	},{}],12:[function(_dereq_,module,exports){
-	/**
-	 * An abstraction for slicing an arraybuffer even when
-	 * ArrayBuffer.prototype.slice is not supported
-	 *
-	 * @api public
-	 */
-
-	module.exports = function(arraybuffer, start, end) {
-	  var bytes = arraybuffer.byteLength;
-	  start = start || 0;
-	  end = end || bytes;
-
-	  if (arraybuffer.slice) { return arraybuffer.slice(start, end); }
-
-	  if (start < 0) { start += bytes; }
-	  if (end < 0) { end += bytes; }
-	  if (end > bytes) { end = bytes; }
-
-	  if (start >= bytes || start >= end || bytes === 0) {
-	    return new ArrayBuffer(0);
-	  }
-
-	  var abv = new Uint8Array(arraybuffer);
-	  var result = new Uint8Array(end - start);
-	  for (var i = start, ii = 0; i < end; i++, ii++) {
-	    result[ii] = abv[i];
-	  }
-	  return result.buffer;
-	};
-
-	},{}],13:[function(_dereq_,module,exports){
-	/*
-	 * base64-arraybuffer
-	 * https://github.com/niklasvh/base64-arraybuffer
-	 *
-	 * Copyright (c) 2012 Niklas von Hertzen
-	 * Licensed under the MIT license.
-	 */
-	(function(chars){
-	  "use strict";
-
-	  exports.encode = function(arraybuffer) {
-	    var bytes = new Uint8Array(arraybuffer),
-	    i, len = bytes.length, base64 = "";
-
-	    for (i = 0; i < len; i+=3) {
-	      base64 += chars[bytes[i] >> 2];
-	      base64 += chars[((bytes[i] & 3) << 4) | (bytes[i + 1] >> 4)];
-	      base64 += chars[((bytes[i + 1] & 15) << 2) | (bytes[i + 2] >> 6)];
-	      base64 += chars[bytes[i + 2] & 63];
-	    }
-
-	    if ((len % 3) === 2) {
-	      base64 = base64.substring(0, base64.length - 1) + "=";
-	    } else if (len % 3 === 1) {
-	      base64 = base64.substring(0, base64.length - 2) + "==";
-	    }
-
-	    return base64;
-	  };
-
-	  exports.decode =  function(base64) {
-	    var bufferLength = base64.length * 0.75,
-	    len = base64.length, i, p = 0,
-	    encoded1, encoded2, encoded3, encoded4;
-
-	    if (base64[base64.length - 1] === "=") {
-	      bufferLength--;
-	      if (base64[base64.length - 2] === "=") {
-	        bufferLength--;
-	      }
-	    }
-
-	    var arraybuffer = new ArrayBuffer(bufferLength),
-	    bytes = new Uint8Array(arraybuffer);
-
-	    for (i = 0; i < len; i+=4) {
-	      encoded1 = chars.indexOf(base64[i]);
-	      encoded2 = chars.indexOf(base64[i+1]);
-	      encoded3 = chars.indexOf(base64[i+2]);
-	      encoded4 = chars.indexOf(base64[i+3]);
-
-	      bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
-	      bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
-	      bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
-	    }
-
-	    return arraybuffer;
-	  };
-	})("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
-
-	},{}],14:[function(_dereq_,module,exports){
-	(function (global){
-	/**
-	 * Create a blob builder even when vendor prefixes exist
-	 */
-
-	var BlobBuilder = global.BlobBuilder
-	  || global.WebKitBlobBuilder
-	  || global.MSBlobBuilder
-	  || global.MozBlobBuilder;
-
-	/**
-	 * Check if Blob constructor is supported
-	 */
-
-	var blobSupported = (function() {
-	  try {
-	    var a = new Blob(['hi']);
-	    return a.size === 2;
-	  } catch(e) {
-	    return false;
-	  }
-	})();
-
-	/**
-	 * Check if Blob constructor supports ArrayBufferViews
-	 * Fails in Safari 6, so we need to map to ArrayBuffers there.
-	 */
-
-	var blobSupportsArrayBufferView = blobSupported && (function() {
-	  try {
-	    var b = new Blob([new Uint8Array([1,2])]);
-	    return b.size === 2;
-	  } catch(e) {
-	    return false;
-	  }
-	})();
-
-	/**
-	 * Check if BlobBuilder is supported
-	 */
-
-	var blobBuilderSupported = BlobBuilder
-	  && BlobBuilder.prototype.append
-	  && BlobBuilder.prototype.getBlob;
-
-	/**
-	 * Helper function that maps ArrayBufferViews to ArrayBuffers
-	 * Used by BlobBuilder constructor and old browsers that didn't
-	 * support it in the Blob constructor.
-	 */
-
-	function mapArrayBufferViews(ary) {
-	  for (var i = 0; i < ary.length; i++) {
-	    var chunk = ary[i];
-	    if (chunk.buffer instanceof ArrayBuffer) {
-	      var buf = chunk.buffer;
-
-	      // if this is a subarray, make a copy so we only
-	      // include the subarray region from the underlying buffer
-	      if (chunk.byteLength !== buf.byteLength) {
-	        var copy = new Uint8Array(chunk.byteLength);
-	        copy.set(new Uint8Array(buf, chunk.byteOffset, chunk.byteLength));
-	        buf = copy.buffer;
-	      }
-
-	      ary[i] = buf;
-	    }
-	  }
-	}
-
-	function BlobBuilderConstructor(ary, options) {
-	  options = options || {};
-
-	  var bb = new BlobBuilder();
-	  mapArrayBufferViews(ary);
-
-	  for (var i = 0; i < ary.length; i++) {
-	    bb.append(ary[i]);
-	  }
-
-	  return (options.type) ? bb.getBlob(options.type) : bb.getBlob();
-	};
-
-	function BlobConstructor(ary, options) {
-	  mapArrayBufferViews(ary);
-	  return new Blob(ary, options || {});
-	};
-
-	module.exports = (function() {
-	  if (blobSupported) {
-	    return blobSupportsArrayBufferView ? global.Blob : BlobConstructor;
-	  } else if (blobBuilderSupported) {
-	    return BlobBuilderConstructor;
-	  } else {
-	    return undefined;
-	  }
-	})();
-
-	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
-	},{}],15:[function(_dereq_,module,exports){
-
-	/**
-	 * Expose `Emitter`.
-	 */
-
-	module.exports = Emitter;
-
-	/**
-	 * Initialize a new `Emitter`.
-	 *
-	 * @api public
-	 */
-
-	function Emitter(obj) {
-	  if (obj) return mixin(obj);
-	};
-
-	/**
-	 * Mixin the emitter properties.
-	 *
-	 * @param {Object} obj
-	 * @return {Object}
-	 * @api private
-	 */
-
-	function mixin(obj) {
-	  for (var key in Emitter.prototype) {
-	    obj[key] = Emitter.prototype[key];
-	  }
-	  return obj;
-	}
-
-	/**
-	 * Listen on the given `event` with `fn`.
-	 *
-	 * @param {String} event
-	 * @param {Function} fn
-	 * @return {Emitter}
-	 * @api public
-	 */
-
-	Emitter.prototype.on =
-	Emitter.prototype.addEventListener = function(event, fn){
-	  this._callbacks = this._callbacks || {};
-	  (this._callbacks[event] = this._callbacks[event] || [])
-	    .push(fn);
-	  return this;
-	};
-
-	/**
-	 * Adds an `event` listener that will be invoked a single
-	 * time then automatically removed.
-	 *
-	 * @param {String} event
-	 * @param {Function} fn
-	 * @return {Emitter}
-	 * @api public
-	 */
-
-	Emitter.prototype.once = function(event, fn){
-	  var self = this;
-	  this._callbacks = this._callbacks || {};
-
-	  function on() {
-	    self.off(event, on);
-	    fn.apply(this, arguments);
-	  }
-
-	  on.fn = fn;
-	  this.on(event, on);
-	  return this;
-	};
-
-	/**
-	 * Remove the given callback for `event` or all
-	 * registered callbacks.
-	 *
-	 * @param {String} event
-	 * @param {Function} fn
-	 * @return {Emitter}
-	 * @api public
-	 */
-
-	Emitter.prototype.off =
-	Emitter.prototype.removeListener =
-	Emitter.prototype.removeAllListeners =
-	Emitter.prototype.removeEventListener = function(event, fn){
-	  this._callbacks = this._callbacks || {};
-
-	  // all
-	  if (0 == arguments.length) {
-	    this._callbacks = {};
-	    return this;
-	  }
-
-	  // specific event
-	  var callbacks = this._callbacks[event];
-	  if (!callbacks) return this;
-
-	  // remove all handlers
-	  if (1 == arguments.length) {
-	    delete this._callbacks[event];
-	    return this;
-	  }
-
-	  // remove specific handler
-	  var cb;
-	  for (var i = 0; i < callbacks.length; i++) {
-	    cb = callbacks[i];
-	    if (cb === fn || cb.fn === fn) {
-	      callbacks.splice(i, 1);
-	      break;
-	    }
-	  }
-	  return this;
-	};
-
-	/**
-	 * Emit `event` with the given args.
-	 *
-	 * @param {String} event
-	 * @param {Mixed} ...
-	 * @return {Emitter}
-	 */
-
-	Emitter.prototype.emit = function(event){
-	  this._callbacks = this._callbacks || {};
-	  var args = [].slice.call(arguments, 1)
-	    , callbacks = this._callbacks[event];
-
-	  if (callbacks) {
-	    callbacks = callbacks.slice(0);
-	    for (var i = 0, len = callbacks.length; i < len; ++i) {
-	      callbacks[i].apply(this, args);
-	    }
-	  }
-
-	  return this;
-	};
-
-	/**
-	 * Return array of callbacks for `event`.
-	 *
-	 * @param {String} event
-	 * @return {Array}
-	 * @api public
-	 */
-
-	Emitter.prototype.listeners = function(event){
-	  this._callbacks = this._callbacks || {};
-	  return this._callbacks[event] || [];
-	};
-
-	/**
-	 * Check if this emitter has `event` handlers.
-	 *
-	 * @param {String} event
-	 * @return {Boolean}
-	 * @api public
-	 */
-
-	Emitter.prototype.hasListeners = function(event){
-	  return !! this.listeners(event).length;
-	};
-
-	},{}],16:[function(_dereq_,module,exports){
-
-	module.exports = function(a, b){
-	  var fn = function(){};
-	  fn.prototype = b.prototype;
-	  a.prototype = new fn;
-	  a.prototype.constructor = a;
-	};
-	},{}],17:[function(_dereq_,module,exports){
-
-	/**
-	 * This is the web browser implementation of `debug()`.
-	 *
-	 * Expose `debug()` as the module.
-	 */
-
-	exports = module.exports = _dereq_('./debug');
-	exports.log = log;
-	exports.formatArgs = formatArgs;
-	exports.save = save;
-	exports.load = load;
-	exports.useColors = useColors;
-	exports.storage = 'undefined' != typeof chrome
-	               && 'undefined' != typeof chrome.storage
-	                  ? chrome.storage.local
-	                  : localstorage();
-
-	/**
-	 * Colors.
-	 */
-
-	exports.colors = [
-	  'lightseagreen',
-	  'forestgreen',
-	  'goldenrod',
-	  'dodgerblue',
-	  'darkorchid',
-	  'crimson'
-	];
-
-	/**
-	 * Currently only WebKit-based Web Inspectors, Firefox >= v31,
-	 * and the Firebug extension (any Firefox version) are known
-	 * to support "%c" CSS customizations.
-	 *
-	 * TODO: add a `localStorage` variable to explicitly enable/disable colors
-	 */
-
-	function useColors() {
-	  // is webkit? http://stackoverflow.com/a/16459606/376773
-	  return ('WebkitAppearance' in document.documentElement.style) ||
-	    // is firebug? http://stackoverflow.com/a/398120/376773
-	    (window.console && (console.firebug || (console.exception && console.table))) ||
-	    // is firefox >= v31?
-	    // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
-	    (navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31);
-	}
-
-	/**
-	 * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
-	 */
-
-	exports.formatters.j = function(v) {
-	  return JSON.stringify(v);
-	};
-
-
-	/**
-	 * Colorize log arguments if enabled.
-	 *
-	 * @api public
-	 */
-
-	function formatArgs() {
-	  var args = arguments;
-	  var useColors = this.useColors;
-
-	  args[0] = (useColors ? '%c' : '')
-	    + this.namespace
-	    + (useColors ? ' %c' : ' ')
-	    + args[0]
-	    + (useColors ? '%c ' : ' ')
-	    + '+' + exports.humanize(this.diff);
-
-	  if (!useColors) return args;
-
-	  var c = 'color: ' + this.color;
-	  args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1));
-
-	  // the final "%c" is somewhat tricky, because there could be other
-	  // arguments passed either before or after the %c, so we need to
-	  // figure out the correct index to insert the CSS into
-	  var index = 0;
-	  var lastC = 0;
-	  args[0].replace(/%[a-z%]/g, function(match) {
-	    if ('%%' === match) return;
-	    index++;
-	    if ('%c' === match) {
-	      // we only are interested in the *last* %c
-	      // (the user may have provided their own)
-	      lastC = index;
-	    }
-	  });
-
-	  args.splice(lastC, 0, c);
-	  return args;
-	}
-
-	/**
-	 * Invokes `console.log()` when available.
-	 * No-op when `console.log` is not a "function".
-	 *
-	 * @api public
-	 */
-
-	function log() {
-	  // this hackery is required for IE8/9, where
-	  // the `console.log` function doesn't have 'apply'
-	  return 'object' === typeof console
-	    && console.log
-	    && Function.prototype.apply.call(console.log, console, arguments);
-	}
-
-	/**
-	 * Save `namespaces`.
-	 *
-	 * @param {String} namespaces
-	 * @api private
-	 */
-
-	function save(namespaces) {
-	  try {
-	    if (null == namespaces) {
-	      exports.storage.removeItem('debug');
-	    } else {
-	      exports.storage.debug = namespaces;
-	    }
-	  } catch(e) {}
-	}
-
-	/**
-	 * Load `namespaces`.
-	 *
-	 * @return {String} returns the previously persisted debug modes
-	 * @api private
-	 */
-
-	function load() {
-	  var r;
-	  try {
-	    r = exports.storage.debug;
-	  } catch(e) {}
-	  return r;
-	}
-
-	/**
-	 * Enable namespaces listed in `localStorage.debug` initially.
-	 */
-
-	exports.enable(load());
-
-	/**
-	 * Localstorage attempts to return the localstorage.
-	 *
-	 * This is necessary because safari throws
-	 * when a user disables cookies/localstorage
-	 * and you attempt to access it.
-	 *
-	 * @return {LocalStorage}
-	 * @api private
-	 */
-
-	function localstorage(){
-	  try {
-	    return window.localStorage;
-	  } catch (e) {}
-	}
-
-	},{"./debug":18}],18:[function(_dereq_,module,exports){
-
-	/**
-	 * This is the common logic for both the Node.js and web browser
-	 * implementations of `debug()`.
-	 *
-	 * Expose `debug()` as the module.
-	 */
-
-	exports = module.exports = debug;
-	exports.coerce = coerce;
-	exports.disable = disable;
-	exports.enable = enable;
-	exports.enabled = enabled;
-	exports.humanize = _dereq_('ms');
-
-	/**
-	 * The currently active debug mode names, and names to skip.
-	 */
-
-	exports.names = [];
-	exports.skips = [];
-
-	/**
-	 * Map of special "%n" handling functions, for the debug "format" argument.
-	 *
-	 * Valid key names are a single, lowercased letter, i.e. "n".
-	 */
-
-	exports.formatters = {};
-
-	/**
-	 * Previously assigned color.
-	 */
-
-	var prevColor = 0;
-
-	/**
-	 * Previous log timestamp.
-	 */
-
-	var prevTime;
-
-	/**
-	 * Select a color.
-	 *
-	 * @return {Number}
-	 * @api private
-	 */
-
-	function selectColor() {
-	  return exports.colors[prevColor++ % exports.colors.length];
-	}
-
-	/**
-	 * Create a debugger with the given `namespace`.
-	 *
-	 * @param {String} namespace
-	 * @return {Function}
-	 * @api public
-	 */
-
-	function debug(namespace) {
-
-	  // define the `disabled` version
-	  function disabled() {
-	  }
-	  disabled.enabled = false;
-
-	  // define the `enabled` version
-	  function enabled() {
-
-	    var self = enabled;
-
-	    // set `diff` timestamp
-	    var curr = +new Date();
-	    var ms = curr - (prevTime || curr);
-	    self.diff = ms;
-	    self.prev = prevTime;
-	    self.curr = curr;
-	    prevTime = curr;
-
-	    // add the `color` if not set
-	    if (null == self.useColors) self.useColors = exports.useColors();
-	    if (null == self.color && self.useColors) self.color = selectColor();
-
-	    var args = Array.prototype.slice.call(arguments);
-
-	    args[0] = exports.coerce(args[0]);
-
-	    if ('string' !== typeof args[0]) {
-	      // anything else let's inspect with %o
-	      args = ['%o'].concat(args);
-	    }
-
-	    // apply any `formatters` transformations
-	    var index = 0;
-	    args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
-	      // if we encounter an escaped % then don't increase the array index
-	      if (match === '%%') return match;
-	      index++;
-	      var formatter = exports.formatters[format];
-	      if ('function' === typeof formatter) {
-	        var val = args[index];
-	        match = formatter.call(self, val);
-
-	        // now we need to remove `args[index]` since it's inlined in the `format`
-	        args.splice(index, 1);
-	        index--;
-	      }
-	      return match;
-	    });
-
-	    if ('function' === typeof exports.formatArgs) {
-	      args = exports.formatArgs.apply(self, args);
-	    }
-	    var logFn = enabled.log || exports.log || console.log.bind(console);
-	    logFn.apply(self, args);
-	  }
-	  enabled.enabled = true;
-
-	  var fn = exports.enabled(namespace) ? enabled : disabled;
-
-	  fn.namespace = namespace;
-
-	  return fn;
-	}
-
-	/**
-	 * Enables a debug mode by namespaces. This can include modes
-	 * separated by a colon and wildcards.
-	 *
-	 * @param {String} namespaces
-	 * @api public
-	 */
-
-	function enable(namespaces) {
-	  exports.save(namespaces);
-
-	  var split = (namespaces || '').split(/[\s,]+/);
-	  var len = split.length;
-
-	  for (var i = 0; i < len; i++) {
-	    if (!split[i]) continue; // ignore empty strings
-	    namespaces = split[i].replace(/\*/g, '.*?');
-	    if (namespaces[0] === '-') {
-	      exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
-	    } else {
-	      exports.names.push(new RegExp('^' + namespaces + '$'));
-	    }
-	  }
-	}
-
-	/**
-	 * Disable debug output.
-	 *
-	 * @api public
-	 */
-
-	function disable() {
-	  exports.enable('');
-	}
-
-	/**
-	 * Returns true if the given mode name is enabled, false otherwise.
-	 *
-	 * @param {String} name
-	 * @return {Boolean}
-	 * @api public
-	 */
-
-	function enabled(name) {
-	  var i, len;
-	  for (i = 0, len = exports.skips.length; i < len; i++) {
-	    if (exports.skips[i].test(name)) {
-	      return false;
-	    }
-	  }
-	  for (i = 0, len = exports.names.length; i < len; i++) {
-	    if (exports.names[i].test(name)) {
-	      return true;
-	    }
-	  }
-	  return false;
-	}
-
-	/**
-	 * Coerce `val`.
-	 *
-	 * @param {Mixed} val
-	 * @return {Mixed}
-	 * @api private
-	 */
-
-	function coerce(val) {
-	  if (val instanceof Error) return val.stack || val.message;
-	  return val;
-	}
-
-	},{"ms":25}],19:[function(_dereq_,module,exports){
-	(function (global){
-	/**
-	 * Module dependencies.
-	 */
-
-	var keys = _dereq_('./keys');
-	var hasBinary = _dereq_('has-binary');
-	var sliceBuffer = _dereq_('arraybuffer.slice');
-	var base64encoder = _dereq_('base64-arraybuffer');
-	var after = _dereq_('after');
-	var utf8 = _dereq_('utf8');
-
-	/**
-	 * Check if we are running an android browser. That requires us to use
-	 * ArrayBuffer with polling transports...
-	 *
-	 * http://ghinda.net/jpeg-blob-ajax-android/
-	 */
-
-	var isAndroid = navigator.userAgent.match(/Android/i);
-
-	/**
-	 * Check if we are running in PhantomJS.
-	 * Uploading a Blob with PhantomJS does not work correctly, as reported here:
-	 * https://github.com/ariya/phantomjs/issues/11395
-	 * @type boolean
-	 */
-	var isPhantomJS = /PhantomJS/i.test(navigator.userAgent);
-
-	/**
-	 * When true, avoids using Blobs to encode payloads.
-	 * @type boolean
-	 */
-	var dontSendBlobs = isAndroid || isPhantomJS;
-
-	/**
-	 * Current protocol version.
-	 */
-
-	exports.protocol = 3;
-
-	/**
-	 * Packet types.
-	 */
-
-	var packets = exports.packets = {
-	    open:     0    // non-ws
-	  , close:    1    // non-ws
-	  , ping:     2
-	  , pong:     3
-	  , message:  4
-	  , upgrade:  5
-	  , noop:     6
-	};
-
-	var packetslist = keys(packets);
-
-	/**
-	 * Premade error packet.
-	 */
-
-	var err = { type: 'error', data: 'parser error' };
-
-	/**
-	 * Create a blob api even for blob builder when vendor prefixes exist
-	 */
-
-	var Blob = _dereq_('blob');
-
-	/**
-	 * Encodes a packet.
-	 *
-	 *     <packet type id> [ <data> ]
-	 *
-	 * Example:
-	 *
-	 *     5hello world
-	 *     3
-	 *     4
-	 *
-	 * Binary is encoded in an identical principle
-	 *
-	 * @api private
-	 */
-
-	exports.encodePacket = function (packet, supportsBinary, utf8encode, callback) {
-	  if ('function' == typeof supportsBinary) {
-	    callback = supportsBinary;
-	    supportsBinary = false;
-	  }
-
-	  if ('function' == typeof utf8encode) {
-	    callback = utf8encode;
-	    utf8encode = null;
-	  }
-
-	  var data = (packet.data === undefined)
-	    ? undefined
-	    : packet.data.buffer || packet.data;
-
-	  if (global.ArrayBuffer && data instanceof ArrayBuffer) {
-	    return encodeArrayBuffer(packet, supportsBinary, callback);
-	  } else if (Blob && data instanceof global.Blob) {
-	    return encodeBlob(packet, supportsBinary, callback);
-	  }
-
-	  // might be an object with { base64: true, data: dataAsBase64String }
-	  if (data && data.base64) {
-	    return encodeBase64Object(packet, callback);
-	  }
-
-	  // Sending data as a utf-8 string
-	  var encoded = packets[packet.type];
-
-	  // data fragment is optional
-	  if (undefined !== packet.data) {
-	    encoded += utf8encode ? utf8.encode(String(packet.data)) : String(packet.data);
-	  }
-
-	  return callback('' + encoded);
-
-	};
-
-	function encodeBase64Object(packet, callback) {
-	  // packet data is an object { base64: true, data: dataAsBase64String }
-	  var message = 'b' + exports.packets[packet.type] + packet.data.data;
-	  return callback(message);
-	}
-
-	/**
-	 * Encode packet helpers for binary types
-	 */
-
-	function encodeArrayBuffer(packet, supportsBinary, callback) {
-	  if (!supportsBinary) {
-	    return exports.encodeBase64Packet(packet, callback);
-	  }
-
-	  var data = packet.data;
-	  var contentArray = new Uint8Array(data);
-	  var resultBuffer = new Uint8Array(1 + data.byteLength);
-
-	  resultBuffer[0] = packets[packet.type];
-	  for (var i = 0; i < contentArray.length; i++) {
-	    resultBuffer[i+1] = contentArray[i];
-	  }
-
-	  return callback(resultBuffer.buffer);
-	}
-
-	function encodeBlobAsArrayBuffer(packet, supportsBinary, callback) {
-	  if (!supportsBinary) {
-	    return exports.encodeBase64Packet(packet, callback);
-	  }
-
-	  var fr = new FileReader();
-	  fr.onload = function() {
-	    packet.data = fr.result;
-	    exports.encodePacket(packet, supportsBinary, true, callback);
-	  };
-	  return fr.readAsArrayBuffer(packet.data);
-	}
-
-	function encodeBlob(packet, supportsBinary, callback) {
-	  if (!supportsBinary) {
-	    return exports.encodeBase64Packet(packet, callback);
-	  }
-
-	  if (dontSendBlobs) {
-	    return encodeBlobAsArrayBuffer(packet, supportsBinary, callback);
-	  }
-
-	  var length = new Uint8Array(1);
-	  length[0] = packets[packet.type];
-	  var blob = new Blob([length.buffer, packet.data]);
-
-	  return callback(blob);
-	}
-
-	/**
-	 * Encodes a packet with binary data in a base64 string
-	 *
-	 * @param {Object} packet, has `type` and `data`
-	 * @return {String} base64 encoded message
-	 */
-
-	exports.encodeBase64Packet = function(packet, callback) {
-	  var message = 'b' + exports.packets[packet.type];
-	  if (Blob && packet.data instanceof global.Blob) {
-	    var fr = new FileReader();
-	    fr.onload = function() {
-	      var b64 = fr.result.split(',')[1];
-	      callback(message + b64);
-	    };
-	    return fr.readAsDataURL(packet.data);
-	  }
-
-	  var b64data;
-	  try {
-	    b64data = String.fromCharCode.apply(null, new Uint8Array(packet.data));
-	  } catch (e) {
-	    // iPhone Safari doesn't let you apply with typed arrays
-	    var typed = new Uint8Array(packet.data);
-	    var basic = new Array(typed.length);
-	    for (var i = 0; i < typed.length; i++) {
-	      basic[i] = typed[i];
-	    }
-	    b64data = String.fromCharCode.apply(null, basic);
-	  }
-	  message += global.btoa(b64data);
-	  return callback(message);
-	};
-
-	/**
-	 * Decodes a packet. Changes format to Blob if requested.
-	 *
-	 * @return {Object} with `type` and `data` (if any)
-	 * @api private
-	 */
-
-	exports.decodePacket = function (data, binaryType, utf8decode) {
-	  // String data
-	  if (typeof data == 'string' || data === undefined) {
-	    if (data.charAt(0) == 'b') {
-	      return exports.decodeBase64Packet(data.substr(1), binaryType);
-	    }
-
-	    if (utf8decode) {
-	      try {
-	        data = utf8.decode(data);
-	      } catch (e) {
-	        return err;
-	      }
-	    }
-	    var type = data.charAt(0);
-
-	    if (Number(type) != type || !packetslist[type]) {
-	      return err;
-	    }
-
-	    if (data.length > 1) {
-	      return { type: packetslist[type], data: data.substring(1) };
-	    } else {
-	      return { type: packetslist[type] };
-	    }
-	  }
-
-	  var asArray = new Uint8Array(data);
-	  var type = asArray[0];
-	  var rest = sliceBuffer(data, 1);
-	  if (Blob && binaryType === 'blob') {
-	    rest = new Blob([rest]);
-	  }
-	  return { type: packetslist[type], data: rest };
-	};
-
-	/**
-	 * Decodes a packet encoded in a base64 string
-	 *
-	 * @param {String} base64 encoded message
-	 * @return {Object} with `type` and `data` (if any)
-	 */
-
-	exports.decodeBase64Packet = function(msg, binaryType) {
-	  var type = packetslist[msg.charAt(0)];
-	  if (!global.ArrayBuffer) {
-	    return { type: type, data: { base64: true, data: msg.substr(1) } };
-	  }
-
-	  var data = base64encoder.decode(msg.substr(1));
-
-	  if (binaryType === 'blob' && Blob) {
-	    data = new Blob([data]);
-	  }
-
-	  return { type: type, data: data };
-	};
-
-	/**
-	 * Encodes multiple messages (payload).
-	 *
-	 *     <length>:data
-	 *
-	 * Example:
-	 *
-	 *     11:hello world2:hi
-	 *
-	 * If any contents are binary, they will be encoded as base64 strings. Base64
-	 * encoded strings are marked with a b before the length specifier
-	 *
-	 * @param {Array} packets
-	 * @api private
-	 */
-
-	exports.encodePayload = function (packets, supportsBinary, callback) {
-	  if (typeof supportsBinary == 'function') {
-	    callback = supportsBinary;
-	    supportsBinary = null;
-	  }
-
-	  var isBinary = hasBinary(packets);
-
-	  if (supportsBinary && isBinary) {
-	    if (Blob && !dontSendBlobs) {
-	      return exports.encodePayloadAsBlob(packets, callback);
-	    }
-
-	    return exports.encodePayloadAsArrayBuffer(packets, callback);
-	  }
-
-	  if (!packets.length) {
-	    return callback('0:');
-	  }
-
-	  function setLengthHeader(message) {
-	    return message.length + ':' + message;
-	  }
-
-	  function encodeOne(packet, doneCallback) {
-	    exports.encodePacket(packet, !isBinary ? false : supportsBinary, true, function(message) {
-	      doneCallback(null, setLengthHeader(message));
-	    });
-	  }
-
-	  map(packets, encodeOne, function(err, results) {
-	    return callback(results.join(''));
-	  });
-	};
-
-	/**
-	 * Async array map using after
-	 */
-
-	function map(ary, each, done) {
-	  var result = new Array(ary.length);
-	  var next = after(ary.length, done);
-
-	  var eachWithIndex = function(i, el, cb) {
-	    each(el, function(error, msg) {
-	      result[i] = msg;
-	      cb(error, result);
-	    });
-	  };
-
-	  for (var i = 0; i < ary.length; i++) {
-	    eachWithIndex(i, ary[i], next);
-	  }
-	}
-
-	/*
-	 * Decodes data when a payload is maybe expected. Possible binary contents are
-	 * decoded from their base64 representation
-	 *
-	 * @param {String} data, callback method
-	 * @api public
-	 */
-
-	exports.decodePayload = function (data, binaryType, callback) {
-	  if (typeof data != 'string') {
-	    return exports.decodePayloadAsBinary(data, binaryType, callback);
-	  }
-
-	  if (typeof binaryType === 'function') {
-	    callback = binaryType;
-	    binaryType = null;
-	  }
-
-	  var packet;
-	  if (data == '') {
-	    // parser error - ignoring payload
-	    return callback(err, 0, 1);
-	  }
-
-	  var length = ''
-	    , n, msg;
-
-	  for (var i = 0, l = data.length; i < l; i++) {
-	    var chr = data.charAt(i);
-
-	    if (':' != chr) {
-	      length += chr;
-	    } else {
-	      if ('' == length || (length != (n = Number(length)))) {
-	        // parser error - ignoring payload
-	        return callback(err, 0, 1);
-	      }
-
-	      msg = data.substr(i + 1, n);
-
-	      if (length != msg.length) {
-	        // parser error - ignoring payload
-	        return callback(err, 0, 1);
-	      }
-
-	      if (msg.length) {
-	        packet = exports.decodePacket(msg, binaryType, true);
-
-	        if (err.type == packet.type && err.data == packet.data) {
-	          // parser error in individual packet - ignoring payload
-	          return callback(err, 0, 1);
-	        }
-
-	        var ret = callback(packet, i + n, l);
-	        if (false === ret) return;
-	      }
-
-	      // advance cursor
-	      i += n;
-	      length = '';
-	    }
-	  }
-
-	  if (length != '') {
-	    // parser error - ignoring payload
-	    return callback(err, 0, 1);
-	  }
-
-	};
-
-	/**
-	 * Encodes multiple messages (payload) as binary.
-	 *
-	 * <1 = binary, 0 = string><number from 0-9><number from 0-9>[...]<number
-	 * 255><data>
-	 *
-	 * Example:
-	 * 1 3 255 1 2 3, if the binary contents are interpreted as 8 bit integers
-	 *
-	 * @param {Array} packets
-	 * @return {ArrayBuffer} encoded payload
-	 * @api private
-	 */
-
-	exports.encodePayloadAsArrayBuffer = function(packets, callback) {
-	  if (!packets.length) {
-	    return callback(new ArrayBuffer(0));
-	  }
-
-	  function encodeOne(packet, doneCallback) {
-	    exports.encodePacket(packet, true, true, function(data) {
-	      return doneCallback(null, data);
-	    });
-	  }
-
-	  map(packets, encodeOne, function(err, encodedPackets) {
-	    var totalLength = encodedPackets.reduce(function(acc, p) {
-	      var len;
-	      if (typeof p === 'string'){
-	        len = p.length;
-	      } else {
-	        len = p.byteLength;
-	      }
-	      return acc + len.toString().length + len + 2; // string/binary identifier + separator = 2
-	    }, 0);
-
-	    var resultArray = new Uint8Array(totalLength);
-
-	    var bufferIndex = 0;
-	    encodedPackets.forEach(function(p) {
-	      var isString = typeof p === 'string';
-	      var ab = p;
-	      if (isString) {
-	        var view = new Uint8Array(p.length);
-	        for (var i = 0; i < p.length; i++) {
-	          view[i] = p.charCodeAt(i);
-	        }
-	        ab = view.buffer;
-	      }
-
-	      if (isString) { // not true binary
-	        resultArray[bufferIndex++] = 0;
-	      } else { // true binary
-	        resultArray[bufferIndex++] = 1;
-	      }
-
-	      var lenStr = ab.byteLength.toString();
-	      for (var i = 0; i < lenStr.length; i++) {
-	        resultArray[bufferIndex++] = parseInt(lenStr[i]);
-	      }
-	      resultArray[bufferIndex++] = 255;
-
-	      var view = new Uint8Array(ab);
-	      for (var i = 0; i < view.length; i++) {
-	        resultArray[bufferIndex++] = view[i];
-	      }
-	    });
-
-	    return callback(resultArray.buffer);
-	  });
-	};
-
-	/**
-	 * Encode as Blob
-	 */
-
-	exports.encodePayloadAsBlob = function(packets, callback) {
-	  function encodeOne(packet, doneCallback) {
-	    exports.encodePacket(packet, true, true, function(encoded) {
-	      var binaryIdentifier = new Uint8Array(1);
-	      binaryIdentifier[0] = 1;
-	      if (typeof encoded === 'string') {
-	        var view = new Uint8Array(encoded.length);
-	        for (var i = 0; i < encoded.length; i++) {
-	          view[i] = encoded.charCodeAt(i);
-	        }
-	        encoded = view.buffer;
-	        binaryIdentifier[0] = 0;
-	      }
-
-	      var len = (encoded instanceof ArrayBuffer)
-	        ? encoded.byteLength
-	        : encoded.size;
-
-	      var lenStr = len.toString();
-	      var lengthAry = new Uint8Array(lenStr.length + 1);
-	      for (var i = 0; i < lenStr.length; i++) {
-	        lengthAry[i] = parseInt(lenStr[i]);
-	      }
-	      lengthAry[lenStr.length] = 255;
-
-	      if (Blob) {
-	        var blob = new Blob([binaryIdentifier.buffer, lengthAry.buffer, encoded]);
-	        doneCallback(null, blob);
-	      }
-	    });
-	  }
-
-	  map(packets, encodeOne, function(err, results) {
-	    return callback(new Blob(results));
-	  });
-	};
-
-	/*
-	 * Decodes data when a payload is maybe expected. Strings are decoded by
-	 * interpreting each byte as a key code for entries marked to start with 0. See
-	 * description of encodePayloadAsBinary
-	 *
-	 * @param {ArrayBuffer} data, callback method
-	 * @api public
-	 */
-
-	exports.decodePayloadAsBinary = function (data, binaryType, callback) {
-	  if (typeof binaryType === 'function') {
-	    callback = binaryType;
-	    binaryType = null;
-	  }
-
-	  var bufferTail = data;
-	  var buffers = [];
-
-	  var numberTooLong = false;
-	  while (bufferTail.byteLength > 0) {
-	    var tailArray = new Uint8Array(bufferTail);
-	    var isString = tailArray[0] === 0;
-	    var msgLength = '';
-
-	    for (var i = 1; ; i++) {
-	      if (tailArray[i] == 255) break;
-
-	      if (msgLength.length > 310) {
-	        numberTooLong = true;
-	        break;
-	      }
-
-	      msgLength += tailArray[i];
-	    }
-
-	    if(numberTooLong) return callback(err, 0, 1);
-
-	    bufferTail = sliceBuffer(bufferTail, 2 + msgLength.length);
-	    msgLength = parseInt(msgLength);
-
-	    var msg = sliceBuffer(bufferTail, 0, msgLength);
-	    if (isString) {
-	      try {
-	        msg = String.fromCharCode.apply(null, new Uint8Array(msg));
-	      } catch (e) {
-	        // iPhone Safari doesn't let you apply to typed arrays
-	        var typed = new Uint8Array(msg);
-	        msg = '';
-	        for (var i = 0; i < typed.length; i++) {
-	          msg += String.fromCharCode(typed[i]);
-	        }
-	      }
-	    }
-
-	    buffers.push(msg);
-	    bufferTail = sliceBuffer(bufferTail, msgLength);
-	  }
-
-	  var total = buffers.length;
-	  buffers.forEach(function(buffer, i) {
-	    callback(exports.decodePacket(buffer, binaryType, true), i, total);
-	  });
-	};
-
-	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
-	},{"./keys":20,"after":11,"arraybuffer.slice":12,"base64-arraybuffer":13,"blob":14,"has-binary":21,"utf8":29}],20:[function(_dereq_,module,exports){
-
-	/**
-	 * Gets the keys for an object.
-	 *
-	 * @return {Array} keys
-	 * @api private
-	 */
-
-	module.exports = Object.keys || function keys (obj){
-	  var arr = [];
-	  var has = Object.prototype.hasOwnProperty;
-
-	  for (var i in obj) {
-	    if (has.call(obj, i)) {
-	      arr.push(i);
-	    }
-	  }
-	  return arr;
-	};
-
-	},{}],21:[function(_dereq_,module,exports){
-	(function (global){
-
-	/*
-	 * Module requirements.
-	 */
-
-	var isArray = _dereq_('isarray');
-
-	/**
-	 * Module exports.
-	 */
-
-	module.exports = hasBinary;
-
-	/**
-	 * Checks for binary data.
-	 *
-	 * Right now only Buffer and ArrayBuffer are supported..
-	 *
-	 * @param {Object} anything
-	 * @api public
-	 */
-
-	function hasBinary(data) {
-
-	  function _hasBinary(obj) {
-	    if (!obj) return false;
-
-	    if ( (global.Buffer && global.Buffer.isBuffer(obj)) ||
-	         (global.ArrayBuffer && obj instanceof ArrayBuffer) ||
-	         (global.Blob && obj instanceof Blob) ||
-	         (global.File && obj instanceof File)
-	        ) {
-	      return true;
-	    }
-
-	    if (isArray(obj)) {
-	      for (var i = 0; i < obj.length; i++) {
-	          if (_hasBinary(obj[i])) {
-	              return true;
-	          }
-	      }
-	    } else if (obj && 'object' == typeof obj) {
-	      if (obj.toJSON) {
-	        obj = obj.toJSON();
-	      }
-
-	      for (var key in obj) {
-	        if (Object.prototype.hasOwnProperty.call(obj, key) && _hasBinary(obj[key])) {
-	          return true;
-	        }
-	      }
-	    }
-
-	    return false;
-	  }
-
-	  return _hasBinary(data);
-	}
-
-	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
-	},{"isarray":24}],22:[function(_dereq_,module,exports){
-
-	/**
-	 * Module exports.
-	 *
-	 * Logic borrowed from Modernizr:
-	 *
-	 *   - https://github.com/Modernizr/Modernizr/blob/master/feature-detects/cors.js
-	 */
-
-	try {
-	  module.exports = typeof XMLHttpRequest !== 'undefined' &&
-	    'withCredentials' in new XMLHttpRequest();
-	} catch (err) {
-	  // if XMLHttp support is disabled in IE then it will throw
-	  // when trying to create
-	  module.exports = false;
-	}
-
-	},{}],23:[function(_dereq_,module,exports){
-
-	var indexOf = [].indexOf;
-
-	module.exports = function(arr, obj){
-	  if (indexOf) return arr.indexOf(obj);
-	  for (var i = 0; i < arr.length; ++i) {
-	    if (arr[i] === obj) return i;
-	  }
-	  return -1;
-	};
-	},{}],24:[function(_dereq_,module,exports){
-	module.exports = Array.isArray || function (arr) {
-	  return Object.prototype.toString.call(arr) == '[object Array]';
-	};
-
-	},{}],25:[function(_dereq_,module,exports){
-	/**
-	 * Helpers.
-	 */
-
-	var s = 1000;
-	var m = s * 60;
-	var h = m * 60;
-	var d = h * 24;
-	var y = d * 365.25;
-
-	/**
-	 * Parse or format the given `val`.
-	 *
-	 * Options:
-	 *
-	 *  - `long` verbose formatting [false]
-	 *
-	 * @param {String|Number} val
-	 * @param {Object} options
-	 * @return {String|Number}
-	 * @api public
-	 */
-
-	module.exports = function(val, options){
-	  options = options || {};
-	  if ('string' == typeof val) return parse(val);
-	  return options.long
-	    ? long(val)
-	    : short(val);
-	};
-
-	/**
-	 * Parse the given `str` and return milliseconds.
-	 *
-	 * @param {String} str
-	 * @return {Number}
-	 * @api private
-	 */
-
-	function parse(str) {
-	  str = '' + str;
-	  if (str.length > 10000) return;
-	  var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str);
-	  if (!match) return;
-	  var n = parseFloat(match[1]);
-	  var type = (match[2] || 'ms').toLowerCase();
-	  switch (type) {
-	    case 'years':
-	    case 'year':
-	    case 'yrs':
-	    case 'yr':
-	    case 'y':
-	      return n * y;
-	    case 'days':
-	    case 'day':
-	    case 'd':
-	      return n * d;
-	    case 'hours':
-	    case 'hour':
-	    case 'hrs':
-	    case 'hr':
-	    case 'h':
-	      return n * h;
-	    case 'minutes':
-	    case 'minute':
-	    case 'mins':
-	    case 'min':
-	    case 'm':
-	      return n * m;
-	    case 'seconds':
-	    case 'second':
-	    case 'secs':
-	    case 'sec':
-	    case 's':
-	      return n * s;
-	    case 'milliseconds':
-	    case 'millisecond':
-	    case 'msecs':
-	    case 'msec':
-	    case 'ms':
-	      return n;
-	  }
-	}
-
-	/**
-	 * Short format for `ms`.
-	 *
-	 * @param {Number} ms
-	 * @return {String}
-	 * @api private
-	 */
-
-	function short(ms) {
-	  if (ms >= d) return Math.round(ms / d) + 'd';
-	  if (ms >= h) return Math.round(ms / h) + 'h';
-	  if (ms >= m) return Math.round(ms / m) + 'm';
-	  if (ms >= s) return Math.round(ms / s) + 's';
-	  return ms + 'ms';
-	}
-
-	/**
-	 * Long format for `ms`.
-	 *
-	 * @param {Number} ms
-	 * @return {String}
-	 * @api private
-	 */
-
-	function long(ms) {
-	  return plural(ms, d, 'day')
-	    || plural(ms, h, 'hour')
-	    || plural(ms, m, 'minute')
-	    || plural(ms, s, 'second')
-	    || ms + ' ms';
-	}
-
-	/**
-	 * Pluralization helper.
-	 */
-
-	function plural(ms, n, name) {
-	  if (ms < n) return;
-	  if (ms < n * 1.5) return Math.floor(ms / n) + ' ' + name;
-	  return Math.ceil(ms / n) + ' ' + name + 's';
-	}
-
-	},{}],26:[function(_dereq_,module,exports){
-	(function (global){
-	/**
-	 * JSON parse.
-	 *
-	 * @see Based on jQuery#parseJSON (MIT) and JSON2
-	 * @api private
-	 */
-
-	var rvalidchars = /^[\],:{}\s]*$/;
-	var rvalidescape = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
-	var rvalidtokens = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
-	var rvalidbraces = /(?:^|:|,)(?:\s*\[)+/g;
-	var rtrimLeft = /^\s+/;
-	var rtrimRight = /\s+$/;
-
-	module.exports = function parsejson(data) {
-	  if ('string' != typeof data || !data) {
-	    return null;
-	  }
-
-	  data = data.replace(rtrimLeft, '').replace(rtrimRight, '');
-
-	  // Attempt to parse using the native JSON parser first
-	  if (global.JSON && JSON.parse) {
-	    return JSON.parse(data);
-	  }
-
-	  if (rvalidchars.test(data.replace(rvalidescape, '@')
-	      .replace(rvalidtokens, ']')
-	      .replace(rvalidbraces, ''))) {
-	    return (new Function('return ' + data))();
-	  }
-	};
-	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
-	},{}],27:[function(_dereq_,module,exports){
-	/**
-	 * Compiles a querystring
-	 * Returns string representation of the object
-	 *
-	 * @param {Object}
-	 * @api private
-	 */
-
-	exports.encode = function (obj) {
-	  var str = '';
-
-	  for (var i in obj) {
-	    if (obj.hasOwnProperty(i)) {
-	      if (str.length) str += '&';
-	      str += encodeURIComponent(i) + '=' + encodeURIComponent(obj[i]);
-	    }
-	  }
-
-	  return str;
-	};
-
-	/**
-	 * Parses a simple querystring into an object
-	 *
-	 * @param {String} qs
-	 * @api private
-	 */
-
-	exports.decode = function(qs){
-	  var qry = {};
-	  var pairs = qs.split('&');
-	  for (var i = 0, l = pairs.length; i < l; i++) {
-	    var pair = pairs[i].split('=');
-	    qry[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
-	  }
-	  return qry;
-	};
-
-	},{}],28:[function(_dereq_,module,exports){
-	/**
-	 * Parses an URI
-	 *
-	 * @author Steven Levithan <stevenlevithan.com> (MIT license)
-	 * @api private
-	 */
-
-	var re = /^(?:(?![^:@]+:[^:@\/]*@)(http|https|ws|wss):\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?((?:[a-f0-9]{0,4}:){2,7}[a-f0-9]{0,4}|[^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
-
-	var parts = [
-	    'source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host', 'port', 'relative', 'path', 'directory', 'file', 'query', 'anchor'
-	];
-
-	module.exports = function parseuri(str) {
-	    var src = str,
-	        b = str.indexOf('['),
-	        e = str.indexOf(']');
-
-	    if (b != -1 && e != -1) {
-	        str = str.substring(0, b) + str.substring(b, e).replace(/:/g, ';') + str.substring(e, str.length);
-	    }
-
-	    var m = re.exec(str || ''),
-	        uri = {},
-	        i = 14;
-
-	    while (i--) {
-	        uri[parts[i]] = m[i] || '';
-	    }
-
-	    if (b != -1 && e != -1) {
-	        uri.source = src;
-	        uri.host = uri.host.substring(1, uri.host.length - 1).replace(/;/g, ':');
-	        uri.authority = uri.authority.replace('[', '').replace(']', '').replace(/;/g, ':');
-	        uri.ipv6uri = true;
-	    }
-
-	    return uri;
-	};
-
-	},{}],29:[function(_dereq_,module,exports){
-	(function (global){
-	/*! https://mths.be/utf8js v2.0.0 by @mathias */
-	;(function(root) {
-
-		// Detect free variables `exports`
-		var freeExports = typeof exports == 'object' && exports;
-
-		// Detect free variable `module`
-		var freeModule = typeof module == 'object' && module &&
-			module.exports == freeExports && module;
-
-		// Detect free variable `global`, from Node.js or Browserified code,
-		// and use it as `root`
-		var freeGlobal = typeof global == 'object' && global;
-		if (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal) {
-			root = freeGlobal;
-		}
-
-		/*--------------------------------------------------------------------------*/
-
-		var stringFromCharCode = String.fromCharCode;
-
-		// Taken from https://mths.be/punycode
-		function ucs2decode(string) {
-			var output = [];
-			var counter = 0;
-			var length = string.length;
-			var value;
-			var extra;
-			while (counter < length) {
-				value = string.charCodeAt(counter++);
-				if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
-					// high surrogate, and there is a next character
-					extra = string.charCodeAt(counter++);
-					if ((extra & 0xFC00) == 0xDC00) { // low surrogate
-						output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
-					} else {
-						// unmatched surrogate; only append this code unit, in case the next
-						// code unit is the high surrogate of a surrogate pair
-						output.push(value);
-						counter--;
-					}
-				} else {
-					output.push(value);
-				}
-			}
-			return output;
-		}
-
-		// Taken from https://mths.be/punycode
-		function ucs2encode(array) {
-			var length = array.length;
-			var index = -1;
-			var value;
-			var output = '';
-			while (++index < length) {
-				value = array[index];
-				if (value > 0xFFFF) {
-					value -= 0x10000;
-					output += stringFromCharCode(value >>> 10 & 0x3FF | 0xD800);
-					value = 0xDC00 | value & 0x3FF;
-				}
-				output += stringFromCharCode(value);
-			}
-			return output;
-		}
-
-		function checkScalarValue(codePoint) {
-			if (codePoint >= 0xD800 && codePoint <= 0xDFFF) {
-				throw Error(
-					'Lone surrogate U+' + codePoint.toString(16).toUpperCase() +
-					' is not a scalar value'
-				);
-			}
-		}
-		/*--------------------------------------------------------------------------*/
-
-		function createByte(codePoint, shift) {
-			return stringFromCharCode(((codePoint >> shift) & 0x3F) | 0x80);
-		}
-
-		function encodeCodePoint(codePoint) {
-			if ((codePoint & 0xFFFFFF80) == 0) { // 1-byte sequence
-				return stringFromCharCode(codePoint);
-			}
-			var symbol = '';
-			if ((codePoint & 0xFFFFF800) == 0) { // 2-byte sequence
-				symbol = stringFromCharCode(((codePoint >> 6) & 0x1F) | 0xC0);
-			}
-			else if ((codePoint & 0xFFFF0000) == 0) { // 3-byte sequence
-				checkScalarValue(codePoint);
-				symbol = stringFromCharCode(((codePoint >> 12) & 0x0F) | 0xE0);
-				symbol += createByte(codePoint, 6);
-			}
-			else if ((codePoint & 0xFFE00000) == 0) { // 4-byte sequence
-				symbol = stringFromCharCode(((codePoint >> 18) & 0x07) | 0xF0);
-				symbol += createByte(codePoint, 12);
-				symbol += createByte(codePoint, 6);
-			}
-			symbol += stringFromCharCode((codePoint & 0x3F) | 0x80);
-			return symbol;
-		}
-
-		function utf8encode(string) {
-			var codePoints = ucs2decode(string);
-			var length = codePoints.length;
-			var index = -1;
-			var codePoint;
-			var byteString = '';
-			while (++index < length) {
-				codePoint = codePoints[index];
-				byteString += encodeCodePoint(codePoint);
-			}
-			return byteString;
-		}
-
-		/*--------------------------------------------------------------------------*/
-
-		function readContinuationByte() {
-			if (byteIndex >= byteCount) {
-				throw Error('Invalid byte index');
-			}
-
-			var continuationByte = byteArray[byteIndex] & 0xFF;
-			byteIndex++;
-
-			if ((continuationByte & 0xC0) == 0x80) {
-				return continuationByte & 0x3F;
-			}
-
-			// If we end up here, it’s not a continuation byte
-			throw Error('Invalid continuation byte');
-		}
-
-		function decodeSymbol() {
-			var byte1;
-			var byte2;
-			var byte3;
-			var byte4;
-			var codePoint;
-
-			if (byteIndex > byteCount) {
-				throw Error('Invalid byte index');
-			}
-
-			if (byteIndex == byteCount) {
-				return false;
-			}
-
-			// Read first byte
-			byte1 = byteArray[byteIndex] & 0xFF;
-			byteIndex++;
-
-			// 1-byte sequence (no continuation bytes)
-			if ((byte1 & 0x80) == 0) {
-				return byte1;
-			}
-
-			// 2-byte sequence
-			if ((byte1 & 0xE0) == 0xC0) {
-				var byte2 = readContinuationByte();
-				codePoint = ((byte1 & 0x1F) << 6) | byte2;
-				if (codePoint >= 0x80) {
-					return codePoint;
-				} else {
-					throw Error('Invalid continuation byte');
-				}
-			}
-
-			// 3-byte sequence (may include unpaired surrogates)
-			if ((byte1 & 0xF0) == 0xE0) {
-				byte2 = readContinuationByte();
-				byte3 = readContinuationByte();
-				codePoint = ((byte1 & 0x0F) << 12) | (byte2 << 6) | byte3;
-				if (codePoint >= 0x0800) {
-					checkScalarValue(codePoint);
-					return codePoint;
-				} else {
-					throw Error('Invalid continuation byte');
-				}
-			}
-
-			// 4-byte sequence
-			if ((byte1 & 0xF8) == 0xF0) {
-				byte2 = readContinuationByte();
-				byte3 = readContinuationByte();
-				byte4 = readContinuationByte();
-				codePoint = ((byte1 & 0x0F) << 0x12) | (byte2 << 0x0C) |
-					(byte3 << 0x06) | byte4;
-				if (codePoint >= 0x010000 && codePoint <= 0x10FFFF) {
-					return codePoint;
-				}
-			}
-
-			throw Error('Invalid UTF-8 detected');
-		}
-
-		var byteArray;
-		var byteCount;
-		var byteIndex;
-		function utf8decode(byteString) {
-			byteArray = ucs2decode(byteString);
-			byteCount = byteArray.length;
-			byteIndex = 0;
-			var codePoints = [];
-			var tmp;
-			while ((tmp = decodeSymbol()) !== false) {
-				codePoints.push(tmp);
-			}
-			return ucs2encode(codePoints);
-		}
-
-		/*--------------------------------------------------------------------------*/
-
-		var utf8 = {
-			'version': '2.0.0',
-			'encode': utf8encode,
-			'decode': utf8decode
-		};
-
-		// Some AMD build optimizers, like r.js, check for specific condition patterns
-		// like the following:
-		if (
-			typeof define == 'function' &&
-			typeof define.amd == 'object' &&
-			define.amd
-		) {
-			define(function() {
-				return utf8;
-			});
-		}	else if (freeExports && !freeExports.nodeType) {
-			if (freeModule) { // in Node.js or RingoJS v0.8.0+
-				freeModule.exports = utf8;
-			} else { // in Narwhal or RingoJS v0.7.0-
-				var object = {};
-				var hasOwnProperty = object.hasOwnProperty;
-				for (var key in utf8) {
-					hasOwnProperty.call(utf8, key) && (freeExports[key] = utf8[key]);
-				}
-			}
-		} else { // in Rhino or a web browser
-			root.utf8 = utf8;
-		}
-
-	}(this));
-
-	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
-	},{}],30:[function(_dereq_,module,exports){
-	'use strict';
-
-	var alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_'.split('')
-	  , length = 64
-	  , map = {}
-	  , seed = 0
-	  , i = 0
-	  , prev;
-
-	/**
-	 * Return a string representing the specified number.
-	 *
-	 * @param {Number} num The number to convert.
-	 * @returns {String} The string representation of the number.
-	 * @api public
-	 */
-	function encode(num) {
-	  var encoded = '';
-
-	  do {
-	    encoded = alphabet[num % length] + encoded;
-	    num = Math.floor(num / length);
-	  } while (num > 0);
-
-	  return encoded;
-	}
-
-	/**
-	 * Return the integer value specified by the given string.
-	 *
-	 * @param {String} str The string to convert.
-	 * @returns {Number} The integer value represented by the string.
-	 * @api public
-	 */
-	function decode(str) {
-	  var decoded = 0;
-
-	  for (i = 0; i < str.length; i++) {
-	    decoded = decoded * length + map[str.charAt(i)];
-	  }
-
-	  return decoded;
-	}
-
-	/**
-	 * Yeast: A tiny growing id generator.
-	 *
-	 * @returns {String} A unique id.
-	 * @api public
-	 */
-	function yeast() {
-	  var now = encode(+new Date());
-
-	  if (now !== prev) return seed = 0, prev = now;
-	  return now +'.'+ encode(seed++);
-	}
-
-	//
-	// Map each character to its index.
-	//
-	for (; i < length; i++) map[alphabet[i]] = i;
-
-	//
-	// Expose the `yeast`, `encode` and `decode` functions.
-	//
-	yeast.encode = encode;
-	yeast.decode = decode;
-	module.exports = yeast;
-
-	},{}],31:[function(_dereq_,module,exports){
-
-	/**
-	 * Module dependencies.
-	 */
-
-	var url = _dereq_('./url');
-	var parser = _dereq_('socket.io-parser');
-	var Manager = _dereq_('./manager');
-	var debug = _dereq_('debug')('socket.io-client');
-
-	/**
-	 * Module exports.
-	 */
-
-	module.exports = exports = lookup;
-
-	/**
-	 * Managers cache.
-	 */
-
-	var cache = exports.managers = {};
-
-	/**
-	 * Looks up an existing `Manager` for multiplexing.
-	 * If the user summons:
-	 *
-	 *   `io('http://localhost/a');`
-	 *   `io('http://localhost/b');`
-	 *
-	 * We reuse the existing instance based on same scheme/port/host,
-	 * and we initialize sockets for each namespace.
-	 *
-	 * @api public
-	 */
-
-	function lookup(uri, opts) {
-	  if (typeof uri == 'object') {
-	    opts = uri;
-	    uri = undefined;
-	  }
-
-	  opts = opts || {};
-
-	  var parsed = url(uri);
-	  var source = parsed.source;
-	  var id = parsed.id;
-	  var path = parsed.path;
-	  var sameNamespace = cache[id] && path in cache[id].nsps;
-	  var newConnection = opts.forceNew || opts['force new connection'] ||
-	                      false === opts.multiplex || sameNamespace;
-
-	  var io;
-
-	  if (newConnection) {
-	    debug('ignoring socket cache for %s', source);
-	    io = Manager(source, opts);
-	  } else {
-	    if (!cache[id]) {
-	      debug('new io instance for %s', source);
-	      cache[id] = Manager(source, opts);
-	    }
-	    io = cache[id];
-	  }
-
-	  return io.socket(parsed.path);
-	}
-
-	/**
-	 * Protocol version.
-	 *
-	 * @api public
-	 */
-
-	exports.protocol = parser.protocol;
-
-	/**
-	 * `connect`.
-	 *
-	 * @param {String} uri
-	 * @api public
-	 */
-
-	exports.connect = lookup;
-
-	/**
-	 * Expose constructors for standalone build.
-	 *
-	 * @api public
-	 */
-
-	exports.Manager = _dereq_('./manager');
-	exports.Socket = _dereq_('./socket');
-
-	},{"./manager":32,"./socket":34,"./url":35,"debug":39,"socket.io-parser":47}],32:[function(_dereq_,module,exports){
-
-	/**
-	 * Module dependencies.
-	 */
-
-	var eio = _dereq_('engine.io-client');
-	var Socket = _dereq_('./socket');
-	var Emitter = _dereq_('component-emitter');
-	var parser = _dereq_('socket.io-parser');
-	var on = _dereq_('./on');
-	var bind = _dereq_('component-bind');
-	var debug = _dereq_('debug')('socket.io-client:manager');
-	var indexOf = _dereq_('indexof');
-	var Backoff = _dereq_('backo2');
-
-	/**
-	 * IE6+ hasOwnProperty
-	 */
-
-	var has = Object.prototype.hasOwnProperty;
-
-	/**
-	 * Module exports
-	 */
-
-	module.exports = Manager;
-
-	/**
-	 * `Manager` constructor.
-	 *
-	 * @param {String} engine instance or engine uri/opts
-	 * @param {Object} options
-	 * @api public
-	 */
-
-	function Manager(uri, opts){
-	  if (!(this instanceof Manager)) return new Manager(uri, opts);
-	  if (uri && ('object' == typeof uri)) {
-	    opts = uri;
-	    uri = undefined;
-	  }
-	  opts = opts || {};
-
-	  opts.path = opts.path || '/socket.io';
-	  this.nsps = {};
-	  this.subs = [];
-	  this.opts = opts;
-	  this.reconnection(opts.reconnection !== false);
-	  this.reconnectionAttempts(opts.reconnectionAttempts || Infinity);
-	  this.reconnectionDelay(opts.reconnectionDelay || 1000);
-	  this.reconnectionDelayMax(opts.reconnectionDelayMax || 5000);
-	  this.randomizationFactor(opts.randomizationFactor || 0.5);
-	  this.backoff = new Backoff({
-	    min: this.reconnectionDelay(),
-	    max: this.reconnectionDelayMax(),
-	    jitter: this.randomizationFactor()
-	  });
-	  this.timeout(null == opts.timeout ? 20000 : opts.timeout);
-	  this.readyState = 'closed';
-	  this.uri = uri;
-	  this.connecting = [];
-	  this.lastPing = null;
-	  this.encoding = false;
-	  this.packetBuffer = [];
-	  this.encoder = new parser.Encoder();
-	  this.decoder = new parser.Decoder();
-	  this.autoConnect = opts.autoConnect !== false;
-	  if (this.autoConnect) this.open();
-	}
-
-	/**
-	 * Propagate given event to sockets and emit on `this`
-	 *
-	 * @api private
-	 */
-
-	Manager.prototype.emitAll = function() {
-	  this.emit.apply(this, arguments);
-	  for (var nsp in this.nsps) {
-	    if (has.call(this.nsps, nsp)) {
-	      this.nsps[nsp].emit.apply(this.nsps[nsp], arguments);
-	    }
-	  }
-	};
-
-	/**
-	 * Update `socket.id` of all sockets
-	 *
-	 * @api private
-	 */
-
-	Manager.prototype.updateSocketIds = function(){
-	  for (var nsp in this.nsps) {
-	    if (has.call(this.nsps, nsp)) {
-	      this.nsps[nsp].id = this.engine.id;
-	    }
-	  }
-	};
-
-	/**
-	 * Mix in `Emitter`.
-	 */
-
-	Emitter(Manager.prototype);
-
-	/**
-	 * Sets the `reconnection` config.
-	 *
-	 * @param {Boolean} true/false if it should automatically reconnect
-	 * @return {Manager} self or value
-	 * @api public
-	 */
-
-	Manager.prototype.reconnection = function(v){
-	  if (!arguments.length) return this._reconnection;
-	  this._reconnection = !!v;
-	  return this;
-	};
-
-	/**
-	 * Sets the reconnection attempts config.
-	 *
-	 * @param {Number} max reconnection attempts before giving up
-	 * @return {Manager} self or value
-	 * @api public
-	 */
-
-	Manager.prototype.reconnectionAttempts = function(v){
-	  if (!arguments.length) return this._reconnectionAttempts;
-	  this._reconnectionAttempts = v;
-	  return this;
-	};
-
-	/**
-	 * Sets the delay between reconnections.
-	 *
-	 * @param {Number} delay
-	 * @return {Manager} self or value
-	 * @api public
-	 */
-
-	Manager.prototype.reconnectionDelay = function(v){
-	  if (!arguments.length) return this._reconnectionDelay;
-	  this._reconnectionDelay = v;
-	  this.backoff && this.backoff.setMin(v);
-	  return this;
-	};
-
-	Manager.prototype.randomizationFactor = function(v){
-	  if (!arguments.length) return this._randomizationFactor;
-	  this._randomizationFactor = v;
-	  this.backoff && this.backoff.setJitter(v);
-	  return this;
-	};
-
-	/**
-	 * Sets the maximum delay between reconnections.
-	 *
-	 * @param {Number} delay
-	 * @return {Manager} self or value
-	 * @api public
-	 */
-
-	Manager.prototype.reconnectionDelayMax = function(v){
-	  if (!arguments.length) return this._reconnectionDelayMax;
-	  this._reconnectionDelayMax = v;
-	  this.backoff && this.backoff.setMax(v);
-	  return this;
-	};
-
-	/**
-	 * Sets the connection timeout. `false` to disable
-	 *
-	 * @return {Manager} self or value
-	 * @api public
-	 */
-
-	Manager.prototype.timeout = function(v){
-	  if (!arguments.length) return this._timeout;
-	  this._timeout = v;
-	  return this;
-	};
-
-	/**
-	 * Starts trying to reconnect if reconnection is enabled and we have not
-	 * started reconnecting yet
-	 *
-	 * @api private
-	 */
-
-	Manager.prototype.maybeReconnectOnOpen = function() {
-	  // Only try to reconnect if it's the first time we're connecting
-	  if (!this.reconnecting && this._reconnection && this.backoff.attempts === 0) {
-	    // keeps reconnection from firing twice for the same reconnection loop
-	    this.reconnect();
-	  }
-	};
-
-
-	/**
-	 * Sets the current transport `socket`.
-	 *
-	 * @param {Function} optional, callback
-	 * @return {Manager} self
-	 * @api public
-	 */
-
-	Manager.prototype.open =
-	Manager.prototype.connect = function(fn){
-	  debug('readyState %s', this.readyState);
-	  if (~this.readyState.indexOf('open')) return this;
-
-	  debug('opening %s', this.uri);
-	  this.engine = eio(this.uri, this.opts);
-	  var socket = this.engine;
-	  var self = this;
-	  this.readyState = 'opening';
-	  this.skipReconnect = false;
-
-	  // emit `open`
-	  var openSub = on(socket, 'open', function() {
-	    self.onopen();
-	    fn && fn();
-	  });
-
-	  // emit `connect_error`
-	  var errorSub = on(socket, 'error', function(data){
-	    debug('connect_error');
-	    self.cleanup();
-	    self.readyState = 'closed';
-	    self.emitAll('connect_error', data);
-	    if (fn) {
-	      var err = new Error('Connection error');
-	      err.data = data;
-	      fn(err);
-	    } else {
-	      // Only do this if there is no fn to handle the error
-	      self.maybeReconnectOnOpen();
-	    }
-	  });
-
-	  // emit `connect_timeout`
-	  if (false !== this._timeout) {
-	    var timeout = this._timeout;
-	    debug('connect attempt will timeout after %d', timeout);
-
-	    // set timer
-	    var timer = setTimeout(function(){
-	      debug('connect attempt timed out after %d', timeout);
-	      openSub.destroy();
-	      socket.close();
-	      socket.emit('error', 'timeout');
-	      self.emitAll('connect_timeout', timeout);
-	    }, timeout);
-
-	    this.subs.push({
-	      destroy: function(){
-	        clearTimeout(timer);
-	      }
-	    });
-	  }
-
-	  this.subs.push(openSub);
-	  this.subs.push(errorSub);
-
-	  return this;
-	};
-
-	/**
-	 * Called upon transport open.
-	 *
-	 * @api private
-	 */
-
-	Manager.prototype.onopen = function(){
-	  debug('open');
-
-	  // clear old subs
-	  this.cleanup();
-
-	  // mark as open
-	  this.readyState = 'open';
-	  this.emit('open');
-
-	  // add new subs
-	  var socket = this.engine;
-	  this.subs.push(on(socket, 'data', bind(this, 'ondata')));
-	  this.subs.push(on(socket, 'ping', bind(this, 'onping')));
-	  this.subs.push(on(socket, 'pong', bind(this, 'onpong')));
-	  this.subs.push(on(socket, 'error', bind(this, 'onerror')));
-	  this.subs.push(on(socket, 'close', bind(this, 'onclose')));
-	  this.subs.push(on(this.decoder, 'decoded', bind(this, 'ondecoded')));
-	};
-
-	/**
-	 * Called upon a ping.
-	 *
-	 * @api private
-	 */
-
-	Manager.prototype.onping = function(){
-	  this.lastPing = new Date;
-	  this.emitAll('ping');
-	};
-
-	/**
-	 * Called upon a packet.
-	 *
-	 * @api private
-	 */
-
-	Manager.prototype.onpong = function(){
-	  this.emitAll('pong', new Date - this.lastPing);
-	};
-
-	/**
-	 * Called with data.
-	 *
-	 * @api private
-	 */
-
-	Manager.prototype.ondata = function(data){
-	  this.decoder.add(data);
-	};
-
-	/**
-	 * Called when parser fully decodes a packet.
-	 *
-	 * @api private
-	 */
-
-	Manager.prototype.ondecoded = function(packet) {
-	  this.emit('packet', packet);
-	};
-
-	/**
-	 * Called upon socket error.
-	 *
-	 * @api private
-	 */
-
-	Manager.prototype.onerror = function(err){
-	  debug('error', err);
-	  this.emitAll('error', err);
-	};
-
-	/**
-	 * Creates a new socket for the given `nsp`.
-	 *
-	 * @return {Socket}
-	 * @api public
-	 */
-
-	Manager.prototype.socket = function(nsp){
-	  var socket = this.nsps[nsp];
-	  if (!socket) {
-	    socket = new Socket(this, nsp);
-	    this.nsps[nsp] = socket;
-	    var self = this;
-	    socket.on('connecting', onConnecting);
-	    socket.on('connect', function(){
-	      socket.id = self.engine.id;
-	    });
-
-	    if (this.autoConnect) {
-	      // manually call here since connecting evnet is fired before listening
-	      onConnecting();
-	    }
-	  }
-
-	  function onConnecting() {
-	    if (!~indexOf(self.connecting, socket)) {
-	      self.connecting.push(socket);
-	    }
-	  }
-
-	  return socket;
-	};
-
-	/**
-	 * Called upon a socket close.
-	 *
-	 * @param {Socket} socket
-	 */
-
-	Manager.prototype.destroy = function(socket){
-	  var index = indexOf(this.connecting, socket);
-	  if (~index) this.connecting.splice(index, 1);
-	  if (this.connecting.length) return;
-
-	  this.close();
-	};
-
-	/**
-	 * Writes a packet.
-	 *
-	 * @param {Object} packet
-	 * @api private
-	 */
-
-	Manager.prototype.packet = function(packet){
-	  debug('writing packet %j', packet);
-	  var self = this;
-
-	  if (!self.encoding) {
-	    // encode, then write to engine with result
-	    self.encoding = true;
-	    this.encoder.encode(packet, function(encodedPackets) {
-	      for (var i = 0; i < encodedPackets.length; i++) {
-	        self.engine.write(encodedPackets[i], packet.options);
-	      }
-	      self.encoding = false;
-	      self.processPacketQueue();
-	    });
-	  } else { // add packet to the queue
-	    self.packetBuffer.push(packet);
-	  }
-	};
-
-	/**
-	 * If packet buffer is non-empty, begins encoding the
-	 * next packet in line.
-	 *
-	 * @api private
-	 */
-
-	Manager.prototype.processPacketQueue = function() {
-	  if (this.packetBuffer.length > 0 && !this.encoding) {
-	    var pack = this.packetBuffer.shift();
-	    this.packet(pack);
-	  }
-	};
-
-	/**
-	 * Clean up transport subscriptions and packet buffer.
-	 *
-	 * @api private
-	 */
-
-	Manager.prototype.cleanup = function(){
-	  debug('cleanup');
-
-	  var sub;
-	  while (sub = this.subs.shift()) sub.destroy();
-
-	  this.packetBuffer = [];
-	  this.encoding = false;
-	  this.lastPing = null;
-
-	  this.decoder.destroy();
-	};
-
-	/**
-	 * Close the current socket.
-	 *
-	 * @api private
-	 */
-
-	Manager.prototype.close =
-	Manager.prototype.disconnect = function(){
-	  debug('disconnect');
-	  this.skipReconnect = true;
-	  this.reconnecting = false;
-	  if ('opening' == this.readyState) {
-	    // `onclose` will not fire because
-	    // an open event never happened
-	    this.cleanup();
-	  }
-	  this.backoff.reset();
-	  this.readyState = 'closed';
-	  if (this.engine) this.engine.close();
-	};
-
-	/**
-	 * Called upon engine close.
-	 *
-	 * @api private
-	 */
-
-	Manager.prototype.onclose = function(reason){
-	  debug('onclose');
-
-	  this.cleanup();
-	  this.backoff.reset();
-	  this.readyState = 'closed';
-	  this.emit('close', reason);
-
-	  if (this._reconnection && !this.skipReconnect) {
-	    this.reconnect();
-	  }
-	};
-
-	/**
-	 * Attempt a reconnection.
-	 *
-	 * @api private
-	 */
-
-	Manager.prototype.reconnect = function(){
-	  if (this.reconnecting || this.skipReconnect) return this;
-
-	  var self = this;
-
-	  if (this.backoff.attempts >= this._reconnectionAttempts) {
-	    debug('reconnect failed');
-	    this.backoff.reset();
-	    this.emitAll('reconnect_failed');
-	    this.reconnecting = false;
-	  } else {
-	    var delay = this.backoff.duration();
-	    debug('will wait %dms before reconnect attempt', delay);
-
-	    this.reconnecting = true;
-	    var timer = setTimeout(function(){
-	      if (self.skipReconnect) return;
-
-	      debug('attempting reconnect');
-	      self.emitAll('reconnect_attempt', self.backoff.attempts);
-	      self.emitAll('reconnecting', self.backoff.attempts);
-
-	      // check again for the case socket closed in above events
-	      if (self.skipReconnect) return;
-
-	      self.open(function(err){
-	        if (err) {
-	          debug('reconnect attempt error');
-	          self.reconnecting = false;
-	          self.reconnect();
-	          self.emitAll('reconnect_error', err.data);
-	        } else {
-	          debug('reconnect success');
-	          self.onreconnect();
-	        }
-	      });
-	    }, delay);
-
-	    this.subs.push({
-	      destroy: function(){
-	        clearTimeout(timer);
-	      }
-	    });
-	  }
-	};
-
-	/**
-	 * Called upon successful reconnect.
-	 *
-	 * @api private
-	 */
-
-	Manager.prototype.onreconnect = function(){
-	  var attempt = this.backoff.attempts;
-	  this.reconnecting = false;
-	  this.backoff.reset();
-	  this.updateSocketIds();
-	  this.emitAll('reconnect', attempt);
-	};
-
-	},{"./on":33,"./socket":34,"backo2":36,"component-bind":37,"component-emitter":38,"debug":39,"engine.io-client":1,"indexof":42,"socket.io-parser":47}],33:[function(_dereq_,module,exports){
-
-	/**
-	 * Module exports.
-	 */
-
-	module.exports = on;
-
-	/**
-	 * Helper for subscriptions.
-	 *
-	 * @param {Object|EventEmitter} obj with `Emitter` mixin or `EventEmitter`
-	 * @param {String} event name
-	 * @param {Function} callback
-	 * @api public
-	 */
-
-	function on(obj, ev, fn) {
-	  obj.on(ev, fn);
-	  return {
-	    destroy: function(){
-	      obj.removeListener(ev, fn);
-	    }
-	  };
-	}
-
-	},{}],34:[function(_dereq_,module,exports){
-
-	/**
-	 * Module dependencies.
-	 */
-
-	var parser = _dereq_('socket.io-parser');
-	var Emitter = _dereq_('component-emitter');
-	var toArray = _dereq_('to-array');
-	var on = _dereq_('./on');
-	var bind = _dereq_('component-bind');
-	var debug = _dereq_('debug')('socket.io-client:socket');
-	var hasBin = _dereq_('has-binary');
-
-	/**
-	 * Module exports.
-	 */
-
-	module.exports = exports = Socket;
-
-	/**
-	 * Internal events (blacklisted).
-	 * These events can't be emitted by the user.
-	 *
-	 * @api private
-	 */
-
-	var events = {
-	  connect: 1,
-	  connect_error: 1,
-	  connect_timeout: 1,
-	  connecting: 1,
-	  disconnect: 1,
-	  error: 1,
-	  reconnect: 1,
-	  reconnect_attempt: 1,
-	  reconnect_failed: 1,
-	  reconnect_error: 1,
-	  reconnecting: 1,
-	  ping: 1,
-	  pong: 1
-	};
-
-	/**
-	 * Shortcut to `Emitter#emit`.
-	 */
-
-	var emit = Emitter.prototype.emit;
-
-	/**
-	 * `Socket` constructor.
-	 *
-	 * @api public
-	 */
-
-	function Socket(io, nsp){
-	  this.io = io;
-	  this.nsp = nsp;
-	  this.json = this; // compat
-	  this.ids = 0;
-	  this.acks = {};
-	  this.receiveBuffer = [];
-	  this.sendBuffer = [];
-	  this.connected = false;
-	  this.disconnected = true;
-	  if (this.io.autoConnect) this.open();
-	}
-
-	/**
-	 * Mix in `Emitter`.
-	 */
-
-	Emitter(Socket.prototype);
-
-	/**
-	 * Subscribe to open, close and packet events
-	 *
-	 * @api private
-	 */
-
-	Socket.prototype.subEvents = function() {
-	  if (this.subs) return;
-
-	  var io = this.io;
-	  this.subs = [
-	    on(io, 'open', bind(this, 'onopen')),
-	    on(io, 'packet', bind(this, 'onpacket')),
-	    on(io, 'close', bind(this, 'onclose'))
-	  ];
-	};
-
-	/**
-	 * "Opens" the socket.
-	 *
-	 * @api public
-	 */
-
-	Socket.prototype.open =
-	Socket.prototype.connect = function(){
-	  if (this.connected) return this;
-
-	  this.subEvents();
-	  this.io.open(); // ensure open
-	  if ('open' == this.io.readyState) this.onopen();
-	  this.emit('connecting');
-	  return this;
-	};
-
-	/**
-	 * Sends a `message` event.
-	 *
-	 * @return {Socket} self
-	 * @api public
-	 */
-
-	Socket.prototype.send = function(){
-	  var args = toArray(arguments);
-	  args.unshift('message');
-	  this.emit.apply(this, args);
-	  return this;
-	};
-
-	/**
-	 * Override `emit`.
-	 * If the event is in `events`, it's emitted normally.
-	 *
-	 * @param {String} event name
-	 * @return {Socket} self
-	 * @api public
-	 */
-
-	Socket.prototype.emit = function(ev){
-	  if (events.hasOwnProperty(ev)) {
-	    emit.apply(this, arguments);
-	    return this;
-	  }
-
-	  var args = toArray(arguments);
-	  var parserType = parser.EVENT; // default
-	  if (hasBin(args)) { parserType = parser.BINARY_EVENT; } // binary
-	  var packet = { type: parserType, data: args };
-
-	  packet.options = {};
-	  packet.options.compress = !this.flags || false !== this.flags.compress;
-
-	  // event ack callback
-	  if ('function' == typeof args[args.length - 1]) {
-	    debug('emitting packet with ack id %d', this.ids);
-	    this.acks[this.ids] = args.pop();
-	    packet.id = this.ids++;
-	  }
-
-	  if (this.connected) {
-	    this.packet(packet);
-	  } else {
-	    this.sendBuffer.push(packet);
-	  }
-
-	  delete this.flags;
-
-	  return this;
-	};
-
-	/**
-	 * Sends a packet.
-	 *
-	 * @param {Object} packet
-	 * @api private
-	 */
-
-	Socket.prototype.packet = function(packet){
-	  packet.nsp = this.nsp;
-	  this.io.packet(packet);
-	};
-
-	/**
-	 * Called upon engine `open`.
-	 *
-	 * @api private
-	 */
-
-	Socket.prototype.onopen = function(){
-	  debug('transport is open - connecting');
-
-	  // write connect packet if necessary
-	  if ('/' != this.nsp) {
-	    this.packet({ type: parser.CONNECT });
-	  }
-	};
-
-	/**
-	 * Called upon engine `close`.
-	 *
-	 * @param {String} reason
-	 * @api private
-	 */
-
-	Socket.prototype.onclose = function(reason){
-	  debug('close (%s)', reason);
-	  this.connected = false;
-	  this.disconnected = true;
-	  delete this.id;
-	  this.emit('disconnect', reason);
-	};
-
-	/**
-	 * Called with socket packet.
-	 *
-	 * @param {Object} packet
-	 * @api private
-	 */
-
-	Socket.prototype.onpacket = function(packet){
-	  if (packet.nsp != this.nsp) return;
-
-	  switch (packet.type) {
-	    case parser.CONNECT:
-	      this.onconnect();
-	      break;
-
-	    case parser.EVENT:
-	      this.onevent(packet);
-	      break;
-
-	    case parser.BINARY_EVENT:
-	      this.onevent(packet);
-	      break;
-
-	    case parser.ACK:
-	      this.onack(packet);
-	      break;
-
-	    case parser.BINARY_ACK:
-	      this.onack(packet);
-	      break;
-
-	    case parser.DISCONNECT:
-	      this.ondisconnect();
-	      break;
-
-	    case parser.ERROR:
-	      this.emit('error', packet.data);
-	      break;
-	  }
-	};
-
-	/**
-	 * Called upon a server event.
-	 *
-	 * @param {Object} packet
-	 * @api private
-	 */
-
-	Socket.prototype.onevent = function(packet){
-	  var args = packet.data || [];
-	  debug('emitting event %j', args);
-
-	  if (null != packet.id) {
-	    debug('attaching ack callback to event');
-	    args.push(this.ack(packet.id));
-	  }
-
-	  if (this.connected) {
-	    emit.apply(this, args);
-	  } else {
-	    this.receiveBuffer.push(args);
-	  }
-	};
-
-	/**
-	 * Produces an ack callback to emit with an event.
-	 *
-	 * @api private
-	 */
-
-	Socket.prototype.ack = function(id){
-	  var self = this;
-	  var sent = false;
-	  return function(){
-	    // prevent double callbacks
-	    if (sent) return;
-	    sent = true;
-	    var args = toArray(arguments);
-	    debug('sending ack %j', args);
-
-	    var type = hasBin(args) ? parser.BINARY_ACK : parser.ACK;
-	    self.packet({
-	      type: type,
-	      id: id,
-	      data: args
-	    });
-	  };
-	};
-
-	/**
-	 * Called upon a server acknowlegement.
-	 *
-	 * @param {Object} packet
-	 * @api private
-	 */
-
-	Socket.prototype.onack = function(packet){
-	  var ack = this.acks[packet.id];
-	  if ('function' == typeof ack) {
-	    debug('calling ack %s with %j', packet.id, packet.data);
-	    ack.apply(this, packet.data);
-	    delete this.acks[packet.id];
-	  } else {
-	    debug('bad ack %s', packet.id);
-	  }
-	};
-
-	/**
-	 * Called upon server connect.
-	 *
-	 * @api private
-	 */
-
-	Socket.prototype.onconnect = function(){
-	  this.connected = true;
-	  this.disconnected = false;
-	  this.emit('connect');
-	  this.emitBuffered();
-	};
-
-	/**
-	 * Emit buffered events (received and emitted).
-	 *
-	 * @api private
-	 */
-
-	Socket.prototype.emitBuffered = function(){
-	  var i;
-	  for (i = 0; i < this.receiveBuffer.length; i++) {
-	    emit.apply(this, this.receiveBuffer[i]);
-	  }
-	  this.receiveBuffer = [];
-
-	  for (i = 0; i < this.sendBuffer.length; i++) {
-	    this.packet(this.sendBuffer[i]);
-	  }
-	  this.sendBuffer = [];
-	};
-
-	/**
-	 * Called upon server disconnect.
-	 *
-	 * @api private
-	 */
-
-	Socket.prototype.ondisconnect = function(){
-	  debug('server disconnect (%s)', this.nsp);
-	  this.destroy();
-	  this.onclose('io server disconnect');
-	};
-
-	/**
-	 * Called upon forced client/server side disconnections,
-	 * this method ensures the manager stops tracking us and
-	 * that reconnections don't get triggered for this.
-	 *
-	 * @api private.
-	 */
-
-	Socket.prototype.destroy = function(){
-	  if (this.subs) {
-	    // clean subscriptions to avoid reconnections
-	    for (var i = 0; i < this.subs.length; i++) {
-	      this.subs[i].destroy();
-	    }
-	    this.subs = null;
-	  }
-
-	  this.io.destroy(this);
-	};
-
-	/**
-	 * Disconnects the socket manually.
-	 *
-	 * @return {Socket} self
-	 * @api public
-	 */
-
-	Socket.prototype.close =
-	Socket.prototype.disconnect = function(){
-	  if (this.connected) {
-	    debug('performing disconnect (%s)', this.nsp);
-	    this.packet({ type: parser.DISCONNECT });
-	  }
-
-	  // remove socket from pool
-	  this.destroy();
-
-	  if (this.connected) {
-	    // fire events
-	    this.onclose('io client disconnect');
-	  }
-	  return this;
-	};
-
-	/**
-	 * Sets the compress flag.
-	 *
-	 * @param {Boolean} if `true`, compresses the sending data
-	 * @return {Socket} self
-	 * @api public
-	 */
-
-	Socket.prototype.compress = function(compress){
-	  this.flags = this.flags || {};
-	  this.flags.compress = compress;
-	  return this;
-	};
-
-	},{"./on":33,"component-bind":37,"component-emitter":38,"debug":39,"has-binary":41,"socket.io-parser":47,"to-array":51}],35:[function(_dereq_,module,exports){
-	(function (global){
-
-	/**
-	 * Module dependencies.
-	 */
-
-	var parseuri = _dereq_('parseuri');
-	var debug = _dereq_('debug')('socket.io-client:url');
-
-	/**
-	 * Module exports.
-	 */
-
-	module.exports = url;
-
-	/**
-	 * URL parser.
-	 *
-	 * @param {String} url
-	 * @param {Object} An object meant to mimic window.location.
-	 *                 Defaults to window.location.
-	 * @api public
-	 */
-
-	function url(uri, loc){
-	  var obj = uri;
-
-	  // default to window.location
-	  var loc = loc || global.location;
-	  if (null == uri) uri = loc.protocol + '//' + loc.host;
-
-	  // relative path support
-	  if ('string' == typeof uri) {
-	    if ('/' == uri.charAt(0)) {
-	      if ('/' == uri.charAt(1)) {
-	        uri = loc.protocol + uri;
-	      } else {
-	        uri = loc.host + uri;
-	      }
-	    }
-
-	    if (!/^(https?|wss?):\/\//.test(uri)) {
-	      debug('protocol-less url %s', uri);
-	      if ('undefined' != typeof loc) {
-	        uri = loc.protocol + '//' + uri;
-	      } else {
-	        uri = 'https://' + uri;
-	      }
-	    }
-
-	    // parse
-	    debug('parse %s', uri);
-	    obj = parseuri(uri);
-	  }
-
-	  // make sure we treat `localhost:80` and `localhost` equally
-	  if (!obj.port) {
-	    if (/^(http|ws)$/.test(obj.protocol)) {
-	      obj.port = '80';
-	    }
-	    else if (/^(http|ws)s$/.test(obj.protocol)) {
-	      obj.port = '443';
-	    }
-	  }
-
-	  obj.path = obj.path || '/';
-
-	  var ipv6 = obj.host.indexOf(':') !== -1;
-	  var host = ipv6 ? '[' + obj.host + ']' : obj.host;
-
-	  // define unique id
-	  obj.id = obj.protocol + '://' + host + ':' + obj.port;
-	  // define href
-	  obj.href = obj.protocol + '://' + host + (loc && loc.port == obj.port ? '' : (':' + obj.port));
-
-	  return obj;
-	}
-
-	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
-	},{"debug":39,"parseuri":45}],36:[function(_dereq_,module,exports){
-
-	/**
-	 * Expose `Backoff`.
-	 */
-
-	module.exports = Backoff;
-
-	/**
-	 * Initialize backoff timer with `opts`.
-	 *
-	 * - `min` initial timeout in milliseconds [100]
-	 * - `max` max timeout [10000]
-	 * - `jitter` [0]
-	 * - `factor` [2]
-	 *
-	 * @param {Object} opts
-	 * @api public
-	 */
-
-	function Backoff(opts) {
-	  opts = opts || {};
-	  this.ms = opts.min || 100;
-	  this.max = opts.max || 10000;
-	  this.factor = opts.factor || 2;
-	  this.jitter = opts.jitter > 0 && opts.jitter <= 1 ? opts.jitter : 0;
-	  this.attempts = 0;
-	}
-
-	/**
-	 * Return the backoff duration.
-	 *
-	 * @return {Number}
-	 * @api public
-	 */
-
-	Backoff.prototype.duration = function(){
-	  var ms = this.ms * Math.pow(this.factor, this.attempts++);
-	  if (this.jitter) {
-	    var rand =  Math.random();
-	    var deviation = Math.floor(rand * this.jitter * ms);
-	    ms = (Math.floor(rand * 10) & 1) == 0  ? ms - deviation : ms + deviation;
-	  }
-	  return Math.min(ms, this.max) | 0;
-	};
-
-	/**
-	 * Reset the number of attempts.
-	 *
-	 * @api public
-	 */
-
-	Backoff.prototype.reset = function(){
-	  this.attempts = 0;
-	};
-
-	/**
-	 * Set the minimum duration
-	 *
-	 * @api public
-	 */
-
-	Backoff.prototype.setMin = function(min){
-	  this.ms = min;
-	};
-
-	/**
-	 * Set the maximum duration
-	 *
-	 * @api public
-	 */
-
-	Backoff.prototype.setMax = function(max){
-	  this.max = max;
-	};
-
-	/**
-	 * Set the jitter
-	 *
-	 * @api public
-	 */
-
-	Backoff.prototype.setJitter = function(jitter){
-	  this.jitter = jitter;
-	};
-
-
-	},{}],37:[function(_dereq_,module,exports){
-	/**
-	 * Slice reference.
-	 */
-
-	var slice = [].slice;
-
-	/**
-	 * Bind `obj` to `fn`.
-	 *
-	 * @param {Object} obj
-	 * @param {Function|String} fn or string
-	 * @return {Function}
-	 * @api public
-	 */
-
-	module.exports = function(obj, fn){
-	  if ('string' == typeof fn) fn = obj[fn];
-	  if ('function' != typeof fn) throw new Error('bind() requires a function');
-	  var args = slice.call(arguments, 2);
-	  return function(){
-	    return fn.apply(obj, args.concat(slice.call(arguments)));
-	  }
-	};
-
-	},{}],38:[function(_dereq_,module,exports){
-
-	/**
-	 * Expose `Emitter`.
-	 */
-
-	module.exports = Emitter;
-
-	/**
-	 * Initialize a new `Emitter`.
-	 *
-	 * @api public
-	 */
-
-	function Emitter(obj) {
-	  if (obj) return mixin(obj);
-	};
-
-	/**
-	 * Mixin the emitter properties.
-	 *
-	 * @param {Object} obj
-	 * @return {Object}
-	 * @api private
-	 */
-
-	function mixin(obj) {
-	  for (var key in Emitter.prototype) {
-	    obj[key] = Emitter.prototype[key];
-	  }
-	  return obj;
-	}
-
-	/**
-	 * Listen on the given `event` with `fn`.
-	 *
-	 * @param {String} event
-	 * @param {Function} fn
-	 * @return {Emitter}
-	 * @api public
-	 */
-
-	Emitter.prototype.on =
-	Emitter.prototype.addEventListener = function(event, fn){
-	  this._callbacks = this._callbacks || {};
-	  (this._callbacks['$' + event] = this._callbacks['$' + event] || [])
-	    .push(fn);
-	  return this;
-	};
-
-	/**
-	 * Adds an `event` listener that will be invoked a single
-	 * time then automatically removed.
-	 *
-	 * @param {String} event
-	 * @param {Function} fn
-	 * @return {Emitter}
-	 * @api public
-	 */
-
-	Emitter.prototype.once = function(event, fn){
-	  function on() {
-	    this.off(event, on);
-	    fn.apply(this, arguments);
-	  }
-
-	  on.fn = fn;
-	  this.on(event, on);
-	  return this;
-	};
-
-	/**
-	 * Remove the given callback for `event` or all
-	 * registered callbacks.
-	 *
-	 * @param {String} event
-	 * @param {Function} fn
-	 * @return {Emitter}
-	 * @api public
-	 */
-
-	Emitter.prototype.off =
-	Emitter.prototype.removeListener =
-	Emitter.prototype.removeAllListeners =
-	Emitter.prototype.removeEventListener = function(event, fn){
-	  this._callbacks = this._callbacks || {};
-
-	  // all
-	  if (0 == arguments.length) {
-	    this._callbacks = {};
-	    return this;
-	  }
-
-	  // specific event
-	  var callbacks = this._callbacks['$' + event];
-	  if (!callbacks) return this;
-
-	  // remove all handlers
-	  if (1 == arguments.length) {
-	    delete this._callbacks['$' + event];
-	    return this;
-	  }
-
-	  // remove specific handler
-	  var cb;
-	  for (var i = 0; i < callbacks.length; i++) {
-	    cb = callbacks[i];
-	    if (cb === fn || cb.fn === fn) {
-	      callbacks.splice(i, 1);
-	      break;
-	    }
-	  }
-	  return this;
-	};
-
-	/**
-	 * Emit `event` with the given args.
-	 *
-	 * @param {String} event
-	 * @param {Mixed} ...
-	 * @return {Emitter}
-	 */
-
-	Emitter.prototype.emit = function(event){
-	  this._callbacks = this._callbacks || {};
-	  var args = [].slice.call(arguments, 1)
-	    , callbacks = this._callbacks['$' + event];
-
-	  if (callbacks) {
-	    callbacks = callbacks.slice(0);
-	    for (var i = 0, len = callbacks.length; i < len; ++i) {
-	      callbacks[i].apply(this, args);
-	    }
-	  }
-
-	  return this;
-	};
-
-	/**
-	 * Return array of callbacks for `event`.
-	 *
-	 * @param {String} event
-	 * @return {Array}
-	 * @api public
-	 */
-
-	Emitter.prototype.listeners = function(event){
-	  this._callbacks = this._callbacks || {};
-	  return this._callbacks['$' + event] || [];
-	};
-
-	/**
-	 * Check if this emitter has `event` handlers.
-	 *
-	 * @param {String} event
-	 * @return {Boolean}
-	 * @api public
-	 */
-
-	Emitter.prototype.hasListeners = function(event){
-	  return !! this.listeners(event).length;
-	};
-
-	},{}],39:[function(_dereq_,module,exports){
-	arguments[4][17][0].apply(exports,arguments)
-	},{"./debug":40,"dup":17}],40:[function(_dereq_,module,exports){
-	arguments[4][18][0].apply(exports,arguments)
-	},{"dup":18,"ms":44}],41:[function(_dereq_,module,exports){
-	(function (global){
-
-	/*
-	 * Module requirements.
-	 */
-
-	var isArray = _dereq_('isarray');
-
-	/**
-	 * Module exports.
-	 */
-
-	module.exports = hasBinary;
-
-	/**
-	 * Checks for binary data.
-	 *
-	 * Right now only Buffer and ArrayBuffer are supported..
-	 *
-	 * @param {Object} anything
-	 * @api public
-	 */
-
-	function hasBinary(data) {
-
-	  function _hasBinary(obj) {
-	    if (!obj) return false;
-
-	    if ( (global.Buffer && global.Buffer.isBuffer && global.Buffer.isBuffer(obj)) ||
-	         (global.ArrayBuffer && obj instanceof ArrayBuffer) ||
-	         (global.Blob && obj instanceof Blob) ||
-	         (global.File && obj instanceof File)
-	        ) {
-	      return true;
-	    }
-
-	    if (isArray(obj)) {
-	      for (var i = 0; i < obj.length; i++) {
-	          if (_hasBinary(obj[i])) {
-	              return true;
-	          }
-	      }
-	    } else if (obj && 'object' == typeof obj) {
-	      // see: https://github.com/Automattic/has-binary/pull/4
-	      if (obj.toJSON && 'function' == typeof obj.toJSON) {
-	        obj = obj.toJSON();
-	      }
-
-	      for (var key in obj) {
-	        if (Object.prototype.hasOwnProperty.call(obj, key) && _hasBinary(obj[key])) {
-	          return true;
-	        }
-	      }
-	    }
-
-	    return false;
-	  }
-
-	  return _hasBinary(data);
-	}
-
-	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
-	},{"isarray":43}],42:[function(_dereq_,module,exports){
-	arguments[4][23][0].apply(exports,arguments)
-	},{"dup":23}],43:[function(_dereq_,module,exports){
-	arguments[4][24][0].apply(exports,arguments)
-	},{"dup":24}],44:[function(_dereq_,module,exports){
-	arguments[4][25][0].apply(exports,arguments)
-	},{"dup":25}],45:[function(_dereq_,module,exports){
-	arguments[4][28][0].apply(exports,arguments)
-	},{"dup":28}],46:[function(_dereq_,module,exports){
-	(function (global){
-	/*global Blob,File*/
-
-	/**
-	 * Module requirements
-	 */
-
-	var isArray = _dereq_('isarray');
-	var isBuf = _dereq_('./is-buffer');
-
-	/**
-	 * Replaces every Buffer | ArrayBuffer in packet with a numbered placeholder.
-	 * Anything with blobs or files should be fed through removeBlobs before coming
-	 * here.
-	 *
-	 * @param {Object} packet - socket.io event packet
-	 * @return {Object} with deconstructed packet and list of buffers
-	 * @api public
-	 */
-
-	exports.deconstructPacket = function(packet){
-	  var buffers = [];
-	  var packetData = packet.data;
-
-	  function _deconstructPacket(data) {
-	    if (!data) return data;
-
-	    if (isBuf(data)) {
-	      var placeholder = { _placeholder: true, num: buffers.length };
-	      buffers.push(data);
-	      return placeholder;
-	    } else if (isArray(data)) {
-	      var newData = new Array(data.length);
-	      for (var i = 0; i < data.length; i++) {
-	        newData[i] = _deconstructPacket(data[i]);
-	      }
-	      return newData;
-	    } else if ('object' == typeof data && !(data instanceof Date)) {
-	      var newData = {};
-	      for (var key in data) {
-	        newData[key] = _deconstructPacket(data[key]);
-	      }
-	      return newData;
-	    }
-	    return data;
-	  }
-
-	  var pack = packet;
-	  pack.data = _deconstructPacket(packetData);
-	  pack.attachments = buffers.length; // number of binary 'attachments'
-	  return {packet: pack, buffers: buffers};
-	};
-
-	/**
-	 * Reconstructs a binary packet from its placeholder packet and buffers
-	 *
-	 * @param {Object} packet - event packet with placeholders
-	 * @param {Array} buffers - binary buffers to put in placeholder positions
-	 * @return {Object} reconstructed packet
-	 * @api public
-	 */
-
-	exports.reconstructPacket = function(packet, buffers) {
-	  var curPlaceHolder = 0;
-
-	  function _reconstructPacket(data) {
-	    if (data && data._placeholder) {
-	      var buf = buffers[data.num]; // appropriate buffer (should be natural order anyway)
-	      return buf;
-	    } else if (isArray(data)) {
-	      for (var i = 0; i < data.length; i++) {
-	        data[i] = _reconstructPacket(data[i]);
-	      }
-	      return data;
-	    } else if (data && 'object' == typeof data) {
-	      for (var key in data) {
-	        data[key] = _reconstructPacket(data[key]);
-	      }
-	      return data;
-	    }
-	    return data;
-	  }
-
-	  packet.data = _reconstructPacket(packet.data);
-	  packet.attachments = undefined; // no longer useful
-	  return packet;
-	};
-
-	/**
-	 * Asynchronously removes Blobs or Files from data via
-	 * FileReader's readAsArrayBuffer method. Used before encoding
-	 * data as msgpack. Calls callback with the blobless data.
-	 *
-	 * @param {Object} data
-	 * @param {Function} callback
-	 * @api private
-	 */
-
-	exports.removeBlobs = function(data, callback) {
-	  function _removeBlobs(obj, curKey, containingObject) {
-	    if (!obj) return obj;
-
-	    // convert any blob
-	    if ((global.Blob && obj instanceof Blob) ||
-	        (global.File && obj instanceof File)) {
-	      pendingBlobs++;
-
-	      // async filereader
-	      var fileReader = new FileReader();
-	      fileReader.onload = function() { // this.result == arraybuffer
-	        if (containingObject) {
-	          containingObject[curKey] = this.result;
-	        }
-	        else {
-	          bloblessData = this.result;
-	        }
-
-	        // if nothing pending its callback time
-	        if(! --pendingBlobs) {
-	          callback(bloblessData);
-	        }
-	      };
-
-	      fileReader.readAsArrayBuffer(obj); // blob -> arraybuffer
-	    } else if (isArray(obj)) { // handle array
-	      for (var i = 0; i < obj.length; i++) {
-	        _removeBlobs(obj[i], i, obj);
-	      }
-	    } else if (obj && 'object' == typeof obj && !isBuf(obj)) { // and object
-	      for (var key in obj) {
-	        _removeBlobs(obj[key], key, obj);
-	      }
-	    }
-	  }
-
-	  var pendingBlobs = 0;
-	  var bloblessData = data;
-	  _removeBlobs(bloblessData);
-	  if (!pendingBlobs) {
-	    callback(bloblessData);
-	  }
-	};
-
-	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
-	},{"./is-buffer":48,"isarray":43}],47:[function(_dereq_,module,exports){
-
-	/**
-	 * Module dependencies.
-	 */
-
-	var debug = _dereq_('debug')('socket.io-parser');
-	var json = _dereq_('json3');
-	var isArray = _dereq_('isarray');
-	var Emitter = _dereq_('component-emitter');
-	var binary = _dereq_('./binary');
-	var isBuf = _dereq_('./is-buffer');
-
-	/**
-	 * Protocol version.
-	 *
-	 * @api public
-	 */
-
-	exports.protocol = 4;
-
-	/**
-	 * Packet types.
-	 *
-	 * @api public
-	 */
-
-	exports.types = [
-	  'CONNECT',
-	  'DISCONNECT',
-	  'EVENT',
-	  'BINARY_EVENT',
-	  'ACK',
-	  'BINARY_ACK',
-	  'ERROR'
-	];
-
-	/**
-	 * Packet type `connect`.
-	 *
-	 * @api public
-	 */
-
-	exports.CONNECT = 0;
-
-	/**
-	 * Packet type `disconnect`.
-	 *
-	 * @api public
-	 */
-
-	exports.DISCONNECT = 1;
-
-	/**
-	 * Packet type `event`.
-	 *
-	 * @api public
-	 */
-
-	exports.EVENT = 2;
-
-	/**
-	 * Packet type `ack`.
-	 *
-	 * @api public
-	 */
-
-	exports.ACK = 3;
-
-	/**
-	 * Packet type `error`.
-	 *
-	 * @api public
-	 */
-
-	exports.ERROR = 4;
-
-	/**
-	 * Packet type 'binary event'
-	 *
-	 * @api public
-	 */
-
-	exports.BINARY_EVENT = 5;
-
-	/**
-	 * Packet type `binary ack`. For acks with binary arguments.
-	 *
-	 * @api public
-	 */
-
-	exports.BINARY_ACK = 6;
-
-	/**
-	 * Encoder constructor.
-	 *
-	 * @api public
-	 */
-
-	exports.Encoder = Encoder;
-
-	/**
-	 * Decoder constructor.
-	 *
-	 * @api public
-	 */
-
-	exports.Decoder = Decoder;
-
-	/**
-	 * A socket.io Encoder instance
-	 *
-	 * @api public
-	 */
-
-	function Encoder() {}
-
-	/**
-	 * Encode a packet as a single string if non-binary, or as a
-	 * buffer sequence, depending on packet type.
-	 *
-	 * @param {Object} obj - packet object
-	 * @param {Function} callback - function to handle encodings (likely engine.write)
-	 * @return Calls callback with Array of encodings
-	 * @api public
-	 */
-
-	Encoder.prototype.encode = function(obj, callback){
-	  debug('encoding packet %j', obj);
-
-	  if (exports.BINARY_EVENT == obj.type || exports.BINARY_ACK == obj.type) {
-	    encodeAsBinary(obj, callback);
-	  }
-	  else {
-	    var encoding = encodeAsString(obj);
-	    callback([encoding]);
-	  }
-	};
-
-	/**
-	 * Encode packet as string.
-	 *
-	 * @param {Object} packet
-	 * @return {String} encoded
-	 * @api private
-	 */
-
-	function encodeAsString(obj) {
-	  var str = '';
-	  var nsp = false;
-
-	  // first is type
-	  str += obj.type;
-
-	  // attachments if we have them
-	  if (exports.BINARY_EVENT == obj.type || exports.BINARY_ACK == obj.type) {
-	    str += obj.attachments;
-	    str += '-';
-	  }
-
-	  // if we have a namespace other than `/`
-	  // we append it followed by a comma `,`
-	  if (obj.nsp && '/' != obj.nsp) {
-	    nsp = true;
-	    str += obj.nsp;
-	  }
-
-	  // immediately followed by the id
-	  if (null != obj.id) {
-	    if (nsp) {
-	      str += ',';
-	      nsp = false;
-	    }
-	    str += obj.id;
-	  }
-
-	  // json data
-	  if (null != obj.data) {
-	    if (nsp) str += ',';
-	    str += json.stringify(obj.data);
-	  }
-
-	  debug('encoded %j as %s', obj, str);
-	  return str;
-	}
-
-	/**
-	 * Encode packet as 'buffer sequence' by removing blobs, and
-	 * deconstructing packet into object with placeholders and
-	 * a list of buffers.
-	 *
-	 * @param {Object} packet
-	 * @return {Buffer} encoded
-	 * @api private
-	 */
-
-	function encodeAsBinary(obj, callback) {
-
-	  function writeEncoding(bloblessData) {
-	    var deconstruction = binary.deconstructPacket(bloblessData);
-	    var pack = encodeAsString(deconstruction.packet);
-	    var buffers = deconstruction.buffers;
-
-	    buffers.unshift(pack); // add packet info to beginning of data list
-	    callback(buffers); // write all the buffers
-	  }
-
-	  binary.removeBlobs(obj, writeEncoding);
-	}
-
-	/**
-	 * A socket.io Decoder instance
-	 *
-	 * @return {Object} decoder
-	 * @api public
-	 */
-
-	function Decoder() {
-	  this.reconstructor = null;
-	}
-
-	/**
-	 * Mix in `Emitter` with Decoder.
-	 */
-
-	Emitter(Decoder.prototype);
-
-	/**
-	 * Decodes an ecoded packet string into packet JSON.
-	 *
-	 * @param {String} obj - encoded packet
-	 * @return {Object} packet
-	 * @api public
-	 */
-
-	Decoder.prototype.add = function(obj) {
-	  var packet;
-	  if ('string' == typeof obj) {
-	    packet = decodeString(obj);
-	    if (exports.BINARY_EVENT == packet.type || exports.BINARY_ACK == packet.type) { // binary packet's json
-	      this.reconstructor = new BinaryReconstructor(packet);
-
-	      // no attachments, labeled binary but no binary data to follow
-	      if (this.reconstructor.reconPack.attachments === 0) {
-	        this.emit('decoded', packet);
-	      }
-	    } else { // non-binary full packet
-	      this.emit('decoded', packet);
-	    }
-	  }
-	  else if (isBuf(obj) || obj.base64) { // raw binary data
-	    if (!this.reconstructor) {
-	      throw new Error('got binary data when not reconstructing a packet');
-	    } else {
-	      packet = this.reconstructor.takeBinaryData(obj);
-	      if (packet) { // received final buffer
-	        this.reconstructor = null;
-	        this.emit('decoded', packet);
-	      }
-	    }
-	  }
-	  else {
-	    throw new Error('Unknown type: ' + obj);
-	  }
-	};
-
-	/**
-	 * Decode a packet String (JSON data)
-	 *
-	 * @param {String} str
-	 * @return {Object} packet
-	 * @api private
-	 */
-
-	function decodeString(str) {
-	  var p = {};
-	  var i = 0;
-
-	  // look up type
-	  p.type = Number(str.charAt(0));
-	  if (null == exports.types[p.type]) return error();
-
-	  // look up attachments if type binary
-	  if (exports.BINARY_EVENT == p.type || exports.BINARY_ACK == p.type) {
-	    var buf = '';
-	    while (str.charAt(++i) != '-') {
-	      buf += str.charAt(i);
-	      if (i == str.length) break;
-	    }
-	    if (buf != Number(buf) || str.charAt(i) != '-') {
-	      throw new Error('Illegal attachments');
-	    }
-	    p.attachments = Number(buf);
-	  }
-
-	  // look up namespace (if any)
-	  if ('/' == str.charAt(i + 1)) {
-	    p.nsp = '';
-	    while (++i) {
-	      var c = str.charAt(i);
-	      if (',' == c) break;
-	      p.nsp += c;
-	      if (i == str.length) break;
-	    }
-	  } else {
-	    p.nsp = '/';
-	  }
-
-	  // look up id
-	  var next = str.charAt(i + 1);
-	  if ('' !== next && Number(next) == next) {
-	    p.id = '';
-	    while (++i) {
-	      var c = str.charAt(i);
-	      if (null == c || Number(c) != c) {
-	        --i;
-	        break;
-	      }
-	      p.id += str.charAt(i);
-	      if (i == str.length) break;
-	    }
-	    p.id = Number(p.id);
-	  }
-
-	  // look up json data
-	  if (str.charAt(++i)) {
-	    try {
-	      p.data = json.parse(str.substr(i));
-	    } catch(e){
-	      return error();
-	    }
-	  }
-
-	  debug('decoded %s as %j', str, p);
-	  return p;
-	}
-
-	/**
-	 * Deallocates a parser's resources
-	 *
-	 * @api public
-	 */
-
-	Decoder.prototype.destroy = function() {
-	  if (this.reconstructor) {
-	    this.reconstructor.finishedReconstruction();
-	  }
-	};
-
-	/**
-	 * A manager of a binary event's 'buffer sequence'. Should
-	 * be constructed whenever a packet of type BINARY_EVENT is
-	 * decoded.
-	 *
-	 * @param {Object} packet
-	 * @return {BinaryReconstructor} initialized reconstructor
-	 * @api private
-	 */
-
-	function BinaryReconstructor(packet) {
-	  this.reconPack = packet;
-	  this.buffers = [];
-	}
-
-	/**
-	 * Method to be called when binary data received from connection
-	 * after a BINARY_EVENT packet.
-	 *
-	 * @param {Buffer | ArrayBuffer} binData - the raw binary data received
-	 * @return {null | Object} returns null if more binary data is expected or
-	 *   a reconstructed packet object if all buffers have been received.
-	 * @api private
-	 */
-
-	BinaryReconstructor.prototype.takeBinaryData = function(binData) {
-	  this.buffers.push(binData);
-	  if (this.buffers.length == this.reconPack.attachments) { // done with buffer list
-	    var packet = binary.reconstructPacket(this.reconPack, this.buffers);
-	    this.finishedReconstruction();
-	    return packet;
-	  }
-	  return null;
-	};
-
-	/**
-	 * Cleans up binary packet reconstruction variables.
-	 *
-	 * @api private
-	 */
-
-	BinaryReconstructor.prototype.finishedReconstruction = function() {
-	  this.reconPack = null;
-	  this.buffers = [];
-	};
-
-	function error(data){
-	  return {
-	    type: exports.ERROR,
-	    data: 'parser error'
-	  };
-	}
-
-	},{"./binary":46,"./is-buffer":48,"component-emitter":49,"debug":39,"isarray":43,"json3":50}],48:[function(_dereq_,module,exports){
-	(function (global){
-
-	module.exports = isBuf;
-
-	/**
-	 * Returns true if obj is a buffer or an arraybuffer.
-	 *
-	 * @api private
-	 */
-
-	function isBuf(obj) {
-	  return (global.Buffer && global.Buffer.isBuffer(obj)) ||
-	         (global.ArrayBuffer && obj instanceof ArrayBuffer);
-	}
-
-	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
-	},{}],49:[function(_dereq_,module,exports){
-	arguments[4][15][0].apply(exports,arguments)
-	},{"dup":15}],50:[function(_dereq_,module,exports){
-	(function (global){
-	/*! JSON v3.3.2 | http://bestiejs.github.io/json3 | Copyright 2012-2014, Kit Cambridge | http://kit.mit-license.org */
-	;(function () {
-	  // Detect the `define` function exposed by asynchronous module loaders. The
-	  // strict `define` check is necessary for compatibility with `r.js`.
-	  var isLoader = typeof define === "function" && define.amd;
-
-	  // A set of types used to distinguish objects from primitives.
-	  var objectTypes = {
-	    "function": true,
-	    "object": true
-	  };
-
-	  // Detect the `exports` object exposed by CommonJS implementations.
-	  var freeExports = objectTypes[typeof exports] && exports && !exports.nodeType && exports;
-
-	  // Use the `global` object exposed by Node (including Browserify via
-	  // `insert-module-globals`), Narwhal, and Ringo as the default context,
-	  // and the `window` object in browsers. Rhino exports a `global` function
-	  // instead.
-	  var root = objectTypes[typeof window] && window || this,
-	      freeGlobal = freeExports && objectTypes[typeof module] && module && !module.nodeType && typeof global == "object" && global;
-
-	  if (freeGlobal && (freeGlobal["global"] === freeGlobal || freeGlobal["window"] === freeGlobal || freeGlobal["self"] === freeGlobal)) {
-	    root = freeGlobal;
-	  }
-
-	  // Public: Initializes JSON 3 using the given `context` object, attaching the
-	  // `stringify` and `parse` functions to the specified `exports` object.
-	  function runInContext(context, exports) {
-	    context || (context = root["Object"]());
-	    exports || (exports = root["Object"]());
-
-	    // Native constructor aliases.
-	    var Number = context["Number"] || root["Number"],
-	        String = context["String"] || root["String"],
-	        Object = context["Object"] || root["Object"],
-	        Date = context["Date"] || root["Date"],
-	        SyntaxError = context["SyntaxError"] || root["SyntaxError"],
-	        TypeError = context["TypeError"] || root["TypeError"],
-	        Math = context["Math"] || root["Math"],
-	        nativeJSON = context["JSON"] || root["JSON"];
-
-	    // Delegate to the native `stringify` and `parse` implementations.
-	    if (typeof nativeJSON == "object" && nativeJSON) {
-	      exports.stringify = nativeJSON.stringify;
-	      exports.parse = nativeJSON.parse;
-	    }
-
-	    // Convenience aliases.
-	    var objectProto = Object.prototype,
-	        getClass = objectProto.toString,
-	        isProperty, forEach, undef;
-
-	    // Test the `Date#getUTC*` methods. Based on work by @Yaffle.
-	    var isExtended = new Date(-3509827334573292);
-	    try {
-	      // The `getUTCFullYear`, `Month`, and `Date` methods return nonsensical
-	      // results for certain dates in Opera >= 10.53.
-	      isExtended = isExtended.getUTCFullYear() == -109252 && isExtended.getUTCMonth() === 0 && isExtended.getUTCDate() === 1 &&
-	        // Safari < 2.0.2 stores the internal millisecond time value correctly,
-	        // but clips the values returned by the date methods to the range of
-	        // signed 32-bit integers ([-2 ** 31, 2 ** 31 - 1]).
-	        isExtended.getUTCHours() == 10 && isExtended.getUTCMinutes() == 37 && isExtended.getUTCSeconds() == 6 && isExtended.getUTCMilliseconds() == 708;
-	    } catch (exception) {}
-
-	    // Internal: Determines whether the native `JSON.stringify` and `parse`
-	    // implementations are spec-compliant. Based on work by Ken Snyder.
-	    function has(name) {
-	      if (has[name] !== undef) {
-	        // Return cached feature test result.
-	        return has[name];
-	      }
-	      var isSupported;
-	      if (name == "bug-string-char-index") {
-	        // IE <= 7 doesn't support accessing string characters using square
-	        // bracket notation. IE 8 only supports this for primitives.
-	        isSupported = "a"[0] != "a";
-	      } else if (name == "json") {
-	        // Indicates whether both `JSON.stringify` and `JSON.parse` are
-	        // supported.
-	        isSupported = has("json-stringify") && has("json-parse");
-	      } else {
-	        var value, serialized = '{"a":[1,true,false,null,"\\u0000\\b\\n\\f\\r\\t"]}';
-	        // Test `JSON.stringify`.
-	        if (name == "json-stringify") {
-	          var stringify = exports.stringify, stringifySupported = typeof stringify == "function" && isExtended;
-	          if (stringifySupported) {
-	            // A test function object with a custom `toJSON` method.
-	            (value = function () {
-	              return 1;
-	            }).toJSON = value;
-	            try {
-	              stringifySupported =
-	                // Firefox 3.1b1 and b2 serialize string, number, and boolean
-	                // primitives as object literals.
-	                stringify(0) === "0" &&
-	                // FF 3.1b1, b2, and JSON 2 serialize wrapped primitives as object
-	                // literals.
-	                stringify(new Number()) === "0" &&
-	                stringify(new String()) == '""' &&
-	                // FF 3.1b1, 2 throw an error if the value is `null`, `undefined`, or
-	                // does not define a canonical JSON representation (this applies to
-	                // objects with `toJSON` properties as well, *unless* they are nested
-	                // within an object or array).
-	                stringify(getClass) === undef &&
-	                // IE 8 serializes `undefined` as `"undefined"`. Safari <= 5.1.7 and
-	                // FF 3.1b3 pass this test.
-	                stringify(undef) === undef &&
-	                // Safari <= 5.1.7 and FF 3.1b3 throw `Error`s and `TypeError`s,
-	                // respectively, if the value is omitted entirely.
-	                stringify() === undef &&
-	                // FF 3.1b1, 2 throw an error if the given value is not a number,
-	                // string, array, object, Boolean, or `null` literal. This applies to
-	                // objects with custom `toJSON` methods as well, unless they are nested
-	                // inside object or array literals. YUI 3.0.0b1 ignores custom `toJSON`
-	                // methods entirely.
-	                stringify(value) === "1" &&
-	                stringify([value]) == "[1]" &&
-	                // Prototype <= 1.6.1 serializes `[undefined]` as `"[]"` instead of
-	                // `"[null]"`.
-	                stringify([undef]) == "[null]" &&
-	                // YUI 3.0.0b1 fails to serialize `null` literals.
-	                stringify(null) == "null" &&
-	                // FF 3.1b1, 2 halts serialization if an array contains a function:
-	                // `[1, true, getClass, 1]` serializes as "[1,true,],". FF 3.1b3
-	                // elides non-JSON values from objects and arrays, unless they
-	                // define custom `toJSON` methods.
-	                stringify([undef, getClass, null]) == "[null,null,null]" &&
-	                // Simple serialization test. FF 3.1b1 uses Unicode escape sequences
-	                // where character escape codes are expected (e.g., `\b` => `\u0008`).
-	                stringify({ "a": [value, true, false, null, "\x00\b\n\f\r\t"] }) == serialized &&
-	                // FF 3.1b1 and b2 ignore the `filter` and `width` arguments.
-	                stringify(null, value) === "1" &&
-	                stringify([1, 2], null, 1) == "[\n 1,\n 2\n]" &&
-	                // JSON 2, Prototype <= 1.7, and older WebKit builds incorrectly
-	                // serialize extended years.
-	                stringify(new Date(-8.64e15)) == '"-271821-04-20T00:00:00.000Z"' &&
-	                // The milliseconds are optional in ES 5, but required in 5.1.
-	                stringify(new Date(8.64e15)) == '"+275760-09-13T00:00:00.000Z"' &&
-	                // Firefox <= 11.0 incorrectly serializes years prior to 0 as negative
-	                // four-digit years instead of six-digit years. Credits: @Yaffle.
-	                stringify(new Date(-621987552e5)) == '"-000001-01-01T00:00:00.000Z"' &&
-	                // Safari <= 5.1.5 and Opera >= 10.53 incorrectly serialize millisecond
-	                // values less than 1000. Credits: @Yaffle.
-	                stringify(new Date(-1)) == '"1969-12-31T23:59:59.999Z"';
-	            } catch (exception) {
-	              stringifySupported = false;
-	            }
-	          }
-	          isSupported = stringifySupported;
-	        }
-	        // Test `JSON.parse`.
-	        if (name == "json-parse") {
-	          var parse = exports.parse;
-	          if (typeof parse == "function") {
-	            try {
-	              // FF 3.1b1, b2 will throw an exception if a bare literal is provided.
-	              // Conforming implementations should also coerce the initial argument to
-	              // a string prior to parsing.
-	              if (parse("0") === 0 && !parse(false)) {
-	                // Simple parsing test.
-	                value = parse(serialized);
-	                var parseSupported = value["a"].length == 5 && value["a"][0] === 1;
-	                if (parseSupported) {
-	                  try {
-	                    // Safari <= 5.1.2 and FF 3.1b1 allow unescaped tabs in strings.
-	                    parseSupported = !parse('"\t"');
-	                  } catch (exception) {}
-	                  if (parseSupported) {
-	                    try {
-	                      // FF 4.0 and 4.0.1 allow leading `+` signs and leading
-	                      // decimal points. FF 4.0, 4.0.1, and IE 9-10 also allow
-	                      // certain octal literals.
-	                      parseSupported = parse("01") !== 1;
-	                    } catch (exception) {}
-	                  }
-	                  if (parseSupported) {
-	                    try {
-	                      // FF 4.0, 4.0.1, and Rhino 1.7R3-R4 allow trailing decimal
-	                      // points. These environments, along with FF 3.1b1 and 2,
-	                      // also allow trailing commas in JSON objects and arrays.
-	                      parseSupported = parse("1.") !== 1;
-	                    } catch (exception) {}
-	                  }
-	                }
-	              }
-	            } catch (exception) {
-	              parseSupported = false;
-	            }
-	          }
-	          isSupported = parseSupported;
-	        }
-	      }
-	      return has[name] = !!isSupported;
-	    }
-
-	    if (!has("json")) {
-	      // Common `[[Class]]` name aliases.
-	      var functionClass = "[object Function]",
-	          dateClass = "[object Date]",
-	          numberClass = "[object Number]",
-	          stringClass = "[object String]",
-	          arrayClass = "[object Array]",
-	          booleanClass = "[object Boolean]";
-
-	      // Detect incomplete support for accessing string characters by index.
-	      var charIndexBuggy = has("bug-string-char-index");
-
-	      // Define additional utility methods if the `Date` methods are buggy.
-	      if (!isExtended) {
-	        var floor = Math.floor;
-	        // A mapping between the months of the year and the number of days between
-	        // January 1st and the first of the respective month.
-	        var Months = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
-	        // Internal: Calculates the number of days between the Unix epoch and the
-	        // first day of the given month.
-	        var getDay = function (year, month) {
-	          return Months[month] + 365 * (year - 1970) + floor((year - 1969 + (month = +(month > 1))) / 4) - floor((year - 1901 + month) / 100) + floor((year - 1601 + month) / 400);
-	        };
-	      }
-
-	      // Internal: Determines if a property is a direct property of the given
-	      // object. Delegates to the native `Object#hasOwnProperty` method.
-	      if (!(isProperty = objectProto.hasOwnProperty)) {
-	        isProperty = function (property) {
-	          var members = {}, constructor;
-	          if ((members.__proto__ = null, members.__proto__ = {
-	            // The *proto* property cannot be set multiple times in recent
-	            // versions of Firefox and SeaMonkey.
-	            "toString": 1
-	          }, members).toString != getClass) {
-	            // Safari <= 2.0.3 doesn't implement `Object#hasOwnProperty`, but
-	            // supports the mutable *proto* property.
-	            isProperty = function (property) {
-	              // Capture and break the object's prototype chain (see section 8.6.2
-	              // of the ES 5.1 spec). The parenthesized expression prevents an
-	              // unsafe transformation by the Closure Compiler.
-	              var original = this.__proto__, result = property in (this.__proto__ = null, this);
-	              // Restore the original prototype chain.
-	              this.__proto__ = original;
-	              return result;
-	            };
-	          } else {
-	            // Capture a reference to the top-level `Object` constructor.
-	            constructor = members.constructor;
-	            // Use the `constructor` property to simulate `Object#hasOwnProperty` in
-	            // other environments.
-	            isProperty = function (property) {
-	              var parent = (this.constructor || constructor).prototype;
-	              return property in this && !(property in parent && this[property] === parent[property]);
-	            };
-	          }
-	          members = null;
-	          return isProperty.call(this, property);
-	        };
-	      }
-
-	      // Internal: Normalizes the `for...in` iteration algorithm across
-	      // environments. Each enumerated key is yielded to a `callback` function.
-	      forEach = function (object, callback) {
-	        var size = 0, Properties, members, property;
-
-	        // Tests for bugs in the current environment's `for...in` algorithm. The
-	        // `valueOf` property inherits the non-enumerable flag from
-	        // `Object.prototype` in older versions of IE, Netscape, and Mozilla.
-	        (Properties = function () {
-	          this.valueOf = 0;
-	        }).prototype.valueOf = 0;
-
-	        // Iterate over a new instance of the `Properties` class.
-	        members = new Properties();
-	        for (property in members) {
-	          // Ignore all properties inherited from `Object.prototype`.
-	          if (isProperty.call(members, property)) {
-	            size++;
-	          }
-	        }
-	        Properties = members = null;
-
-	        // Normalize the iteration algorithm.
-	        if (!size) {
-	          // A list of non-enumerable properties inherited from `Object.prototype`.
-	          members = ["valueOf", "toString", "toLocaleString", "propertyIsEnumerable", "isPrototypeOf", "hasOwnProperty", "constructor"];
-	          // IE <= 8, Mozilla 1.0, and Netscape 6.2 ignore shadowed non-enumerable
-	          // properties.
-	          forEach = function (object, callback) {
-	            var isFunction = getClass.call(object) == functionClass, property, length;
-	            var hasProperty = !isFunction && typeof object.constructor != "function" && objectTypes[typeof object.hasOwnProperty] && object.hasOwnProperty || isProperty;
-	            for (property in object) {
-	              // Gecko <= 1.0 enumerates the `prototype` property of functions under
-	              // certain conditions; IE does not.
-	              if (!(isFunction && property == "prototype") && hasProperty.call(object, property)) {
-	                callback(property);
-	              }
-	            }
-	            // Manually invoke the callback for each non-enumerable property.
-	            for (length = members.length; property = members[--length]; hasProperty.call(object, property) && callback(property));
-	          };
-	        } else if (size == 2) {
-	          // Safari <= 2.0.4 enumerates shadowed properties twice.
-	          forEach = function (object, callback) {
-	            // Create a set of iterated properties.
-	            var members = {}, isFunction = getClass.call(object) == functionClass, property;
-	            for (property in object) {
-	              // Store each property name to prevent double enumeration. The
-	              // `prototype` property of functions is not enumerated due to cross-
-	              // environment inconsistencies.
-	              if (!(isFunction && property == "prototype") && !isProperty.call(members, property) && (members[property] = 1) && isProperty.call(object, property)) {
-	                callback(property);
-	              }
-	            }
-	          };
-	        } else {
-	          // No bugs detected; use the standard `for...in` algorithm.
-	          forEach = function (object, callback) {
-	            var isFunction = getClass.call(object) == functionClass, property, isConstructor;
-	            for (property in object) {
-	              if (!(isFunction && property == "prototype") && isProperty.call(object, property) && !(isConstructor = property === "constructor")) {
-	                callback(property);
-	              }
-	            }
-	            // Manually invoke the callback for the `constructor` property due to
-	            // cross-environment inconsistencies.
-	            if (isConstructor || isProperty.call(object, (property = "constructor"))) {
-	              callback(property);
-	            }
-	          };
-	        }
-	        return forEach(object, callback);
-	      };
-
-	      // Public: Serializes a JavaScript `value` as a JSON string. The optional
-	      // `filter` argument may specify either a function that alters how object and
-	      // array members are serialized, or an array of strings and numbers that
-	      // indicates which properties should be serialized. The optional `width`
-	      // argument may be either a string or number that specifies the indentation
-	      // level of the output.
-	      if (!has("json-stringify")) {
-	        // Internal: A map of control characters and their escaped equivalents.
-	        var Escapes = {
-	          92: "\\\\",
-	          34: '\\"',
-	          8: "\\b",
-	          12: "\\f",
-	          10: "\\n",
-	          13: "\\r",
-	          9: "\\t"
-	        };
-
-	        // Internal: Converts `value` into a zero-padded string such that its
-	        // length is at least equal to `width`. The `width` must be <= 6.
-	        var leadingZeroes = "000000";
-	        var toPaddedString = function (width, value) {
-	          // The `|| 0` expression is necessary to work around a bug in
-	          // Opera <= 7.54u2 where `0 == -0`, but `String(-0) !== "0"`.
-	          return (leadingZeroes + (value || 0)).slice(-width);
-	        };
-
-	        // Internal: Double-quotes a string `value`, replacing all ASCII control
-	        // characters (characters with code unit values between 0 and 31) with
-	        // their escaped equivalents. This is an implementation of the
-	        // `Quote(value)` operation defined in ES 5.1 section 15.12.3.
-	        var unicodePrefix = "\\u00";
-	        var quote = function (value) {
-	          var result = '"', index = 0, length = value.length, useCharIndex = !charIndexBuggy || length > 10;
-	          var symbols = useCharIndex && (charIndexBuggy ? value.split("") : value);
-	          for (; index < length; index++) {
-	            var charCode = value.charCodeAt(index);
-	            // If the character is a control character, append its Unicode or
-	            // shorthand escape sequence; otherwise, append the character as-is.
-	            switch (charCode) {
-	              case 8: case 9: case 10: case 12: case 13: case 34: case 92:
-	                result += Escapes[charCode];
-	                break;
-	              default:
-	                if (charCode < 32) {
-	                  result += unicodePrefix + toPaddedString(2, charCode.toString(16));
-	                  break;
-	                }
-	                result += useCharIndex ? symbols[index] : value.charAt(index);
-	            }
-	          }
-	          return result + '"';
-	        };
-
-	        // Internal: Recursively serializes an object. Implements the
-	        // `Str(key, holder)`, `JO(value)`, and `JA(value)` operations.
-	        var serialize = function (property, object, callback, properties, whitespace, indentation, stack) {
-	          var value, className, year, month, date, time, hours, minutes, seconds, milliseconds, results, element, index, length, prefix, result;
-	          try {
-	            // Necessary for host object support.
-	            value = object[property];
-	          } catch (exception) {}
-	          if (typeof value == "object" && value) {
-	            className = getClass.call(value);
-	            if (className == dateClass && !isProperty.call(value, "toJSON")) {
-	              if (value > -1 / 0 && value < 1 / 0) {
-	                // Dates are serialized according to the `Date#toJSON` method
-	                // specified in ES 5.1 section 15.9.5.44. See section 15.9.1.15
-	                // for the ISO 8601 date time string format.
-	                if (getDay) {
-	                  // Manually compute the year, month, date, hours, minutes,
-	                  // seconds, and milliseconds if the `getUTC*` methods are
-	                  // buggy. Adapted from @Yaffle's `date-shim` project.
-	                  date = floor(value / 864e5);
-	                  for (year = floor(date / 365.2425) + 1970 - 1; getDay(year + 1, 0) <= date; year++);
-	                  for (month = floor((date - getDay(year, 0)) / 30.42); getDay(year, month + 1) <= date; month++);
-	                  date = 1 + date - getDay(year, month);
-	                  // The `time` value specifies the time within the day (see ES
-	                  // 5.1 section 15.9.1.2). The formula `(A % B + B) % B` is used
-	                  // to compute `A modulo B`, as the `%` operator does not
-	                  // correspond to the `modulo` operation for negative numbers.
-	                  time = (value % 864e5 + 864e5) % 864e5;
-	                  // The hours, minutes, seconds, and milliseconds are obtained by
-	                  // decomposing the time within the day. See section 15.9.1.10.
-	                  hours = floor(time / 36e5) % 24;
-	                  minutes = floor(time / 6e4) % 60;
-	                  seconds = floor(time / 1e3) % 60;
-	                  milliseconds = time % 1e3;
-	                } else {
-	                  year = value.getUTCFullYear();
-	                  month = value.getUTCMonth();
-	                  date = value.getUTCDate();
-	                  hours = value.getUTCHours();
-	                  minutes = value.getUTCMinutes();
-	                  seconds = value.getUTCSeconds();
-	                  milliseconds = value.getUTCMilliseconds();
-	                }
-	                // Serialize extended years correctly.
-	                value = (year <= 0 || year >= 1e4 ? (year < 0 ? "-" : "+") + toPaddedString(6, year < 0 ? -year : year) : toPaddedString(4, year)) +
-	                  "-" + toPaddedString(2, month + 1) + "-" + toPaddedString(2, date) +
-	                  // Months, dates, hours, minutes, and seconds should have two
-	                  // digits; milliseconds should have three.
-	                  "T" + toPaddedString(2, hours) + ":" + toPaddedString(2, minutes) + ":" + toPaddedString(2, seconds) +
-	                  // Milliseconds are optional in ES 5.0, but required in 5.1.
-	                  "." + toPaddedString(3, milliseconds) + "Z";
-	              } else {
-	                value = null;
-	              }
-	            } else if (typeof value.toJSON == "function" && ((className != numberClass && className != stringClass && className != arrayClass) || isProperty.call(value, "toJSON"))) {
-	              // Prototype <= 1.6.1 adds non-standard `toJSON` methods to the
-	              // `Number`, `String`, `Date`, and `Array` prototypes. JSON 3
-	              // ignores all `toJSON` methods on these objects unless they are
-	              // defined directly on an instance.
-	              value = value.toJSON(property);
-	            }
-	          }
-	          if (callback) {
-	            // If a replacement function was provided, call it to obtain the value
-	            // for serialization.
-	            value = callback.call(object, property, value);
-	          }
-	          if (value === null) {
-	            return "null";
-	          }
-	          className = getClass.call(value);
-	          if (className == booleanClass) {
-	            // Booleans are represented literally.
-	            return "" + value;
-	          } else if (className == numberClass) {
-	            // JSON numbers must be finite. `Infinity` and `NaN` are serialized as
-	            // `"null"`.
-	            return value > -1 / 0 && value < 1 / 0 ? "" + value : "null";
-	          } else if (className == stringClass) {
-	            // Strings are double-quoted and escaped.
-	            return quote("" + value);
-	          }
-	          // Recursively serialize objects and arrays.
-	          if (typeof value == "object") {
-	            // Check for cyclic structures. This is a linear search; performance
-	            // is inversely proportional to the number of unique nested objects.
-	            for (length = stack.length; length--;) {
-	              if (stack[length] === value) {
-	                // Cyclic structures cannot be serialized by `JSON.stringify`.
-	                throw TypeError();
-	              }
-	            }
-	            // Add the object to the stack of traversed objects.
-	            stack.push(value);
-	            results = [];
-	            // Save the current indentation level and indent one additional level.
-	            prefix = indentation;
-	            indentation += whitespace;
-	            if (className == arrayClass) {
-	              // Recursively serialize array elements.
-	              for (index = 0, length = value.length; index < length; index++) {
-	                element = serialize(index, value, callback, properties, whitespace, indentation, stack);
-	                results.push(element === undef ? "null" : element);
-	              }
-	              result = results.length ? (whitespace ? "[\n" + indentation + results.join(",\n" + indentation) + "\n" + prefix + "]" : ("[" + results.join(",") + "]")) : "[]";
-	            } else {
-	              // Recursively serialize object members. Members are selected from
-	              // either a user-specified list of property names, or the object
-	              // itself.
-	              forEach(properties || value, function (property) {
-	                var element = serialize(property, value, callback, properties, whitespace, indentation, stack);
-	                if (element !== undef) {
-	                  // According to ES 5.1 section 15.12.3: "If `gap` {whitespace}
-	                  // is not the empty string, let `member` {quote(property) + ":"}
-	                  // be the concatenation of `member` and the `space` character."
-	                  // The "`space` character" refers to the literal space
-	                  // character, not the `space` {width} argument provided to
-	                  // `JSON.stringify`.
-	                  results.push(quote(property) + ":" + (whitespace ? " " : "") + element);
-	                }
-	              });
-	              result = results.length ? (whitespace ? "{\n" + indentation + results.join(",\n" + indentation) + "\n" + prefix + "}" : ("{" + results.join(",") + "}")) : "{}";
-	            }
-	            // Remove the object from the traversed object stack.
-	            stack.pop();
-	            return result;
-	          }
-	        };
-
-	        // Public: `JSON.stringify`. See ES 5.1 section 15.12.3.
-	        exports.stringify = function (source, filter, width) {
-	          var whitespace, callback, properties, className;
-	          if (objectTypes[typeof filter] && filter) {
-	            if ((className = getClass.call(filter)) == functionClass) {
-	              callback = filter;
-	            } else if (className == arrayClass) {
-	              // Convert the property names array into a makeshift set.
-	              properties = {};
-	              for (var index = 0, length = filter.length, value; index < length; value = filter[index++], ((className = getClass.call(value)), className == stringClass || className == numberClass) && (properties[value] = 1));
-	            }
-	          }
-	          if (width) {
-	            if ((className = getClass.call(width)) == numberClass) {
-	              // Convert the `width` to an integer and create a string containing
-	              // `width` number of space characters.
-	              if ((width -= width % 1) > 0) {
-	                for (whitespace = "", width > 10 && (width = 10); whitespace.length < width; whitespace += " ");
-	              }
-	            } else if (className == stringClass) {
-	              whitespace = width.length <= 10 ? width : width.slice(0, 10);
-	            }
-	          }
-	          // Opera <= 7.54u2 discards the values associated with empty string keys
-	          // (`""`) only if they are used directly within an object member list
-	          // (e.g., `!("" in { "": 1})`).
-	          return serialize("", (value = {}, value[""] = source, value), callback, properties, whitespace, "", []);
-	        };
-	      }
-
-	      // Public: Parses a JSON source string.
-	      if (!has("json-parse")) {
-	        var fromCharCode = String.fromCharCode;
-
-	        // Internal: A map of escaped control characters and their unescaped
-	        // equivalents.
-	        var Unescapes = {
-	          92: "\\",
-	          34: '"',
-	          47: "/",
-	          98: "\b",
-	          116: "\t",
-	          110: "\n",
-	          102: "\f",
-	          114: "\r"
-	        };
-
-	        // Internal: Stores the parser state.
-	        var Index, Source;
-
-	        // Internal: Resets the parser state and throws a `SyntaxError`.
-	        var abort = function () {
-	          Index = Source = null;
-	          throw SyntaxError();
-	        };
-
-	        // Internal: Returns the next token, or `"$"` if the parser has reached
-	        // the end of the source string. A token may be a string, number, `null`
-	        // literal, or Boolean literal.
-	        var lex = function () {
-	          var source = Source, length = source.length, value, begin, position, isSigned, charCode;
-	          while (Index < length) {
-	            charCode = source.charCodeAt(Index);
-	            switch (charCode) {
-	              case 9: case 10: case 13: case 32:
-	                // Skip whitespace tokens, including tabs, carriage returns, line
-	                // feeds, and space characters.
-	                Index++;
-	                break;
-	              case 123: case 125: case 91: case 93: case 58: case 44:
-	                // Parse a punctuator token (`{`, `}`, `[`, `]`, `:`, or `,`) at
-	                // the current position.
-	                value = charIndexBuggy ? source.charAt(Index) : source[Index];
-	                Index++;
-	                return value;
-	              case 34:
-	                // `"` delimits a JSON string; advance to the next character and
-	                // begin parsing the string. String tokens are prefixed with the
-	                // sentinel `@` character to distinguish them from punctuators and
-	                // end-of-string tokens.
-	                for (value = "@", Index++; Index < length;) {
-	                  charCode = source.charCodeAt(Index);
-	                  if (charCode < 32) {
-	                    // Unescaped ASCII control characters (those with a code unit
-	                    // less than the space character) are not permitted.
-	                    abort();
-	                  } else if (charCode == 92) {
-	                    // A reverse solidus (`\`) marks the beginning of an escaped
-	                    // control character (including `"`, `\`, and `/`) or Unicode
-	                    // escape sequence.
-	                    charCode = source.charCodeAt(++Index);
-	                    switch (charCode) {
-	                      case 92: case 34: case 47: case 98: case 116: case 110: case 102: case 114:
-	                        // Revive escaped control characters.
-	                        value += Unescapes[charCode];
-	                        Index++;
-	                        break;
-	                      case 117:
-	                        // `\u` marks the beginning of a Unicode escape sequence.
-	                        // Advance to the first character and validate the
-	                        // four-digit code point.
-	                        begin = ++Index;
-	                        for (position = Index + 4; Index < position; Index++) {
-	                          charCode = source.charCodeAt(Index);
-	                          // A valid sequence comprises four hexdigits (case-
-	                          // insensitive) that form a single hexadecimal value.
-	                          if (!(charCode >= 48 && charCode <= 57 || charCode >= 97 && charCode <= 102 || charCode >= 65 && charCode <= 70)) {
-	                            // Invalid Unicode escape sequence.
-	                            abort();
-	                          }
-	                        }
-	                        // Revive the escaped character.
-	                        value += fromCharCode("0x" + source.slice(begin, Index));
-	                        break;
-	                      default:
-	                        // Invalid escape sequence.
-	                        abort();
-	                    }
-	                  } else {
-	                    if (charCode == 34) {
-	                      // An unescaped double-quote character marks the end of the
-	                      // string.
-	                      break;
-	                    }
-	                    charCode = source.charCodeAt(Index);
-	                    begin = Index;
-	                    // Optimize for the common case where a string is valid.
-	                    while (charCode >= 32 && charCode != 92 && charCode != 34) {
-	                      charCode = source.charCodeAt(++Index);
-	                    }
-	                    // Append the string as-is.
-	                    value += source.slice(begin, Index);
-	                  }
-	                }
-	                if (source.charCodeAt(Index) == 34) {
-	                  // Advance to the next character and return the revived string.
-	                  Index++;
-	                  return value;
-	                }
-	                // Unterminated string.
-	                abort();
-	              default:
-	                // Parse numbers and literals.
-	                begin = Index;
-	                // Advance past the negative sign, if one is specified.
-	                if (charCode == 45) {
-	                  isSigned = true;
-	                  charCode = source.charCodeAt(++Index);
-	                }
-	                // Parse an integer or floating-point value.
-	                if (charCode >= 48 && charCode <= 57) {
-	                  // Leading zeroes are interpreted as octal literals.
-	                  if (charCode == 48 && ((charCode = source.charCodeAt(Index + 1)), charCode >= 48 && charCode <= 57)) {
-	                    // Illegal octal literal.
-	                    abort();
-	                  }
-	                  isSigned = false;
-	                  // Parse the integer component.
-	                  for (; Index < length && ((charCode = source.charCodeAt(Index)), charCode >= 48 && charCode <= 57); Index++);
-	                  // Floats cannot contain a leading decimal point; however, this
-	                  // case is already accounted for by the parser.
-	                  if (source.charCodeAt(Index) == 46) {
-	                    position = ++Index;
-	                    // Parse the decimal component.
-	                    for (; position < length && ((charCode = source.charCodeAt(position)), charCode >= 48 && charCode <= 57); position++);
-	                    if (position == Index) {
-	                      // Illegal trailing decimal.
-	                      abort();
-	                    }
-	                    Index = position;
-	                  }
-	                  // Parse exponents. The `e` denoting the exponent is
-	                  // case-insensitive.
-	                  charCode = source.charCodeAt(Index);
-	                  if (charCode == 101 || charCode == 69) {
-	                    charCode = source.charCodeAt(++Index);
-	                    // Skip past the sign following the exponent, if one is
-	                    // specified.
-	                    if (charCode == 43 || charCode == 45) {
-	                      Index++;
-	                    }
-	                    // Parse the exponential component.
-	                    for (position = Index; position < length && ((charCode = source.charCodeAt(position)), charCode >= 48 && charCode <= 57); position++);
-	                    if (position == Index) {
-	                      // Illegal empty exponent.
-	                      abort();
-	                    }
-	                    Index = position;
-	                  }
-	                  // Coerce the parsed value to a JavaScript number.
-	                  return +source.slice(begin, Index);
-	                }
-	                // A negative sign may only precede numbers.
-	                if (isSigned) {
-	                  abort();
-	                }
-	                // `true`, `false`, and `null` literals.
-	                if (source.slice(Index, Index + 4) == "true") {
-	                  Index += 4;
-	                  return true;
-	                } else if (source.slice(Index, Index + 5) == "false") {
-	                  Index += 5;
-	                  return false;
-	                } else if (source.slice(Index, Index + 4) == "null") {
-	                  Index += 4;
-	                  return null;
-	                }
-	                // Unrecognized token.
-	                abort();
-	            }
-	          }
-	          // Return the sentinel `$` character if the parser has reached the end
-	          // of the source string.
-	          return "$";
-	        };
-
-	        // Internal: Parses a JSON `value` token.
-	        var get = function (value) {
-	          var results, hasMembers;
-	          if (value == "$") {
-	            // Unexpected end of input.
-	            abort();
-	          }
-	          if (typeof value == "string") {
-	            if ((charIndexBuggy ? value.charAt(0) : value[0]) == "@") {
-	              // Remove the sentinel `@` character.
-	              return value.slice(1);
-	            }
-	            // Parse object and array literals.
-	            if (value == "[") {
-	              // Parses a JSON array, returning a new JavaScript array.
-	              results = [];
-	              for (;; hasMembers || (hasMembers = true)) {
-	                value = lex();
-	                // A closing square bracket marks the end of the array literal.
-	                if (value == "]") {
-	                  break;
-	                }
-	                // If the array literal contains elements, the current token
-	                // should be a comma separating the previous element from the
-	                // next.
-	                if (hasMembers) {
-	                  if (value == ",") {
-	                    value = lex();
-	                    if (value == "]") {
-	                      // Unexpected trailing `,` in array literal.
-	                      abort();
-	                    }
-	                  } else {
-	                    // A `,` must separate each array element.
-	                    abort();
-	                  }
-	                }
-	                // Elisions and leading commas are not permitted.
-	                if (value == ",") {
-	                  abort();
-	                }
-	                results.push(get(value));
-	              }
-	              return results;
-	            } else if (value == "{") {
-	              // Parses a JSON object, returning a new JavaScript object.
-	              results = {};
-	              for (;; hasMembers || (hasMembers = true)) {
-	                value = lex();
-	                // A closing curly brace marks the end of the object literal.
-	                if (value == "}") {
-	                  break;
-	                }
-	                // If the object literal contains members, the current token
-	                // should be a comma separator.
-	                if (hasMembers) {
-	                  if (value == ",") {
-	                    value = lex();
-	                    if (value == "}") {
-	                      // Unexpected trailing `,` in object literal.
-	                      abort();
-	                    }
-	                  } else {
-	                    // A `,` must separate each object member.
-	                    abort();
-	                  }
-	                }
-	                // Leading commas are not permitted, object property names must be
-	                // double-quoted strings, and a `:` must separate each property
-	                // name and value.
-	                if (value == "," || typeof value != "string" || (charIndexBuggy ? value.charAt(0) : value[0]) != "@" || lex() != ":") {
-	                  abort();
-	                }
-	                results[value.slice(1)] = get(lex());
-	              }
-	              return results;
-	            }
-	            // Unexpected token encountered.
-	            abort();
-	          }
-	          return value;
-	        };
-
-	        // Internal: Updates a traversed object member.
-	        var update = function (source, property, callback) {
-	          var element = walk(source, property, callback);
-	          if (element === undef) {
-	            delete source[property];
-	          } else {
-	            source[property] = element;
-	          }
-	        };
-
-	        // Internal: Recursively traverses a parsed JSON object, invoking the
-	        // `callback` function for each value. This is an implementation of the
-	        // `Walk(holder, name)` operation defined in ES 5.1 section 15.12.2.
-	        var walk = function (source, property, callback) {
-	          var value = source[property], length;
-	          if (typeof value == "object" && value) {
-	            // `forEach` can't be used to traverse an array in Opera <= 8.54
-	            // because its `Object#hasOwnProperty` implementation returns `false`
-	            // for array indices (e.g., `![1, 2, 3].hasOwnProperty("0")`).
-	            if (getClass.call(value) == arrayClass) {
-	              for (length = value.length; length--;) {
-	                update(value, length, callback);
-	              }
-	            } else {
-	              forEach(value, function (property) {
-	                update(value, property, callback);
-	              });
-	            }
-	          }
-	          return callback.call(source, property, value);
-	        };
-
-	        // Public: `JSON.parse`. See ES 5.1 section 15.12.2.
-	        exports.parse = function (source, callback) {
-	          var result, value;
-	          Index = 0;
-	          Source = "" + source;
-	          result = get(lex());
-	          // If a JSON string contains multiple tokens, it is invalid.
-	          if (lex() != "$") {
-	            abort();
-	          }
-	          // Reset the parser state.
-	          Index = Source = null;
-	          return callback && getClass.call(callback) == functionClass ? walk((value = {}, value[""] = result, value), "", callback) : result;
-	        };
-	      }
-	    }
-
-	    exports["runInContext"] = runInContext;
-	    return exports;
-	  }
-
-	  if (freeExports && !isLoader) {
-	    // Export for CommonJS environments.
-	    runInContext(root, freeExports);
-	  } else {
-	    // Export for web browsers and JavaScript engines.
-	    var nativeJSON = root.JSON,
-	        previousJSON = root["JSON3"],
-	        isRestored = false;
-
-	    var JSON3 = runInContext(root, (root["JSON3"] = {
-	      // Public: Restores the original value of the global `JSON` object and
-	      // returns a reference to the `JSON3` object.
-	      "noConflict": function () {
-	        if (!isRestored) {
-	          isRestored = true;
-	          root.JSON = nativeJSON;
-	          root["JSON3"] = previousJSON;
-	          nativeJSON = previousJSON = null;
-	        }
-	        return JSON3;
-	      }
-	    }));
-
-	    root.JSON = {
-	      "parse": JSON3.parse,
-	      "stringify": JSON3.stringify
-	    };
-	  }
-
-	  // Export for asynchronous module loaders.
-	  if (isLoader) {
-	    define(function () {
-	      return JSON3;
-	    });
-	  }
-	}).call(this);
-
-	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
-	},{}],51:[function(_dereq_,module,exports){
-	module.exports = toArray
-
-	function toArray(list, index) {
-	    var array = []
-
-	    index = index || 0
-
-	    for (var i = index || 0; i < list.length; i++) {
-	        array[i - index] = list[i]
-	    }
-
-	    return array
-	}
-
-	},{}]},{},[31])(31)
-	});
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
 /* 9 */
 /***/ function(module, exports) {
 
-	"use strict";
+	/**
+	 * @license AngularJS v1.5.2
+	 * (c) 2010-2016 Google, Inc. http://angularjs.org
+	 * License: MIT
+	 */
+	(function(window, angular, undefined) {'use strict';
 
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
+	/**
+	 * @ngdoc module
+	 * @name ngAria
+	 * @description
+	 *
+	 * The `ngAria` module provides support for common
+	 * [<abbr title="Accessible Rich Internet Applications">ARIA</abbr>](http://www.w3.org/TR/wai-aria/)
+	 * attributes that convey state or semantic information about the application for users
+	 * of assistive technologies, such as screen readers.
+	 *
+	 * <div doc-module-components="ngAria"></div>
+	 *
+	 * ## Usage
+	 *
+	 * For ngAria to do its magic, simply include the module `ngAria` as a dependency. The following
+	 * directives are supported:
+	 * `ngModel`, `ngChecked`, `ngRequired`, `ngValue`, `ngDisabled`, `ngShow`, `ngHide`, `ngClick`,
+	 * `ngDblClick`, and `ngMessages`.
+	 *
+	 * Below is a more detailed breakdown of the attributes handled by ngAria:
+	 *
+	 * | Directive                                   | Supported Attributes                                                                   |
+	 * |---------------------------------------------|----------------------------------------------------------------------------------------|
+	 * | {@link ng.directive:ngModel ngModel}        | aria-checked, aria-valuemin, aria-valuemax, aria-valuenow, aria-invalid, aria-required, input roles |
+	 * | {@link ng.directive:ngDisabled ngDisabled}  | aria-disabled                                                                          |
+	 * | {@link ng.directive:ngRequired ngRequired}  | aria-required                                                                          |
+	 * | {@link ng.directive:ngChecked ngChecked}    | aria-checked                                                                           |
+	 * | {@link ng.directive:ngValue ngValue}        | aria-checked                                                                           |
+	 * | {@link ng.directive:ngShow ngShow}          | aria-hidden                                                                            |
+	 * | {@link ng.directive:ngHide ngHide}          | aria-hidden                                                                            |
+	 * | {@link ng.directive:ngDblclick ngDblclick}  | tabindex                                                                               |
+	 * | {@link module:ngMessages ngMessages}        | aria-live                                                                              |
+	 * | {@link ng.directive:ngClick ngClick}        | tabindex, keypress event, button role                                                  |
+	 *
+	 * Find out more information about each directive by reading the
+	 * {@link guide/accessibility ngAria Developer Guide}.
+	 *
+	 * ##Example
+	 * Using ngDisabled with ngAria:
+	 * ```html
+	 * <md-checkbox ng-disabled="disabled">
+	 * ```
+	 * Becomes:
+	 * ```html
+	 * <md-checkbox ng-disabled="disabled" aria-disabled="true">
+	 * ```
+	 *
+	 * ##Disabling Attributes
+	 * It's possible to disable individual attributes added by ngAria with the
+	 * {@link ngAria.$ariaProvider#config config} method. For more details, see the
+	 * {@link guide/accessibility Developer Guide}.
+	 */
+	 /* global -ngAriaModule */
+	var ngAriaModule = angular.module('ngAria', ['ng']).
+	                        provider('$aria', $AriaProvider);
 
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	/**
+	* Internal Utilities
+	*/
+	var nodeBlackList = ['BUTTON', 'A', 'INPUT', 'TEXTAREA', 'SELECT', 'DETAILS', 'SUMMARY'];
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	var isNodeOneOf = function(elem, nodeTypeArray) {
+	  if (nodeTypeArray.indexOf(elem[0].nodeName) !== -1) {
+	    return true;
+	  }
+	};
+	/**
+	 * @ngdoc provider
+	 * @name $ariaProvider
+	 *
+	 * @description
+	 *
+	 * Used for configuring the ARIA attributes injected and managed by ngAria.
+	 *
+	 * ```js
+	 * angular.module('myApp', ['ngAria'], function config($ariaProvider) {
+	 *   $ariaProvider.config({
+	 *     ariaValue: true,
+	 *     tabindex: false
+	 *   });
+	 * });
+	 *```
+	 *
+	 * ## Dependencies
+	 * Requires the {@link ngAria} module to be installed.
+	 *
+	 */
+	function $AriaProvider() {
+	  var config = {
+	    ariaHidden: true,
+	    ariaChecked: true,
+	    ariaDisabled: true,
+	    ariaRequired: true,
+	    ariaInvalid: true,
+	    ariaValue: true,
+	    tabindex: true,
+	    bindKeypress: true,
+	    bindRoleForClick: true
+	  };
 
-	var MemoryStore = function () {
-	    function MemoryStore() {
-	        var defaultState = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	  /**
+	   * @ngdoc method
+	   * @name $ariaProvider#config
+	   *
+	   * @param {object} config object to enable/disable specific ARIA attributes
+	   *
+	   *  - **ariaHidden** – `{boolean}` – Enables/disables aria-hidden tags
+	   *  - **ariaChecked** – `{boolean}` – Enables/disables aria-checked tags
+	   *  - **ariaDisabled** – `{boolean}` – Enables/disables aria-disabled tags
+	   *  - **ariaRequired** – `{boolean}` – Enables/disables aria-required tags
+	   *  - **ariaInvalid** – `{boolean}` – Enables/disables aria-invalid tags
+	   *  - **ariaValue** – `{boolean}` – Enables/disables aria-valuemin, aria-valuemax and aria-valuenow tags
+	   *  - **tabindex** – `{boolean}` – Enables/disables tabindex tags
+	   *  - **bindKeypress** – `{boolean}` – Enables/disables keypress event binding on `div` and
+	   *    `li` elements with ng-click
+	   *  - **bindRoleForClick** – `{boolean}` – Adds role=button to non-interactive elements like `div`
+	   *    using ng-click, making them more accessible to users of assistive technologies
+	   *
+	   * @description
+	   * Enables/disables various ARIA attributes
+	   */
+	  this.config = function(newConfig) {
+	    config = angular.extend(config, newConfig);
+	  };
 
-	        _classCallCheck(this, MemoryStore);
+	  function watchExpr(attrName, ariaAttr, nodeBlackList, negate) {
+	    return function(scope, elem, attr) {
+	      var ariaCamelName = attr.$normalize(ariaAttr);
+	      if (config[ariaCamelName] && !isNodeOneOf(elem, nodeBlackList) && !attr[ariaCamelName]) {
+	        scope.$watch(attr[attrName], function(boolVal) {
+	          // ensure boolean value
+	          boolVal = negate ? !boolVal : !!boolVal;
+	          elem.attr(ariaAttr, boolVal);
+	        });
+	      }
+	    };
+	  }
+	  /**
+	   * @ngdoc service
+	   * @name $aria
+	   *
+	   * @description
+	   * @priority 200
+	   *
+	   * The $aria service contains helper methods for applying common
+	   * [ARIA](http://www.w3.org/TR/wai-aria/) attributes to HTML directives.
+	   *
+	   * ngAria injects common accessibility attributes that tell assistive technologies when HTML
+	   * elements are enabled, selected, hidden, and more. To see how this is performed with ngAria,
+	   * let's review a code snippet from ngAria itself:
+	   *
+	   *```js
+	   * ngAriaModule.directive('ngDisabled', ['$aria', function($aria) {
+	   *   return $aria.$$watchExpr('ngDisabled', 'aria-disabled', nodeBlackList, false);
+	   * }])
+	   *```
+	   * Shown above, the ngAria module creates a directive with the same signature as the
+	   * traditional `ng-disabled` directive. But this ngAria version is dedicated to
+	   * solely managing accessibility attributes on custom elements. The internal `$aria` service is
+	   * used to watch the boolean attribute `ngDisabled`. If it has not been explicitly set by the
+	   * developer, `aria-disabled` is injected as an attribute with its value synchronized to the
+	   * value in `ngDisabled`.
+	   *
+	   * Because ngAria hooks into the `ng-disabled` directive, developers do not have to do
+	   * anything to enable this feature. The `aria-disabled` attribute is automatically managed
+	   * simply as a silent side-effect of using `ng-disabled` with the ngAria module.
+	   *
+	   * The full list of directives that interface with ngAria:
+	   * * **ngModel**
+	   * * **ngChecked**
+	   * * **ngRequired**
+	   * * **ngDisabled**
+	   * * **ngValue**
+	   * * **ngShow**
+	   * * **ngHide**
+	   * * **ngClick**
+	   * * **ngDblclick**
+	   * * **ngMessages**
+	   *
+	   * Read the {@link guide/accessibility ngAria Developer Guide} for a thorough explanation of each
+	   * directive.
+	   *
+	   *
+	   * ## Dependencies
+	   * Requires the {@link ngAria} module to be installed.
+	   */
+	  this.$get = function() {
+	    return {
+	      config: function(key) {
+	        return config[key];
+	      },
+	      $$watchExpr: watchExpr
+	    };
+	  };
+	}
 
-	        this._defaultState = defaultState;
-	        this._data = this._getDefaultState();
-	        this._isStored = false;
+
+	ngAriaModule.directive('ngShow', ['$aria', function($aria) {
+	  return $aria.$$watchExpr('ngShow', 'aria-hidden', [], true);
+	}])
+	.directive('ngHide', ['$aria', function($aria) {
+	  return $aria.$$watchExpr('ngHide', 'aria-hidden', [], false);
+	}])
+	.directive('ngValue', ['$aria', function($aria) {
+	  return $aria.$$watchExpr('ngValue', 'aria-checked', nodeBlackList, false);
+	}])
+	.directive('ngChecked', ['$aria', function($aria) {
+	  return $aria.$$watchExpr('ngChecked', 'aria-checked', nodeBlackList, false);
+	}])
+	.directive('ngRequired', ['$aria', function($aria) {
+	  return $aria.$$watchExpr('ngRequired', 'aria-required', nodeBlackList, false);
+	}])
+	.directive('ngModel', ['$aria', function($aria) {
+
+	  function shouldAttachAttr(attr, normalizedAttr, elem, allowBlacklistEls) {
+	    return $aria.config(normalizedAttr) && !elem.attr(attr) && (allowBlacklistEls || !isNodeOneOf(elem, nodeBlackList));
+	  }
+
+	  function shouldAttachRole(role, elem) {
+	    // if element does not have role attribute
+	    // AND element type is equal to role (if custom element has a type equaling shape) <-- remove?
+	    // AND element is not INPUT
+	    return !elem.attr('role') && (elem.attr('type') === role) && (elem[0].nodeName !== 'INPUT');
+	  }
+
+	  function getShape(attr, elem) {
+	    var type = attr.type,
+	        role = attr.role;
+
+	    return ((type || role) === 'checkbox' || role === 'menuitemcheckbox') ? 'checkbox' :
+	           ((type || role) === 'radio'    || role === 'menuitemradio') ? 'radio' :
+	           (type === 'range'              || role === 'progressbar' || role === 'slider') ? 'range' : '';
+	  }
+
+	  return {
+	    restrict: 'A',
+	    require: 'ngModel',
+	    priority: 200, //Make sure watches are fired after any other directives that affect the ngModel value
+	    compile: function(elem, attr) {
+	      var shape = getShape(attr, elem);
+
+	      return {
+	        pre: function(scope, elem, attr, ngModel) {
+	          if (shape === 'checkbox') {
+	            //Use the input[checkbox] $isEmpty implementation for elements with checkbox roles
+	            ngModel.$isEmpty = function(value) {
+	              return value === false;
+	            };
+	          }
+	        },
+	        post: function(scope, elem, attr, ngModel) {
+	          var needsTabIndex = shouldAttachAttr('tabindex', 'tabindex', elem, false);
+
+	          function ngAriaWatchModelValue() {
+	            return ngModel.$modelValue;
+	          }
+
+	          function getRadioReaction(newVal) {
+	            var boolVal = (attr.value == ngModel.$viewValue);
+	            elem.attr('aria-checked', boolVal);
+	          }
+
+	          function getCheckboxReaction() {
+	            elem.attr('aria-checked', !ngModel.$isEmpty(ngModel.$viewValue));
+	          }
+
+	          switch (shape) {
+	            case 'radio':
+	            case 'checkbox':
+	              if (shouldAttachRole(shape, elem)) {
+	                elem.attr('role', shape);
+	              }
+	              if (shouldAttachAttr('aria-checked', 'ariaChecked', elem, false)) {
+	                scope.$watch(ngAriaWatchModelValue, shape === 'radio' ?
+	                    getRadioReaction : getCheckboxReaction);
+	              }
+	              if (needsTabIndex) {
+	                elem.attr('tabindex', 0);
+	              }
+	              break;
+	            case 'range':
+	              if (shouldAttachRole(shape, elem)) {
+	                elem.attr('role', 'slider');
+	              }
+	              if ($aria.config('ariaValue')) {
+	                var needsAriaValuemin = !elem.attr('aria-valuemin') &&
+	                    (attr.hasOwnProperty('min') || attr.hasOwnProperty('ngMin'));
+	                var needsAriaValuemax = !elem.attr('aria-valuemax') &&
+	                    (attr.hasOwnProperty('max') || attr.hasOwnProperty('ngMax'));
+	                var needsAriaValuenow = !elem.attr('aria-valuenow');
+
+	                if (needsAriaValuemin) {
+	                  attr.$observe('min', function ngAriaValueMinReaction(newVal) {
+	                    elem.attr('aria-valuemin', newVal);
+	                  });
+	                }
+	                if (needsAriaValuemax) {
+	                  attr.$observe('max', function ngAriaValueMinReaction(newVal) {
+	                    elem.attr('aria-valuemax', newVal);
+	                  });
+	                }
+	                if (needsAriaValuenow) {
+	                  scope.$watch(ngAriaWatchModelValue, function ngAriaValueNowReaction(newVal) {
+	                    elem.attr('aria-valuenow', newVal);
+	                  });
+	                }
+	              }
+	              if (needsTabIndex) {
+	                elem.attr('tabindex', 0);
+	              }
+	              break;
+	          }
+
+	          if (!attr.hasOwnProperty('ngRequired') && ngModel.$validators.required
+	            && shouldAttachAttr('aria-required', 'ariaRequired', elem, false)) {
+	            // ngModel.$error.required is undefined on custom controls
+	            attr.$observe('required', function() {
+	              elem.attr('aria-required', !!attr['required']);
+	            });
+	          }
+
+	          if (shouldAttachAttr('aria-invalid', 'ariaInvalid', elem, true)) {
+	            scope.$watch(function ngAriaInvalidWatch() {
+	              return ngModel.$invalid;
+	            }, function ngAriaInvalidReaction(newVal) {
+	              elem.attr('aria-invalid', !!newVal);
+	            });
+	          }
+	        }
+	      };
 	    }
+	  };
+	}])
+	.directive('ngDisabled', ['$aria', function($aria) {
+	  return $aria.$$watchExpr('ngDisabled', 'aria-disabled', nodeBlackList, false);
+	}])
+	.directive('ngMessages', function() {
+	  return {
+	    restrict: 'A',
+	    require: '?ngMessages',
+	    link: function(scope, elem, attr, ngMessages) {
+	      if (!elem.attr('aria-live')) {
+	        elem.attr('aria-live', 'assertive');
+	      }
+	    }
+	  };
+	})
+	.directive('ngClick',['$aria', '$parse', function($aria, $parse) {
+	  return {
+	    restrict: 'A',
+	    compile: function(elem, attr) {
+	      var fn = $parse(attr.ngClick, /* interceptorFn */ null, /* expensiveChecks */ true);
+	      return function(scope, elem, attr) {
 
-	    _createClass(MemoryStore, [{
-	        key: "get",
-	        value: function get() {
-	            return this._data;
+	        if (!isNodeOneOf(elem, nodeBlackList)) {
+
+	          if ($aria.config('bindRoleForClick') && !elem.attr('role')) {
+	            elem.attr('role', 'button');
+	          }
+
+	          if ($aria.config('tabindex') && !elem.attr('tabindex')) {
+	            elem.attr('tabindex', 0);
+	          }
+
+	          if ($aria.config('bindKeypress') && !attr.ngKeypress) {
+	            elem.on('keypress', function(event) {
+	              var keyCode = event.which || event.keyCode;
+	              if (keyCode === 32 || keyCode === 13) {
+	                scope.$apply(callback);
+	              }
+
+	              function callback() {
+	                fn(scope, { $event: event });
+	              }
+	            });
+	          }
 	        }
-	    }, {
-	        key: "isStored",
-	        value: function isStored() {
-	            return this._isStored;
-	        }
-	    }, {
-	        key: "update",
-	        value: function update(dataUpdates) {
-	            var oldData = angular.copy(this._data);
-	            angular.copy(dataUpdates, this._data);
+	      };
+	    }
+	  };
+	}])
+	.directive('ngDblclick', ['$aria', function($aria) {
+	  return function(scope, elem, attr) {
+	    if ($aria.config('tabindex') && !elem.attr('tabindex') && !isNodeOneOf(elem, nodeBlackList)) {
+	      elem.attr('tabindex', 0);
+	    }
+	  };
+	}]);
 
-	            if (this.onUpdate) {
-	                this.onUpdate(this._data, oldData);
-	            }
 
-	            this._isStored = true;
+	})(window, window.angular);
 
-	            return this._data;
-	        }
-	    }, {
-	        key: "clear",
-	        value: function clear() {
-	            this.update(this._getDefaultState());
-	            this._isStored = false;
-	        }
-	    }, {
-	        key: "_getDefaultState",
-	        value: function _getDefaultState() {
-	            return angular.copy(this._defaultState);
-	        }
-	    }]);
-
-	    return MemoryStore;
-	}();
-
-	exports.default = MemoryStore;
 
 /***/ },
 /* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	   value: true
-	});
-
-	var _angular = __webpack_require__(2);
-
-	var _angular2 = _interopRequireDefault(_angular);
-
-	var _angularUiRouter = __webpack_require__(4);
-
-	var _angularUiRouter2 = _interopRequireDefault(_angularUiRouter);
-
-	var _LoginService = __webpack_require__(11);
-
-	var _LoginService2 = _interopRequireDefault(_LoginService);
-
-	var _loginRoutes = __webpack_require__(12);
-
-	var _loginRoutes2 = _interopRequireDefault(_loginRoutes);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	exports.default = _angular2.default.module('app.login', [_angularUiRouter2.default]).service('LoginService', _LoginService2.default).config(_loginRoutes2.default).name;
-
-/***/ },
-/* 11 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	var LoginService = function () {
-	    LoginService.$inject = ["$http", "$state", "IdentityStore", "$window"];
-	    function LoginService($http, $state, IdentityStore, $window) {
-	        'ngInject';
-
-	        _classCallCheck(this, LoginService);
-
-	        this.$http = $http;
-	        this.$state = $state;
-	        this.IdentityStore = IdentityStore;
-	        this.$window = $window;
-	    }
-
-	    _createClass(LoginService, [{
-	        key: 'signIn',
-	        value: function signIn(credentials) {
-	            var _this = this;
-
-	            return this.$http.post('/api/auth/local', credentials).then(function (response) {
-	                _this.IdentityStore.update(response.data);
-	                console.log(_this.IdentityStore.get());
-	            });
-	        }
-	    }, {
-	        key: 'signUp',
-	        value: function signUp(credentials) {
-
-	            return this.$http.post('/api/user', credentials).then(function (response) {
-	                console.log('Signed up succesfuly');
-	            });
-	        }
-	    }, {
-	        key: 'signInWithGitHub',
-	        value: function signInWithGitHub() {
-	            this.$window.location.href = '/api/auth/github/auth';
-	        }
-	    }, {
-	        key: 'getMe',
-	        value: function getMe() {
-	            return this.$http.get('/api/user/me');
-	        }
-	    }, {
-	        key: 'signOut',
-	        value: function signOut() {
-	            return this.$state.go('login');
-	        }
-	    }]);
-
-	    return LoginService;
-	}();
-
-	exports.default = LoginService;
-
-/***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	loginRoutes.$inject = ["$stateProvider"];
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.default = loginRoutes;
-
-	var _login = __webpack_require__(13);
-
-	var _login2 = _interopRequireDefault(_login);
-
-	var _LoginController = __webpack_require__(14);
-
-	var _LoginController2 = _interopRequireDefault(_LoginController);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function loginRoutes($stateProvider) {
-	    'ngInject';
-
-	    $stateProvider.state('main.login', {
-	        url: '/login',
-	        views: {
-	            'content@main': {
-	                template: _login2.default,
-	                controller: _LoginController2.default,
-	                controllerAs: 'loginCtrl'
-	            }
-	        }
-	    });
-	}
-
-/***/ },
-/* 13 */
-/***/ function(module, exports) {
-
-	module.exports = "<form name=\"loginCtrl.signInForm\"\n      novalidate\n      autocomplete=\"off\"\n      ng-submit=\"loginCtrl.signIn()\">\n\n    <div>\n        <header>\n            <h2>Sign In</h2>\n        </header>\n\n        <md-input-container>\n            <label>Login</label>\n            <input ng-model=\"loginCtrl.input.login\"\n                required>\n        </md-input-container>\n        <md-input-container>\n            <label>Password</label>\n            <input ng-model=\"loginCtrl.input.password\"\n                required>\n        </md-input-container>\n        <md-button class=\"md-raised md-primary\" type=\"submit\">\n            <span class=\"text\">Sign In</span>\n        </md-button>\n\n        <md-button class=\"md-raised md-primary\"\n            ng-click=\"loginCtrl.signInWithGitHub()\">\n            Sign In With GitHub\n        </md-button>\n    </div>\n\n</form>\n\n<br>\n<br>\n\n<md-divider md-inset></md-divider>\n\n\n<br>\n<br>\n\n<form name=\"loginCtrl.signUpForm\"\n      novalidate\n      autocomplete=\"off\"\n      ng-submit=\"loginCtrl.signUp()\">\n\n    <div>\n        <header>\n            <h2>Sign Up</h2>\n        </header>\n\n        <md-input-container>\n            <label>Login</label>\n            <input ng-model=\"loginCtrl.input.name\"\n                required>\n        </md-input-container>\n        <md-input-container>\n            <label>Password</label>\n            <input ng-model=\"loginCtrl.input.password\"\n                required>\n        </md-input-container>\n        <md-button type=\"submit\"\n            class=\"md-raised md-primary\">\n            <span class=\"text\">SignUp</span>\n        </md-button>\n\n        <md-button type=\"button\"\n            class=\"md-raised md-primary\"\n            ng-click=\"loginCtrl.signUpWithGinhub()\">\n            Sign up with github\n        </md-button>\n    </div>\n\n</form>\n\n<br>\n<br>\n\n<md-divider md-inset></md-divider>\n\n\n<br>\n<br>\n\n<md-button type=\"button\"\n    class=\"md-raised md-primary\"\n    ng-click=\"loginCtrl.getMe()\">\n    Get me\n</md-button>\n\n"
-
-/***/ },
-/* 14 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _LoginForm = __webpack_require__(15);
-
-	var _LoginForm2 = _interopRequireDefault(_LoginForm);
-
-	var _LOGIN_EXCEPTIONS = __webpack_require__(16);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	var LoginController = function () {
-	    LoginController.$inject = ["$state", "LoginService"];
-	    function LoginController($state, LoginService) {
-	        'ngInject';
-
-	        _classCallCheck(this, LoginController);
-
-	        this.signInForm = {};
-	        this.signUpForm = {};
-	        this.$state = $state;
-	        this.LoginService = LoginService;
-	        this.input = _LoginForm2.default.getFields();
-	    }
-
-	    _createClass(LoginController, [{
-	        key: 'signIn',
-	        value: function signIn() {
-	            this.LoginService.signIn(this.input);
-	        }
-	    }, {
-	        key: 'signUp',
-	        value: function signUp() {
-	            this.LoginService.signUp(this.input);
-	        }
-	    }, {
-	        key: 'signInWithGitHub',
-	        value: function signInWithGitHub() {
-	            this.LoginService.signInWithGitHub();
-	        }
-	    }, {
-	        key: 'getMe',
-	        value: function getMe() {
-	            this.LoginService.getMe();
-	        }
-	    }, {
-	        key: 'signUpWithGitGub',
-	        value: function signUpWithGitGub() {}
-	    }]);
-
-	    return LoginController;
-	}();
-
-	exports.default = LoginController;
-
-/***/ },
-/* 15 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	var LoginForm = function () {
-	    function LoginForm() {
-	        _classCallCheck(this, LoginForm);
-	    }
-
-	    _createClass(LoginForm, null, [{
-	        key: 'getFields',
-	        value: function getFields() {
-	            return {
-	                login: '',
-	                password: ''
-	            };
-	        }
-	    }]);
-
-	    return LoginForm;
-	}();
-
-	exports.default = LoginForm;
-
-/***/ },
-/* 16 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	var LOGIN_EXCEPTIONS = exports.LOGIN_EXCEPTIONS = {
-	    USER_NOT_FOUND: 'UserNotFoundException',
-	    USER_BAD_CREDENTIALS: 'PosBadCredentialsException',
-	    USER_DISABLED: 'OperatorDisabledException',
-	    USER_LOCKED: 'LockedException',
-	    USER_ACCESS_DENIED: 'AuthorizationException'
-	};
-
-/***/ },
-/* 17 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _angular = __webpack_require__(2);
-
-	var _angular2 = _interopRequireDefault(_angular);
-
-	var _angularUiRouter = __webpack_require__(4);
-
-	var _angularUiRouter2 = _interopRequireDefault(_angularUiRouter);
-
-	var _pokerRoutes = __webpack_require__(18);
-
-	var _pokerRoutes2 = _interopRequireDefault(_pokerRoutes);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	exports.default = _angular2.default.module('app.poker', [_angularUiRouter2.default]).config(_pokerRoutes2.default).name;
-
-/***/ },
-/* 18 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	pokerRoutes.$inject = ["$stateProvider"];
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.default = pokerRoutes;
-
-	var _poker = __webpack_require__(19);
-
-	var _poker2 = _interopRequireDefault(_poker);
-
-	var _PokerController = __webpack_require__(20);
-
-	var _PokerController2 = _interopRequireDefault(_PokerController);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function pokerRoutes($stateProvider) {
-	    'ngInject';
-
-	    $stateProvider.state('main.poker', {
-	        url: '/poker',
-	        views: {
-	            'content@main': {
-	                template: _poker2.default,
-	                controller: _PokerController2.default,
-	                controllerAs: 'pokerCtrl'
-	            }
-	        }
-	    });
-	}
-
-/***/ },
-/* 19 */
-/***/ function(module, exports) {
-
-	module.exports = " <div>\n    <div>\n        <div>Hello</div>\n        <div>\n            <div id=\"users\">\n                <div ng-repeat=\"user in pokerCtrl.activeUsers\">{{user.userName}} - {{user.mark}} </div>\n            </div>\n            <ul id=\"marks\">\n                <li ng-repeat=\"score in pokerCtrl.SCORES\"\n                    ng-click=\"pokerCtrl.onMyMarkSelect(score)\">{{score}}</li>\n            </ul>\n\n        </div>\n\n    </div>\n</div>\n"
-
-/***/ },
-/* 20 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _SCORES = __webpack_require__(21);
-
-	var _SCORES2 = _interopRequireDefault(_SCORES);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	var PokerController = function () {
-	    PokerController.$inject = ["SocketService", "IdentityStore"];
-	    function PokerController(SocketService, IdentityStore) {
-	        'ngInject';
-
-	        _classCallCheck(this, PokerController);
-
-	        this.currentUser = IdentityStore.get();
-	        this.SCORES = _SCORES2.default;
-	        this.socket = SocketService;
-	        this.activeUsers = [];
-	        this.socket.on('newUser', this.newUser.bind(this));
-	        this.socket.on('onMarkSelect', this.onSomeoneMarkSelect.bind(this));
-	        this.socket.emit('joinPoker', { userId: this.currentUser._id });
-	    }
-
-	    _createClass(PokerController, [{
-	        key: 'newUser',
-	        value: function newUser(data) {
-	            console.log('newUser', data);
-	            this.activeUsers.push(data);
-	            console.log('all', this.activeUsers);
-	        }
-	    }, {
-	        key: 'onMyMarkSelect',
-	        value: function onMyMarkSelect(mark) {
-	            console.log('onMyMarkSelect', mark);
-	            this.socket.emit('selectMark', {
-	                userId: this.currentUser._id,
-	                mark: mark
-	            });
-	        }
-	    }, {
-	        key: 'onSomeoneMarkSelect',
-	        value: function onSomeoneMarkSelect(data) {
-	            console.log('someoneMark', data);
-
-	            this.activeUsers.forEach(function (user) {
-	                if (user.userId === data.userId) user.mark = data.mark;
-	            });
-	        }
-	    }]);
-
-	    return PokerController;
-	}();
-
-	exports.default = PokerController;
-
-/***/ },
-/* 21 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-	exports.default = [0.5, 1, 2, 3, 5, 8, 13, 21];
-
-/***/ },
-/* 22 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _angular = __webpack_require__(2);
-
-	var _angular2 = _interopRequireDefault(_angular);
-
-	var _IdentityStore = __webpack_require__(23);
-
-	var _IdentityStore2 = _interopRequireDefault(_IdentityStore);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	exports.default = _angular2.default.module('app.auth', []).service('IdentityStore', _IdentityStore2.default).name;
-
-/***/ },
-/* 23 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _MemoryStore2 = __webpack_require__(9);
-
-	var _MemoryStore3 = _interopRequireDefault(_MemoryStore2);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var IdentityStore = function (_MemoryStore) {
-	    _inherits(IdentityStore, _MemoryStore);
-
-	    function IdentityStore() {
-	        'ngInject';
-
-	        _classCallCheck(this, IdentityStore);
-
-	        return _possibleConstructorReturn(this, Object.getPrototypeOf(IdentityStore).call(this));
-	    }
-
-	    return IdentityStore;
-	}(_MemoryStore3.default);
-
-	exports.default = IdentityStore;
-
-/***/ },
-/* 24 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	routeConfig.$inject = ["$urlRouterProvider"];
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.default = routeConfig;
-	function routeConfig($urlRouterProvider) {
-	    'ngInject';
-
-	    $urlRouterProvider.otherwise('/');
-	}
-
-/***/ },
-/* 25 */
 /***/ function(module, exports) {
 
 	/*!
@@ -68113,4561 +64724,7725 @@ Object.defineProperty(Array.prototype, 'find', {
 	})(window, window.angular);;window.ngMaterial={version:{full: "1.0.6"}};
 
 /***/ },
-/* 26 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
-	// Should already be required, here for clarity
-	__webpack_require__(2);
+	'use strict';
 
-	// Load Angular and dependent libs
-	__webpack_require__(27);
-	__webpack_require__(29);
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
 
-	// Now load Angular Material
-	__webpack_require__(25);
+	var _shared = __webpack_require__(12);
 
-	// Export namespace
-	module.exports = 'ngMaterial';
+	var _shared2 = _interopRequireDefault(_shared);
 
+	var _login = __webpack_require__(16);
+
+	var _login2 = _interopRequireDefault(_login);
+
+	var _poker = __webpack_require__(23);
+
+	var _poker2 = _interopRequireDefault(_poker);
+
+	var _auth = __webpack_require__(28);
+
+	var _auth2 = _interopRequireDefault(_auth);
+
+	var _main = __webpack_require__(30);
+
+	var _main2 = _interopRequireDefault(_main);
+
+	var _landing = __webpack_require__(35);
+
+	var _landing2 = _interopRequireDefault(_landing);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.default = [_shared2.default, _login2.default, _poker2.default, _auth2.default, _main2.default, _landing2.default];
 
 /***/ },
-/* 27 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(28);
-	module.exports = 'ngAnimate';
+	'use strict';
 
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _angular = __webpack_require__(2);
+
+	var _angular2 = _interopRequireDefault(_angular);
+
+	var _SocketService = __webpack_require__(13);
+
+	var _SocketService2 = _interopRequireDefault(_SocketService);
+
+	var _MemoryStore = __webpack_require__(15);
+
+	var _MemoryStore2 = _interopRequireDefault(_MemoryStore);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.default = _angular2.default.module('shared', []).service('SocketService', _SocketService2.default).service('MemoryStore', _MemoryStore2.default).name;
 
 /***/ },
-/* 28 */
-/***/ function(module, exports) {
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _socketIo = __webpack_require__(14);
+
+	var _socketIo2 = _interopRequireDefault(_socketIo);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var SocketService = function () {
+	    SocketService.$inject = ["$rootScope"];
+	    function SocketService($rootScope) {
+	        'ngInject';
+
+	        _classCallCheck(this, SocketService);
+
+	        this.$rootScope = $rootScope;
+	        this.socket = _socketIo2.default.connect();
+	    }
+
+	    _createClass(SocketService, [{
+	        key: 'on',
+	        value: function on(eventName, callback) {
+	            function wrapper() {
+	                var _this = this;
+
+	                var args = arguments;
+	                this.$rootScope.$apply(function () {
+	                    callback.apply(_this.socket, args);
+	                });
+	            }
+
+	            this.socket.on(eventName, wrapper.bind(this));
+
+	            return function () {
+	                socket.removeListener(eventName, wrapper);
+	            };
+	        }
+	    }, {
+	        key: 'emit',
+	        value: function emit(eventName, data, callback) {
+	            var _arguments = arguments,
+	                _this2 = this;
+
+	            this.socket.emit(eventName, data, function () {
+	                var args = _arguments;
+	                _this2.$rootScope.$apply(function () {
+	                    if (callback) {
+	                        callback.apply(_this2.socket, args);
+	                    }
+	                });
+	            });
+	        }
+	    }]);
+
+	    return SocketService;
+	}();
+
+	exports.default = SocketService;
+
+/***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var require;var require;/* WEBPACK VAR INJECTION */(function(global) {(function(f){if(true){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.io = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return require(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+
+	module.exports =  _dereq_('./lib/');
+
+	},{"./lib/":2}],2:[function(_dereq_,module,exports){
+
+	module.exports = _dereq_('./socket');
 
 	/**
-	 * @license AngularJS v1.5.2
-	 * (c) 2010-2016 Google, Inc. http://angularjs.org
-	 * License: MIT
+	 * Exports parser
+	 *
+	 * @api public
+	 *
 	 */
-	(function(window, angular, undefined) {'use strict';
+	module.exports.parser = _dereq_('engine.io-parser');
 
-	/* jshint ignore:start */
-	var noop        = angular.noop;
-	var copy        = angular.copy;
-	var extend      = angular.extend;
-	var jqLite      = angular.element;
-	var forEach     = angular.forEach;
-	var isArray     = angular.isArray;
-	var isString    = angular.isString;
-	var isObject    = angular.isObject;
-	var isUndefined = angular.isUndefined;
-	var isDefined   = angular.isDefined;
-	var isFunction  = angular.isFunction;
-	var isElement   = angular.isElement;
+	},{"./socket":3,"engine.io-parser":19}],3:[function(_dereq_,module,exports){
+	(function (global){
+	/**
+	 * Module dependencies.
+	 */
 
-	var ELEMENT_NODE = 1;
-	var COMMENT_NODE = 8;
+	var transports = _dereq_('./transports');
+	var Emitter = _dereq_('component-emitter');
+	var debug = _dereq_('debug')('engine.io-client:socket');
+	var index = _dereq_('indexof');
+	var parser = _dereq_('engine.io-parser');
+	var parseuri = _dereq_('parseuri');
+	var parsejson = _dereq_('parsejson');
+	var parseqs = _dereq_('parseqs');
 
-	var ADD_CLASS_SUFFIX = '-add';
-	var REMOVE_CLASS_SUFFIX = '-remove';
-	var EVENT_CLASS_PREFIX = 'ng-';
-	var ACTIVE_CLASS_SUFFIX = '-active';
-	var PREPARE_CLASS_SUFFIX = '-prepare';
+	/**
+	 * Module exports.
+	 */
 
-	var NG_ANIMATE_CLASSNAME = 'ng-animate';
-	var NG_ANIMATE_CHILDREN_DATA = '$$ngAnimateChildren';
+	module.exports = Socket;
 
-	// Detect proper transitionend/animationend event names.
-	var CSS_PREFIX = '', TRANSITION_PROP, TRANSITIONEND_EVENT, ANIMATION_PROP, ANIMATIONEND_EVENT;
+	/**
+	 * Noop function.
+	 *
+	 * @api private
+	 */
 
-	// If unprefixed events are not supported but webkit-prefixed are, use the latter.
-	// Otherwise, just use W3C names, browsers not supporting them at all will just ignore them.
-	// Note: Chrome implements `window.onwebkitanimationend` and doesn't implement `window.onanimationend`
-	// but at the same time dispatches the `animationend` event and not `webkitAnimationEnd`.
-	// Register both events in case `window.onanimationend` is not supported because of that,
-	// do the same for `transitionend` as Safari is likely to exhibit similar behavior.
-	// Also, the only modern browser that uses vendor prefixes for transitions/keyframes is webkit
-	// therefore there is no reason to test anymore for other vendor prefixes:
-	// http://caniuse.com/#search=transition
-	if (isUndefined(window.ontransitionend) && isDefined(window.onwebkittransitionend)) {
-	  CSS_PREFIX = '-webkit-';
-	  TRANSITION_PROP = 'WebkitTransition';
-	  TRANSITIONEND_EVENT = 'webkitTransitionEnd transitionend';
-	} else {
-	  TRANSITION_PROP = 'transition';
-	  TRANSITIONEND_EVENT = 'transitionend';
+	function noop(){}
+
+	/**
+	 * Socket constructor.
+	 *
+	 * @param {String|Object} uri or options
+	 * @param {Object} options
+	 * @api public
+	 */
+
+	function Socket(uri, opts){
+	  if (!(this instanceof Socket)) return new Socket(uri, opts);
+
+	  opts = opts || {};
+
+	  if (uri && 'object' == typeof uri) {
+	    opts = uri;
+	    uri = null;
+	  }
+
+	  if (uri) {
+	    uri = parseuri(uri);
+	    opts.hostname = uri.host;
+	    opts.secure = uri.protocol == 'https' || uri.protocol == 'wss';
+	    opts.port = uri.port;
+	    if (uri.query) opts.query = uri.query;
+	  } else if (opts.host) {
+	    opts.hostname = parseuri(opts.host).host;
+	  }
+
+	  this.secure = null != opts.secure ? opts.secure :
+	    (global.location && 'https:' == location.protocol);
+
+	  if (opts.hostname && !opts.port) {
+	    // if no port is specified manually, use the protocol default
+	    opts.port = this.secure ? '443' : '80';
+	  }
+
+	  this.agent = opts.agent || false;
+	  this.hostname = opts.hostname ||
+	    (global.location ? location.hostname : 'localhost');
+	  this.port = opts.port || (global.location && location.port ?
+	       location.port :
+	       (this.secure ? 443 : 80));
+	  this.query = opts.query || {};
+	  if ('string' == typeof this.query) this.query = parseqs.decode(this.query);
+	  this.upgrade = false !== opts.upgrade;
+	  this.path = (opts.path || '/engine.io').replace(/\/$/, '') + '/';
+	  this.forceJSONP = !!opts.forceJSONP;
+	  this.jsonp = false !== opts.jsonp;
+	  this.forceBase64 = !!opts.forceBase64;
+	  this.enablesXDR = !!opts.enablesXDR;
+	  this.timestampParam = opts.timestampParam || 't';
+	  this.timestampRequests = opts.timestampRequests;
+	  this.transports = opts.transports || ['polling', 'websocket'];
+	  this.readyState = '';
+	  this.writeBuffer = [];
+	  this.policyPort = opts.policyPort || 843;
+	  this.rememberUpgrade = opts.rememberUpgrade || false;
+	  this.binaryType = null;
+	  this.onlyBinaryUpgrades = opts.onlyBinaryUpgrades;
+	  this.perMessageDeflate = false !== opts.perMessageDeflate ? (opts.perMessageDeflate || {}) : false;
+
+	  if (true === this.perMessageDeflate) this.perMessageDeflate = {};
+	  if (this.perMessageDeflate && null == this.perMessageDeflate.threshold) {
+	    this.perMessageDeflate.threshold = 1024;
+	  }
+
+	  // SSL options for Node.js client
+	  this.pfx = opts.pfx || null;
+	  this.key = opts.key || null;
+	  this.passphrase = opts.passphrase || null;
+	  this.cert = opts.cert || null;
+	  this.ca = opts.ca || null;
+	  this.ciphers = opts.ciphers || null;
+	  this.rejectUnauthorized = opts.rejectUnauthorized === undefined ? null : opts.rejectUnauthorized;
+
+	  // other options for Node.js client
+	  var freeGlobal = typeof global == 'object' && global;
+	  if (freeGlobal.global === freeGlobal) {
+	    if (opts.extraHeaders && Object.keys(opts.extraHeaders).length > 0) {
+	      this.extraHeaders = opts.extraHeaders;
+	    }
+	  }
+
+	  this.open();
 	}
 
-	if (isUndefined(window.onanimationend) && isDefined(window.onwebkitanimationend)) {
-	  CSS_PREFIX = '-webkit-';
-	  ANIMATION_PROP = 'WebkitAnimation';
-	  ANIMATIONEND_EVENT = 'webkitAnimationEnd animationend';
-	} else {
-	  ANIMATION_PROP = 'animation';
-	  ANIMATIONEND_EVENT = 'animationend';
-	}
+	Socket.priorWebsocketSuccess = false;
 
-	var DURATION_KEY = 'Duration';
-	var PROPERTY_KEY = 'Property';
-	var DELAY_KEY = 'Delay';
-	var TIMING_KEY = 'TimingFunction';
-	var ANIMATION_ITERATION_COUNT_KEY = 'IterationCount';
-	var ANIMATION_PLAYSTATE_KEY = 'PlayState';
-	var SAFE_FAST_FORWARD_DURATION_VALUE = 9999;
+	/**
+	 * Mix in `Emitter`.
+	 */
 
-	var ANIMATION_DELAY_PROP = ANIMATION_PROP + DELAY_KEY;
-	var ANIMATION_DURATION_PROP = ANIMATION_PROP + DURATION_KEY;
-	var TRANSITION_DELAY_PROP = TRANSITION_PROP + DELAY_KEY;
-	var TRANSITION_DURATION_PROP = TRANSITION_PROP + DURATION_KEY;
+	Emitter(Socket.prototype);
 
-	var isPromiseLike = function(p) {
-	  return p && p.then ? true : false;
+	/**
+	 * Protocol version.
+	 *
+	 * @api public
+	 */
+
+	Socket.protocol = parser.protocol; // this is an int
+
+	/**
+	 * Expose deps for legacy compatibility
+	 * and standalone browser access.
+	 */
+
+	Socket.Socket = Socket;
+	Socket.Transport = _dereq_('./transport');
+	Socket.transports = _dereq_('./transports');
+	Socket.parser = _dereq_('engine.io-parser');
+
+	/**
+	 * Creates transport of the given type.
+	 *
+	 * @param {String} transport name
+	 * @return {Transport}
+	 * @api private
+	 */
+
+	Socket.prototype.createTransport = function (name) {
+	  debug('creating transport "%s"', name);
+	  var query = clone(this.query);
+
+	  // append engine.io protocol identifier
+	  query.EIO = parser.protocol;
+
+	  // transport name
+	  query.transport = name;
+
+	  // session id if we already have one
+	  if (this.id) query.sid = this.id;
+
+	  var transport = new transports[name]({
+	    agent: this.agent,
+	    hostname: this.hostname,
+	    port: this.port,
+	    secure: this.secure,
+	    path: this.path,
+	    query: query,
+	    forceJSONP: this.forceJSONP,
+	    jsonp: this.jsonp,
+	    forceBase64: this.forceBase64,
+	    enablesXDR: this.enablesXDR,
+	    timestampRequests: this.timestampRequests,
+	    timestampParam: this.timestampParam,
+	    policyPort: this.policyPort,
+	    socket: this,
+	    pfx: this.pfx,
+	    key: this.key,
+	    passphrase: this.passphrase,
+	    cert: this.cert,
+	    ca: this.ca,
+	    ciphers: this.ciphers,
+	    rejectUnauthorized: this.rejectUnauthorized,
+	    perMessageDeflate: this.perMessageDeflate,
+	    extraHeaders: this.extraHeaders
+	  });
+
+	  return transport;
 	};
 
-	var ngMinErr = angular.$$minErr('ng');
-	function assertArg(arg, name, reason) {
-	  if (!arg) {
-	    throw ngMinErr('areq', "Argument '{0}' is {1}", (name || '?'), (reason || "required"));
-	  }
-	  return arg;
-	}
-
-	function mergeClasses(a,b) {
-	  if (!a && !b) return '';
-	  if (!a) return b;
-	  if (!b) return a;
-	  if (isArray(a)) a = a.join(' ');
-	  if (isArray(b)) b = b.join(' ');
-	  return a + ' ' + b;
-	}
-
-	function packageStyles(options) {
-	  var styles = {};
-	  if (options && (options.to || options.from)) {
-	    styles.to = options.to;
-	    styles.from = options.from;
-	  }
-	  return styles;
-	}
-
-	function pendClasses(classes, fix, isPrefix) {
-	  var className = '';
-	  classes = isArray(classes)
-	      ? classes
-	      : classes && isString(classes) && classes.length
-	          ? classes.split(/\s+/)
-	          : [];
-	  forEach(classes, function(klass, i) {
-	    if (klass && klass.length > 0) {
-	      className += (i > 0) ? ' ' : '';
-	      className += isPrefix ? fix + klass
-	                            : klass + fix;
+	function clone (obj) {
+	  var o = {};
+	  for (var i in obj) {
+	    if (obj.hasOwnProperty(i)) {
+	      o[i] = obj[i];
 	    }
-	  });
-	  return className;
-	}
-
-	function removeFromArray(arr, val) {
-	  var index = arr.indexOf(val);
-	  if (val >= 0) {
-	    arr.splice(index, 1);
 	  }
+	  return o;
 	}
 
-	function stripCommentsFromElement(element) {
-	  if (element instanceof jqLite) {
-	    switch (element.length) {
-	      case 0:
-	        return [];
+	/**
+	 * Initializes transport to use and starts probe.
+	 *
+	 * @api private
+	 */
+	Socket.prototype.open = function () {
+	  var transport;
+	  if (this.rememberUpgrade && Socket.priorWebsocketSuccess && this.transports.indexOf('websocket') != -1) {
+	    transport = 'websocket';
+	  } else if (0 === this.transports.length) {
+	    // Emit error on next tick so it can be listened to
+	    var self = this;
+	    setTimeout(function() {
+	      self.emit('error', 'No transports available');
+	    }, 0);
+	    return;
+	  } else {
+	    transport = this.transports[0];
+	  }
+	  this.readyState = 'opening';
+
+	  // Retry with the next transport if the transport is disabled (jsonp: false)
+	  try {
+	    transport = this.createTransport(transport);
+	  } catch (e) {
+	    this.transports.shift();
+	    this.open();
+	    return;
+	  }
+
+	  transport.open();
+	  this.setTransport(transport);
+	};
+
+	/**
+	 * Sets the current transport. Disables the existing one (if any).
+	 *
+	 * @api private
+	 */
+
+	Socket.prototype.setTransport = function(transport){
+	  debug('setting transport %s', transport.name);
+	  var self = this;
+
+	  if (this.transport) {
+	    debug('clearing existing transport %s', this.transport.name);
+	    this.transport.removeAllListeners();
+	  }
+
+	  // set up transport
+	  this.transport = transport;
+
+	  // set up transport listeners
+	  transport
+	  .on('drain', function(){
+	    self.onDrain();
+	  })
+	  .on('packet', function(packet){
+	    self.onPacket(packet);
+	  })
+	  .on('error', function(e){
+	    self.onError(e);
+	  })
+	  .on('close', function(){
+	    self.onClose('transport close');
+	  });
+	};
+
+	/**
+	 * Probes a transport.
+	 *
+	 * @param {String} transport name
+	 * @api private
+	 */
+
+	Socket.prototype.probe = function (name) {
+	  debug('probing transport "%s"', name);
+	  var transport = this.createTransport(name, { probe: 1 })
+	    , failed = false
+	    , self = this;
+
+	  Socket.priorWebsocketSuccess = false;
+
+	  function onTransportOpen(){
+	    if (self.onlyBinaryUpgrades) {
+	      var upgradeLosesBinary = !this.supportsBinary && self.transport.supportsBinary;
+	      failed = failed || upgradeLosesBinary;
+	    }
+	    if (failed) return;
+
+	    debug('probe transport "%s" opened', name);
+	    transport.send([{ type: 'ping', data: 'probe' }]);
+	    transport.once('packet', function (msg) {
+	      if (failed) return;
+	      if ('pong' == msg.type && 'probe' == msg.data) {
+	        debug('probe transport "%s" pong', name);
+	        self.upgrading = true;
+	        self.emit('upgrading', transport);
+	        if (!transport) return;
+	        Socket.priorWebsocketSuccess = 'websocket' == transport.name;
+
+	        debug('pausing current transport "%s"', self.transport.name);
+	        self.transport.pause(function () {
+	          if (failed) return;
+	          if ('closed' == self.readyState) return;
+	          debug('changing transport and sending upgrade packet');
+
+	          cleanup();
+
+	          self.setTransport(transport);
+	          transport.send([{ type: 'upgrade' }]);
+	          self.emit('upgrade', transport);
+	          transport = null;
+	          self.upgrading = false;
+	          self.flush();
+	        });
+	      } else {
+	        debug('probe transport "%s" failed', name);
+	        var err = new Error('probe error');
+	        err.transport = transport.name;
+	        self.emit('upgradeError', err);
+	      }
+	    });
+	  }
+
+	  function freezeTransport() {
+	    if (failed) return;
+
+	    // Any callback called by transport should be ignored since now
+	    failed = true;
+
+	    cleanup();
+
+	    transport.close();
+	    transport = null;
+	  }
+
+	  //Handle any error that happens while probing
+	  function onerror(err) {
+	    var error = new Error('probe error: ' + err);
+	    error.transport = transport.name;
+
+	    freezeTransport();
+
+	    debug('probe transport "%s" failed because of error: %s', name, err);
+
+	    self.emit('upgradeError', error);
+	  }
+
+	  function onTransportClose(){
+	    onerror("transport closed");
+	  }
+
+	  //When the socket is closed while we're probing
+	  function onclose(){
+	    onerror("socket closed");
+	  }
+
+	  //When the socket is upgraded while we're probing
+	  function onupgrade(to){
+	    if (transport && to.name != transport.name) {
+	      debug('"%s" works - aborting "%s"', to.name, transport.name);
+	      freezeTransport();
+	    }
+	  }
+
+	  //Remove all listeners on the transport and on self
+	  function cleanup(){
+	    transport.removeListener('open', onTransportOpen);
+	    transport.removeListener('error', onerror);
+	    transport.removeListener('close', onTransportClose);
+	    self.removeListener('close', onclose);
+	    self.removeListener('upgrading', onupgrade);
+	  }
+
+	  transport.once('open', onTransportOpen);
+	  transport.once('error', onerror);
+	  transport.once('close', onTransportClose);
+
+	  this.once('close', onclose);
+	  this.once('upgrading', onupgrade);
+
+	  transport.open();
+
+	};
+
+	/**
+	 * Called when connection is deemed open.
+	 *
+	 * @api public
+	 */
+
+	Socket.prototype.onOpen = function () {
+	  debug('socket open');
+	  this.readyState = 'open';
+	  Socket.priorWebsocketSuccess = 'websocket' == this.transport.name;
+	  this.emit('open');
+	  this.flush();
+
+	  // we check for `readyState` in case an `open`
+	  // listener already closed the socket
+	  if ('open' == this.readyState && this.upgrade && this.transport.pause) {
+	    debug('starting upgrade probes');
+	    for (var i = 0, l = this.upgrades.length; i < l; i++) {
+	      this.probe(this.upgrades[i]);
+	    }
+	  }
+	};
+
+	/**
+	 * Handles a packet.
+	 *
+	 * @api private
+	 */
+
+	Socket.prototype.onPacket = function (packet) {
+	  if ('opening' == this.readyState || 'open' == this.readyState) {
+	    debug('socket receive: type "%s", data "%s"', packet.type, packet.data);
+
+	    this.emit('packet', packet);
+
+	    // Socket is live - any packet counts
+	    this.emit('heartbeat');
+
+	    switch (packet.type) {
+	      case 'open':
+	        this.onHandshake(parsejson(packet.data));
 	        break;
 
-	      case 1:
-	        // there is no point of stripping anything if the element
-	        // is the only element within the jqLite wrapper.
-	        // (it's important that we retain the element instance.)
-	        if (element[0].nodeType === ELEMENT_NODE) {
-	          return element;
-	        }
+	      case 'pong':
+	        this.setPing();
+	        this.emit('pong');
 	        break;
 
-	      default:
-	        return jqLite(extractElementNode(element));
+	      case 'error':
+	        var err = new Error('server error');
+	        err.code = packet.data;
+	        this.onError(err);
+	        break;
+
+	      case 'message':
+	        this.emit('data', packet.data);
+	        this.emit('message', packet.data);
 	        break;
 	    }
+	  } else {
+	    debug('packet received with socket readyState "%s"', this.readyState);
 	  }
+	};
 
-	  if (element.nodeType === ELEMENT_NODE) {
-	    return jqLite(element);
-	  }
-	}
+	/**
+	 * Called upon handshake completion.
+	 *
+	 * @param {Object} handshake obj
+	 * @api private
+	 */
 
-	function extractElementNode(element) {
-	  if (!element[0]) return element;
-	  for (var i = 0; i < element.length; i++) {
-	    var elm = element[i];
-	    if (elm.nodeType == ELEMENT_NODE) {
-	      return elm;
-	    }
-	  }
-	}
+	Socket.prototype.onHandshake = function (data) {
+	  this.emit('handshake', data);
+	  this.id = data.sid;
+	  this.transport.query.sid = data.sid;
+	  this.upgrades = this.filterUpgrades(data.upgrades);
+	  this.pingInterval = data.pingInterval;
+	  this.pingTimeout = data.pingTimeout;
+	  this.onOpen();
+	  // In case open handler closes socket
+	  if  ('closed' == this.readyState) return;
+	  this.setPing();
 
-	function $$addClass($$jqLite, element, className) {
-	  forEach(element, function(elm) {
-	    $$jqLite.addClass(elm, className);
+	  // Prolong liveness of socket on heartbeat
+	  this.removeListener('heartbeat', this.onHeartbeat);
+	  this.on('heartbeat', this.onHeartbeat);
+	};
+
+	/**
+	 * Resets ping timeout.
+	 *
+	 * @api private
+	 */
+
+	Socket.prototype.onHeartbeat = function (timeout) {
+	  clearTimeout(this.pingTimeoutTimer);
+	  var self = this;
+	  self.pingTimeoutTimer = setTimeout(function () {
+	    if ('closed' == self.readyState) return;
+	    self.onClose('ping timeout');
+	  }, timeout || (self.pingInterval + self.pingTimeout));
+	};
+
+	/**
+	 * Pings server every `this.pingInterval` and expects response
+	 * within `this.pingTimeout` or closes connection.
+	 *
+	 * @api private
+	 */
+
+	Socket.prototype.setPing = function () {
+	  var self = this;
+	  clearTimeout(self.pingIntervalTimer);
+	  self.pingIntervalTimer = setTimeout(function () {
+	    debug('writing ping packet - expecting pong within %sms', self.pingTimeout);
+	    self.ping();
+	    self.onHeartbeat(self.pingTimeout);
+	  }, self.pingInterval);
+	};
+
+	/**
+	* Sends a ping packet.
+	*
+	* @api private
+	*/
+
+	Socket.prototype.ping = function () {
+	  var self = this;
+	  this.sendPacket('ping', function(){
+	    self.emit('ping');
 	  });
-	}
+	};
 
-	function $$removeClass($$jqLite, element, className) {
-	  forEach(element, function(elm) {
-	    $$jqLite.removeClass(elm, className);
-	  });
-	}
+	/**
+	 * Called on `drain` event
+	 *
+	 * @api private
+	 */
 
-	function applyAnimationClassesFactory($$jqLite) {
-	  return function(element, options) {
-	    if (options.addClass) {
-	      $$addClass($$jqLite, element, options.addClass);
-	      options.addClass = null;
-	    }
-	    if (options.removeClass) {
-	      $$removeClass($$jqLite, element, options.removeClass);
-	      options.removeClass = null;
-	    }
+	Socket.prototype.onDrain = function() {
+	  this.writeBuffer.splice(0, this.prevBufferLen);
+
+	  // setting prevBufferLen = 0 is very important
+	  // for example, when upgrading, upgrade packet is sent over,
+	  // and a nonzero prevBufferLen could cause problems on `drain`
+	  this.prevBufferLen = 0;
+
+	  if (0 === this.writeBuffer.length) {
+	    this.emit('drain');
+	  } else {
+	    this.flush();
 	  }
-	}
+	};
 
-	function prepareAnimationOptions(options) {
+	/**
+	 * Flush write buffers.
+	 *
+	 * @api private
+	 */
+
+	Socket.prototype.flush = function () {
+	  if ('closed' != this.readyState && this.transport.writable &&
+	    !this.upgrading && this.writeBuffer.length) {
+	    debug('flushing %d packets in socket', this.writeBuffer.length);
+	    this.transport.send(this.writeBuffer);
+	    // keep track of current length of writeBuffer
+	    // splice writeBuffer and callbackBuffer on `drain`
+	    this.prevBufferLen = this.writeBuffer.length;
+	    this.emit('flush');
+	  }
+	};
+
+	/**
+	 * Sends a message.
+	 *
+	 * @param {String} message.
+	 * @param {Function} callback function.
+	 * @param {Object} options.
+	 * @return {Socket} for chaining.
+	 * @api public
+	 */
+
+	Socket.prototype.write =
+	Socket.prototype.send = function (msg, options, fn) {
+	  this.sendPacket('message', msg, options, fn);
+	  return this;
+	};
+
+	/**
+	 * Sends a packet.
+	 *
+	 * @param {String} packet type.
+	 * @param {String} data.
+	 * @param {Object} options.
+	 * @param {Function} callback function.
+	 * @api private
+	 */
+
+	Socket.prototype.sendPacket = function (type, data, options, fn) {
+	  if('function' == typeof data) {
+	    fn = data;
+	    data = undefined;
+	  }
+
+	  if ('function' == typeof options) {
+	    fn = options;
+	    options = null;
+	  }
+
+	  if ('closing' == this.readyState || 'closed' == this.readyState) {
+	    return;
+	  }
+
 	  options = options || {};
-	  if (!options.$$prepared) {
-	    var domOperation = options.domOperation || noop;
-	    options.domOperation = function() {
-	      options.$$domOperationFired = true;
-	      domOperation();
-	      domOperation = noop;
-	    };
-	    options.$$prepared = true;
-	  }
-	  return options;
-	}
+	  options.compress = false !== options.compress;
 
-	function applyAnimationStyles(element, options) {
-	  applyAnimationFromStyles(element, options);
-	  applyAnimationToStyles(element, options);
-	}
-
-	function applyAnimationFromStyles(element, options) {
-	  if (options.from) {
-	    element.css(options.from);
-	    options.from = null;
-	  }
-	}
-
-	function applyAnimationToStyles(element, options) {
-	  if (options.to) {
-	    element.css(options.to);
-	    options.to = null;
-	  }
-	}
-
-	function mergeAnimationDetails(element, oldAnimation, newAnimation) {
-	  var target = oldAnimation.options || {};
-	  var newOptions = newAnimation.options || {};
-
-	  var toAdd = (target.addClass || '') + ' ' + (newOptions.addClass || '');
-	  var toRemove = (target.removeClass || '') + ' ' + (newOptions.removeClass || '');
-	  var classes = resolveElementClasses(element.attr('class'), toAdd, toRemove);
-
-	  if (newOptions.preparationClasses) {
-	    target.preparationClasses = concatWithSpace(newOptions.preparationClasses, target.preparationClasses);
-	    delete newOptions.preparationClasses;
-	  }
-
-	  // noop is basically when there is no callback; otherwise something has been set
-	  var realDomOperation = target.domOperation !== noop ? target.domOperation : null;
-
-	  extend(target, newOptions);
-
-	  // TODO(matsko or sreeramu): proper fix is to maintain all animation callback in array and call at last,but now only leave has the callback so no issue with this.
-	  if (realDomOperation) {
-	    target.domOperation = realDomOperation;
-	  }
-
-	  if (classes.addClass) {
-	    target.addClass = classes.addClass;
-	  } else {
-	    target.addClass = null;
-	  }
-
-	  if (classes.removeClass) {
-	    target.removeClass = classes.removeClass;
-	  } else {
-	    target.removeClass = null;
-	  }
-
-	  oldAnimation.addClass = target.addClass;
-	  oldAnimation.removeClass = target.removeClass;
-
-	  return target;
-	}
-
-	function resolveElementClasses(existing, toAdd, toRemove) {
-	  var ADD_CLASS = 1;
-	  var REMOVE_CLASS = -1;
-
-	  var flags = {};
-	  existing = splitClassesToLookup(existing);
-
-	  toAdd = splitClassesToLookup(toAdd);
-	  forEach(toAdd, function(value, key) {
-	    flags[key] = ADD_CLASS;
-	  });
-
-	  toRemove = splitClassesToLookup(toRemove);
-	  forEach(toRemove, function(value, key) {
-	    flags[key] = flags[key] === ADD_CLASS ? null : REMOVE_CLASS;
-	  });
-
-	  var classes = {
-	    addClass: '',
-	    removeClass: ''
+	  var packet = {
+	    type: type,
+	    data: data,
+	    options: options
 	  };
-
-	  forEach(flags, function(val, klass) {
-	    var prop, allow;
-	    if (val === ADD_CLASS) {
-	      prop = 'addClass';
-	      allow = !existing[klass];
-	    } else if (val === REMOVE_CLASS) {
-	      prop = 'removeClass';
-	      allow = existing[klass];
-	    }
-	    if (allow) {
-	      if (classes[prop].length) {
-	        classes[prop] += ' ';
-	      }
-	      classes[prop] += klass;
-	    }
-	  });
-
-	  function splitClassesToLookup(classes) {
-	    if (isString(classes)) {
-	      classes = classes.split(' ');
-	    }
-
-	    var obj = {};
-	    forEach(classes, function(klass) {
-	      // sometimes the split leaves empty string values
-	      // incase extra spaces were applied to the options
-	      if (klass.length) {
-	        obj[klass] = true;
-	      }
-	    });
-	    return obj;
-	  }
-
-	  return classes;
-	}
-
-	function getDomNode(element) {
-	  return (element instanceof angular.element) ? element[0] : element;
-	}
-
-	function applyGeneratedPreparationClasses(element, event, options) {
-	  var classes = '';
-	  if (event) {
-	    classes = pendClasses(event, EVENT_CLASS_PREFIX, true);
-	  }
-	  if (options.addClass) {
-	    classes = concatWithSpace(classes, pendClasses(options.addClass, ADD_CLASS_SUFFIX));
-	  }
-	  if (options.removeClass) {
-	    classes = concatWithSpace(classes, pendClasses(options.removeClass, REMOVE_CLASS_SUFFIX));
-	  }
-	  if (classes.length) {
-	    options.preparationClasses = classes;
-	    element.addClass(classes);
-	  }
-	}
-
-	function clearGeneratedClasses(element, options) {
-	  if (options.preparationClasses) {
-	    element.removeClass(options.preparationClasses);
-	    options.preparationClasses = null;
-	  }
-	  if (options.activeClasses) {
-	    element.removeClass(options.activeClasses);
-	    options.activeClasses = null;
-	  }
-	}
-
-	function blockTransitions(node, duration) {
-	  // we use a negative delay value since it performs blocking
-	  // yet it doesn't kill any existing transitions running on the
-	  // same element which makes this safe for class-based animations
-	  var value = duration ? '-' + duration + 's' : '';
-	  applyInlineStyle(node, [TRANSITION_DELAY_PROP, value]);
-	  return [TRANSITION_DELAY_PROP, value];
-	}
-
-	function blockKeyframeAnimations(node, applyBlock) {
-	  var value = applyBlock ? 'paused' : '';
-	  var key = ANIMATION_PROP + ANIMATION_PLAYSTATE_KEY;
-	  applyInlineStyle(node, [key, value]);
-	  return [key, value];
-	}
-
-	function applyInlineStyle(node, styleTuple) {
-	  var prop = styleTuple[0];
-	  var value = styleTuple[1];
-	  node.style[prop] = value;
-	}
-
-	function concatWithSpace(a,b) {
-	  if (!a) return b;
-	  if (!b) return a;
-	  return a + ' ' + b;
-	}
-
-	var $$rAFSchedulerFactory = ['$$rAF', function($$rAF) {
-	  var queue, cancelFn;
-
-	  function scheduler(tasks) {
-	    // we make a copy since RAFScheduler mutates the state
-	    // of the passed in array variable and this would be difficult
-	    // to track down on the outside code
-	    queue = queue.concat(tasks);
-	    nextTick();
-	  }
-
-	  queue = scheduler.queue = [];
-
-	  /* waitUntilQuiet does two things:
-	   * 1. It will run the FINAL `fn` value only when an uncanceled RAF has passed through
-	   * 2. It will delay the next wave of tasks from running until the quiet `fn` has run.
-	   *
-	   * The motivation here is that animation code can request more time from the scheduler
-	   * before the next wave runs. This allows for certain DOM properties such as classes to
-	   * be resolved in time for the next animation to run.
-	   */
-	  scheduler.waitUntilQuiet = function(fn) {
-	    if (cancelFn) cancelFn();
-
-	    cancelFn = $$rAF(function() {
-	      cancelFn = null;
-	      fn();
-	      nextTick();
-	    });
-	  };
-
-	  return scheduler;
-
-	  function nextTick() {
-	    if (!queue.length) return;
-
-	    var items = queue.shift();
-	    for (var i = 0; i < items.length; i++) {
-	      items[i]();
-	    }
-
-	    if (!cancelFn) {
-	      $$rAF(function() {
-	        if (!cancelFn) nextTick();
-	      });
-	    }
-	  }
-	}];
-
-	/**
-	 * @ngdoc directive
-	 * @name ngAnimateChildren
-	 * @restrict AE
-	 * @element ANY
-	 *
-	 * @description
-	 *
-	 * ngAnimateChildren allows you to specify that children of this element should animate even if any
-	 * of the children's parents are currently animating. By default, when an element has an active `enter`, `leave`, or `move`
-	 * (structural) animation, child elements that also have an active structural animation are not animated.
-	 *
-	 * Note that even if `ngAnimteChildren` is set, no child animations will run when the parent element is removed from the DOM (`leave` animation).
-	 *
-	 *
-	 * @param {string} ngAnimateChildren If the value is empty, `true` or `on`,
-	 *     then child animations are allowed. If the value is `false`, child animations are not allowed.
-	 *
-	 * @example
-	 * <example module="ngAnimateChildren" name="ngAnimateChildren" deps="angular-animate.js" animations="true">
-	     <file name="index.html">
-	       <div ng-controller="mainController as main">
-	         <label>Show container? <input type="checkbox" ng-model="main.enterElement" /></label>
-	         <label>Animate children? <input type="checkbox" ng-model="main.animateChildren" /></label>
-	         <hr>
-	         <div ng-animate-children="{{main.animateChildren}}">
-	           <div ng-if="main.enterElement" class="container">
-	             List of items:
-	             <div ng-repeat="item in [0, 1, 2, 3]" class="item">Item {{item}}</div>
-	           </div>
-	         </div>
-	       </div>
-	     </file>
-	     <file name="animations.css">
-
-	      .container.ng-enter,
-	      .container.ng-leave {
-	        transition: all ease 1.5s;
-	      }
-
-	      .container.ng-enter,
-	      .container.ng-leave-active {
-	        opacity: 0;
-	      }
-
-	      .container.ng-leave,
-	      .container.ng-enter-active {
-	        opacity: 1;
-	      }
-
-	      .item {
-	        background: firebrick;
-	        color: #FFF;
-	        margin-bottom: 10px;
-	      }
-
-	      .item.ng-enter,
-	      .item.ng-leave {
-	        transition: transform 1.5s ease;
-	      }
-
-	      .item.ng-enter {
-	        transform: translateX(50px);
-	      }
-
-	      .item.ng-enter-active {
-	        transform: translateX(0);
-	      }
-	    </file>
-	    <file name="script.js">
-	      angular.module('ngAnimateChildren', ['ngAnimate'])
-	        .controller('mainController', function() {
-	          this.animateChildren = false;
-	          this.enterElement = false;
-	        });
-	    </file>
-	  </example>
-	 */
-	var $$AnimateChildrenDirective = ['$interpolate', function($interpolate) {
-	  return {
-	    link: function(scope, element, attrs) {
-	      var val = attrs.ngAnimateChildren;
-	      if (angular.isString(val) && val.length === 0) { //empty attribute
-	        element.data(NG_ANIMATE_CHILDREN_DATA, true);
-	      } else {
-	        // Interpolate and set the value, so that it is available to
-	        // animations that run right after compilation
-	        setData($interpolate(val)(scope));
-	        attrs.$observe('ngAnimateChildren', setData);
-	      }
-
-	      function setData(value) {
-	        value = value === 'on' || value === 'true';
-	        element.data(NG_ANIMATE_CHILDREN_DATA, value);
-	      }
-	    }
-	  };
-	}];
-
-	var ANIMATE_TIMER_KEY = '$$animateCss';
-
-	/**
-	 * @ngdoc service
-	 * @name $animateCss
-	 * @kind object
-	 *
-	 * @description
-	 * The `$animateCss` service is a useful utility to trigger customized CSS-based transitions/keyframes
-	 * from a JavaScript-based animation or directly from a directive. The purpose of `$animateCss` is NOT
-	 * to side-step how `$animate` and ngAnimate work, but the goal is to allow pre-existing animations or
-	 * directives to create more complex animations that can be purely driven using CSS code.
-	 *
-	 * Note that only browsers that support CSS transitions and/or keyframe animations are capable of
-	 * rendering animations triggered via `$animateCss` (bad news for IE9 and lower).
-	 *
-	 * ## Usage
-	 * Once again, `$animateCss` is designed to be used inside of a registered JavaScript animation that
-	 * is powered by ngAnimate. It is possible to use `$animateCss` directly inside of a directive, however,
-	 * any automatic control over cancelling animations and/or preventing animations from being run on
-	 * child elements will not be handled by Angular. For this to work as expected, please use `$animate` to
-	 * trigger the animation and then setup a JavaScript animation that injects `$animateCss` to trigger
-	 * the CSS animation.
-	 *
-	 * The example below shows how we can create a folding animation on an element using `ng-if`:
-	 *
-	 * ```html
-	 * <!-- notice the `fold-animation` CSS class -->
-	 * <div ng-if="onOff" class="fold-animation">
-	 *   This element will go BOOM
-	 * </div>
-	 * <button ng-click="onOff=true">Fold In</button>
-	 * ```
-	 *
-	 * Now we create the **JavaScript animation** that will trigger the CSS transition:
-	 *
-	 * ```js
-	 * ngModule.animation('.fold-animation', ['$animateCss', function($animateCss) {
-	 *   return {
-	 *     enter: function(element, doneFn) {
-	 *       var height = element[0].offsetHeight;
-	 *       return $animateCss(element, {
-	 *         from: { height:'0px' },
-	 *         to: { height:height + 'px' },
-	 *         duration: 1 // one second
-	 *       });
-	 *     }
-	 *   }
-	 * }]);
-	 * ```
-	 *
-	 * ## More Advanced Uses
-	 *
-	 * `$animateCss` is the underlying code that ngAnimate uses to power **CSS-based animations** behind the scenes. Therefore CSS hooks
-	 * like `.ng-EVENT`, `.ng-EVENT-active`, `.ng-EVENT-stagger` are all features that can be triggered using `$animateCss` via JavaScript code.
-	 *
-	 * This also means that just about any combination of adding classes, removing classes, setting styles, dynamically setting a keyframe animation,
-	 * applying a hardcoded duration or delay value, changing the animation easing or applying a stagger animation are all options that work with
-	 * `$animateCss`. The service itself is smart enough to figure out the combination of options and examine the element styling properties in order
-	 * to provide a working animation that will run in CSS.
-	 *
-	 * The example below showcases a more advanced version of the `.fold-animation` from the example above:
-	 *
-	 * ```js
-	 * ngModule.animation('.fold-animation', ['$animateCss', function($animateCss) {
-	 *   return {
-	 *     enter: function(element, doneFn) {
-	 *       var height = element[0].offsetHeight;
-	 *       return $animateCss(element, {
-	 *         addClass: 'red large-text pulse-twice',
-	 *         easing: 'ease-out',
-	 *         from: { height:'0px' },
-	 *         to: { height:height + 'px' },
-	 *         duration: 1 // one second
-	 *       });
-	 *     }
-	 *   }
-	 * }]);
-	 * ```
-	 *
-	 * Since we're adding/removing CSS classes then the CSS transition will also pick those up:
-	 *
-	 * ```css
-	 * /&#42; since a hardcoded duration value of 1 was provided in the JavaScript animation code,
-	 * the CSS classes below will be transitioned despite them being defined as regular CSS classes &#42;/
-	 * .red { background:red; }
-	 * .large-text { font-size:20px; }
-	 *
-	 * /&#42; we can also use a keyframe animation and $animateCss will make it work alongside the transition &#42;/
-	 * .pulse-twice {
-	 *   animation: 0.5s pulse linear 2;
-	 *   -webkit-animation: 0.5s pulse linear 2;
-	 * }
-	 *
-	 * @keyframes pulse {
-	 *   from { transform: scale(0.5); }
-	 *   to { transform: scale(1.5); }
-	 * }
-	 *
-	 * @-webkit-keyframes pulse {
-	 *   from { -webkit-transform: scale(0.5); }
-	 *   to { -webkit-transform: scale(1.5); }
-	 * }
-	 * ```
-	 *
-	 * Given this complex combination of CSS classes, styles and options, `$animateCss` will figure everything out and make the animation happen.
-	 *
-	 * ## How the Options are handled
-	 *
-	 * `$animateCss` is very versatile and intelligent when it comes to figuring out what configurations to apply to the element to ensure the animation
-	 * works with the options provided. Say for example we were adding a class that contained a keyframe value and we wanted to also animate some inline
-	 * styles using the `from` and `to` properties.
-	 *
-	 * ```js
-	 * var animator = $animateCss(element, {
-	 *   from: { background:'red' },
-	 *   to: { background:'blue' }
-	 * });
-	 * animator.start();
-	 * ```
-	 *
-	 * ```css
-	 * .rotating-animation {
-	 *   animation:0.5s rotate linear;
-	 *   -webkit-animation:0.5s rotate linear;
-	 * }
-	 *
-	 * @keyframes rotate {
-	 *   from { transform: rotate(0deg); }
-	 *   to { transform: rotate(360deg); }
-	 * }
-	 *
-	 * @-webkit-keyframes rotate {
-	 *   from { -webkit-transform: rotate(0deg); }
-	 *   to { -webkit-transform: rotate(360deg); }
-	 * }
-	 * ```
-	 *
-	 * The missing pieces here are that we do not have a transition set (within the CSS code nor within the `$animateCss` options) and the duration of the animation is
-	 * going to be detected from what the keyframe styles on the CSS class are. In this event, `$animateCss` will automatically create an inline transition
-	 * style matching the duration detected from the keyframe style (which is present in the CSS class that is being added) and then prepare both the transition
-	 * and keyframe animations to run in parallel on the element. Then when the animation is underway the provided `from` and `to` CSS styles will be applied
-	 * and spread across the transition and keyframe animation.
-	 *
-	 * ## What is returned
-	 *
-	 * `$animateCss` works in two stages: a preparation phase and an animation phase. Therefore when `$animateCss` is first called it will NOT actually
-	 * start the animation. All that is going on here is that the element is being prepared for the animation (which means that the generated CSS classes are
-	 * added and removed on the element). Once `$animateCss` is called it will return an object with the following properties:
-	 *
-	 * ```js
-	 * var animator = $animateCss(element, { ... });
-	 * ```
-	 *
-	 * Now what do the contents of our `animator` variable look like:
-	 *
-	 * ```js
-	 * {
-	 *   // starts the animation
-	 *   start: Function,
-	 *
-	 *   // ends (aborts) the animation
-	 *   end: Function
-	 * }
-	 * ```
-	 *
-	 * To actually start the animation we need to run `animation.start()` which will then return a promise that we can hook into to detect when the animation ends.
-	 * If we choose not to run the animation then we MUST run `animation.end()` to perform a cleanup on the element (since some CSS classes and styles may have been
-	 * applied to the element during the preparation phase). Note that all other properties such as duration, delay, transitions and keyframes are just properties
-	 * and that changing them will not reconfigure the parameters of the animation.
-	 *
-	 * ### runner.done() vs runner.then()
-	 * It is documented that `animation.start()` will return a promise object and this is true, however, there is also an additional method available on the
-	 * runner called `.done(callbackFn)`. The done method works the same as `.finally(callbackFn)`, however, it does **not trigger a digest to occur**.
-	 * Therefore, for performance reasons, it's always best to use `runner.done(callback)` instead of `runner.then()`, `runner.catch()` or `runner.finally()`
-	 * unless you really need a digest to kick off afterwards.
-	 *
-	 * Keep in mind that, to make this easier, ngAnimate has tweaked the JS animations API to recognize when a runner instance is returned from $animateCss
-	 * (so there is no need to call `runner.done(doneFn)` inside of your JavaScript animation code).
-	 * Check the {@link ngAnimate.$animateCss#usage animation code above} to see how this works.
-	 *
-	 * @param {DOMElement} element the element that will be animated
-	 * @param {object} options the animation-related options that will be applied during the animation
-	 *
-	 * * `event` - The DOM event (e.g. enter, leave, move). When used, a generated CSS class of `ng-EVENT` and `ng-EVENT-active` will be applied
-	 * to the element during the animation. Multiple events can be provided when spaces are used as a separator. (Note that this will not perform any DOM operation.)
-	 * * `structural` - Indicates that the `ng-` prefix will be added to the event class. Setting to `false` or omitting will turn `ng-EVENT` and
-	 * `ng-EVENT-active` in `EVENT` and `EVENT-active`. Unused if `event` is omitted.
-	 * * `easing` - The CSS easing value that will be applied to the transition or keyframe animation (or both).
-	 * * `transitionStyle` - The raw CSS transition style that will be used (e.g. `1s linear all`).
-	 * * `keyframeStyle` - The raw CSS keyframe animation style that will be used (e.g. `1s my_animation linear`).
-	 * * `from` - The starting CSS styles (a key/value object) that will be applied at the start of the animation.
-	 * * `to` - The ending CSS styles (a key/value object) that will be applied across the animation via a CSS transition.
-	 * * `addClass` - A space separated list of CSS classes that will be added to the element and spread across the animation.
-	 * * `removeClass` - A space separated list of CSS classes that will be removed from the element and spread across the animation.
-	 * * `duration` - A number value representing the total duration of the transition and/or keyframe (note that a value of 1 is 1000ms). If a value of `0`
-	 * is provided then the animation will be skipped entirely.
-	 * * `delay` - A number value representing the total delay of the transition and/or keyframe (note that a value of 1 is 1000ms). If a value of `true` is
-	 * used then whatever delay value is detected from the CSS classes will be mirrored on the elements styles (e.g. by setting delay true then the style value
-	 * of the element will be `transition-delay: DETECTED_VALUE`). Using `true` is useful when you want the CSS classes and inline styles to all share the same
-	 * CSS delay value.
-	 * * `stagger` - A numeric time value representing the delay between successively animated elements
-	 * ({@link ngAnimate#css-staggering-animations Click here to learn how CSS-based staggering works in ngAnimate.})
-	 * * `staggerIndex` - The numeric index representing the stagger item (e.g. a value of 5 is equal to the sixth item in the stagger; therefore when a
-	 *   `stagger` option value of `0.1` is used then there will be a stagger delay of `600ms`)
-	 * * `applyClassesEarly` - Whether or not the classes being added or removed will be used when detecting the animation. This is set by `$animate` when enter/leave/move animations are fired to ensure that the CSS classes are resolved in time. (Note that this will prevent any transitions from occurring on the classes being added and removed.)
-	 * * `cleanupStyles` - Whether or not the provided `from` and `to` styles will be removed once
-	 *    the animation is closed. This is useful for when the styles are used purely for the sake of
-	 *    the animation and do not have a lasting visual effect on the element (e.g. a collapse and open animation).
-	 *    By default this value is set to `false`.
-	 *
-	 * @return {object} an object with start and end methods and details about the animation.
-	 *
-	 * * `start` - The method to start the animation. This will return a `Promise` when called.
-	 * * `end` - This method will cancel the animation and remove all applied CSS classes and styles.
-	 */
-	var ONE_SECOND = 1000;
-	var BASE_TEN = 10;
-
-	var ELAPSED_TIME_MAX_DECIMAL_PLACES = 3;
-	var CLOSING_TIME_BUFFER = 1.5;
-
-	var DETECT_CSS_PROPERTIES = {
-	  transitionDuration:      TRANSITION_DURATION_PROP,
-	  transitionDelay:         TRANSITION_DELAY_PROP,
-	  transitionProperty:      TRANSITION_PROP + PROPERTY_KEY,
-	  animationDuration:       ANIMATION_DURATION_PROP,
-	  animationDelay:          ANIMATION_DELAY_PROP,
-	  animationIterationCount: ANIMATION_PROP + ANIMATION_ITERATION_COUNT_KEY
+	  this.emit('packetCreate', packet);
+	  this.writeBuffer.push(packet);
+	  if (fn) this.once('flush', fn);
+	  this.flush();
 	};
 
-	var DETECT_STAGGER_CSS_PROPERTIES = {
-	  transitionDuration:      TRANSITION_DURATION_PROP,
-	  transitionDelay:         TRANSITION_DELAY_PROP,
-	  animationDuration:       ANIMATION_DURATION_PROP,
-	  animationDelay:          ANIMATION_DELAY_PROP
+	/**
+	 * Closes the connection.
+	 *
+	 * @api private
+	 */
+
+	Socket.prototype.close = function () {
+	  if ('opening' == this.readyState || 'open' == this.readyState) {
+	    this.readyState = 'closing';
+
+	    var self = this;
+
+	    if (this.writeBuffer.length) {
+	      this.once('drain', function() {
+	        if (this.upgrading) {
+	          waitForUpgrade();
+	        } else {
+	          close();
+	        }
+	      });
+	    } else if (this.upgrading) {
+	      waitForUpgrade();
+	    } else {
+	      close();
+	    }
+	  }
+
+	  function close() {
+	    self.onClose('forced close');
+	    debug('socket closing - telling transport to close');
+	    self.transport.close();
+	  }
+
+	  function cleanupAndClose() {
+	    self.removeListener('upgrade', cleanupAndClose);
+	    self.removeListener('upgradeError', cleanupAndClose);
+	    close();
+	  }
+
+	  function waitForUpgrade() {
+	    // wait for upgrade to finish since we can't send packets while pausing a transport
+	    self.once('upgrade', cleanupAndClose);
+	    self.once('upgradeError', cleanupAndClose);
+	  }
+
+	  return this;
 	};
 
-	function getCssKeyframeDurationStyle(duration) {
-	  return [ANIMATION_DURATION_PROP, duration + 's'];
+	/**
+	 * Called upon transport error
+	 *
+	 * @api private
+	 */
+
+	Socket.prototype.onError = function (err) {
+	  debug('socket error %j', err);
+	  Socket.priorWebsocketSuccess = false;
+	  this.emit('error', err);
+	  this.onClose('transport error', err);
+	};
+
+	/**
+	 * Called upon transport close.
+	 *
+	 * @api private
+	 */
+
+	Socket.prototype.onClose = function (reason, desc) {
+	  if ('opening' == this.readyState || 'open' == this.readyState || 'closing' == this.readyState) {
+	    debug('socket close with reason: "%s"', reason);
+	    var self = this;
+
+	    // clear timers
+	    clearTimeout(this.pingIntervalTimer);
+	    clearTimeout(this.pingTimeoutTimer);
+
+	    // stop event from firing again for transport
+	    this.transport.removeAllListeners('close');
+
+	    // ensure transport won't stay open
+	    this.transport.close();
+
+	    // ignore further transport communication
+	    this.transport.removeAllListeners();
+
+	    // set ready state
+	    this.readyState = 'closed';
+
+	    // clear session id
+	    this.id = null;
+
+	    // emit close event
+	    this.emit('close', reason, desc);
+
+	    // clean buffers after, so users can still
+	    // grab the buffers on `close` event
+	    self.writeBuffer = [];
+	    self.prevBufferLen = 0;
+	  }
+	};
+
+	/**
+	 * Filters upgrades, returning only those matching client transports.
+	 *
+	 * @param {Array} server upgrades
+	 * @api private
+	 *
+	 */
+
+	Socket.prototype.filterUpgrades = function (upgrades) {
+	  var filteredUpgrades = [];
+	  for (var i = 0, j = upgrades.length; i<j; i++) {
+	    if (~index(this.transports, upgrades[i])) filteredUpgrades.push(upgrades[i]);
+	  }
+	  return filteredUpgrades;
+	};
+
+	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
+	},{"./transport":4,"./transports":5,"component-emitter":15,"debug":17,"engine.io-parser":19,"indexof":23,"parsejson":26,"parseqs":27,"parseuri":28}],4:[function(_dereq_,module,exports){
+	/**
+	 * Module dependencies.
+	 */
+
+	var parser = _dereq_('engine.io-parser');
+	var Emitter = _dereq_('component-emitter');
+
+	/**
+	 * Module exports.
+	 */
+
+	module.exports = Transport;
+
+	/**
+	 * Transport abstract constructor.
+	 *
+	 * @param {Object} options.
+	 * @api private
+	 */
+
+	function Transport (opts) {
+	  this.path = opts.path;
+	  this.hostname = opts.hostname;
+	  this.port = opts.port;
+	  this.secure = opts.secure;
+	  this.query = opts.query;
+	  this.timestampParam = opts.timestampParam;
+	  this.timestampRequests = opts.timestampRequests;
+	  this.readyState = '';
+	  this.agent = opts.agent || false;
+	  this.socket = opts.socket;
+	  this.enablesXDR = opts.enablesXDR;
+
+	  // SSL options for Node.js client
+	  this.pfx = opts.pfx;
+	  this.key = opts.key;
+	  this.passphrase = opts.passphrase;
+	  this.cert = opts.cert;
+	  this.ca = opts.ca;
+	  this.ciphers = opts.ciphers;
+	  this.rejectUnauthorized = opts.rejectUnauthorized;
+
+	  // other options for Node.js client
+	  this.extraHeaders = opts.extraHeaders;
 	}
 
-	function getCssDelayStyle(delay, isKeyframeAnimation) {
-	  var prop = isKeyframeAnimation ? ANIMATION_DELAY_PROP : TRANSITION_DELAY_PROP;
-	  return [prop, delay + 's'];
-	}
+	/**
+	 * Mix in `Emitter`.
+	 */
 
-	function computeCssStyles($window, element, properties) {
-	  var styles = Object.create(null);
-	  var detectedStyles = $window.getComputedStyle(element) || {};
-	  forEach(properties, function(formalStyleName, actualStyleName) {
-	    var val = detectedStyles[formalStyleName];
-	    if (val) {
-	      var c = val.charAt(0);
+	Emitter(Transport.prototype);
 
-	      // only numerical-based values have a negative sign or digit as the first value
-	      if (c === '-' || c === '+' || c >= 0) {
-	        val = parseMaxTime(val);
-	      }
+	/**
+	 * Emits an error.
+	 *
+	 * @param {String} str
+	 * @return {Transport} for chaining
+	 * @api public
+	 */
 
-	      // by setting this to null in the event that the delay is not set or is set directly as 0
-	      // then we can still allow for negative values to be used later on and not mistake this
-	      // value for being greater than any other negative value.
-	      if (val === 0) {
-	        val = null;
-	      }
-	      styles[actualStyleName] = val;
-	    }
-	  });
+	Transport.prototype.onError = function (msg, desc) {
+	  var err = new Error(msg);
+	  err.type = 'TransportError';
+	  err.description = desc;
+	  this.emit('error', err);
+	  return this;
+	};
 
-	  return styles;
-	}
+	/**
+	 * Opens the transport.
+	 *
+	 * @api public
+	 */
 
-	function parseMaxTime(str) {
-	  var maxValue = 0;
-	  var values = str.split(/\s*,\s*/);
-	  forEach(values, function(value) {
-	    // it's always safe to consider only second values and omit `ms` values since
-	    // getComputedStyle will always handle the conversion for us
-	    if (value.charAt(value.length - 1) == 's') {
-	      value = value.substring(0, value.length - 1);
-	    }
-	    value = parseFloat(value) || 0;
-	    maxValue = maxValue ? Math.max(value, maxValue) : value;
-	  });
-	  return maxValue;
-	}
+	Transport.prototype.open = function () {
+	  if ('closed' == this.readyState || '' == this.readyState) {
+	    this.readyState = 'opening';
+	    this.doOpen();
+	  }
 
-	function truthyTimingValue(val) {
-	  return val === 0 || val != null;
-	}
+	  return this;
+	};
 
-	function getCssTransitionDurationStyle(duration, applyOnlyDuration) {
-	  var style = TRANSITION_PROP;
-	  var value = duration + 's';
-	  if (applyOnlyDuration) {
-	    style += DURATION_KEY;
+	/**
+	 * Closes the transport.
+	 *
+	 * @api private
+	 */
+
+	Transport.prototype.close = function () {
+	  if ('opening' == this.readyState || 'open' == this.readyState) {
+	    this.doClose();
+	    this.onClose();
+	  }
+
+	  return this;
+	};
+
+	/**
+	 * Sends multiple packets.
+	 *
+	 * @param {Array} packets
+	 * @api private
+	 */
+
+	Transport.prototype.send = function(packets){
+	  if ('open' == this.readyState) {
+	    this.write(packets);
 	  } else {
-	    value += ' linear all';
+	    throw new Error('Transport not open');
 	  }
-	  return [style, value];
-	}
+	};
 
-	function createLocalCacheLookup() {
-	  var cache = Object.create(null);
-	  return {
-	    flush: function() {
-	      cache = Object.create(null);
-	    },
+	/**
+	 * Called upon open
+	 *
+	 * @api private
+	 */
 
-	    count: function(key) {
-	      var entry = cache[key];
-	      return entry ? entry.total : 0;
-	    },
+	Transport.prototype.onOpen = function () {
+	  this.readyState = 'open';
+	  this.writable = true;
+	  this.emit('open');
+	};
 
-	    get: function(key) {
-	      var entry = cache[key];
-	      return entry && entry.value;
-	    },
+	/**
+	 * Called with data.
+	 *
+	 * @param {String} data
+	 * @api private
+	 */
 
-	    put: function(key, value) {
-	      if (!cache[key]) {
-	        cache[key] = { total: 1, value: value };
-	      } else {
-	        cache[key].total++;
-	      }
+	Transport.prototype.onData = function(data){
+	  var packet = parser.decodePacket(data, this.socket.binaryType);
+	  this.onPacket(packet);
+	};
+
+	/**
+	 * Called with a decoded packet.
+	 */
+
+	Transport.prototype.onPacket = function (packet) {
+	  this.emit('packet', packet);
+	};
+
+	/**
+	 * Called upon close.
+	 *
+	 * @api private
+	 */
+
+	Transport.prototype.onClose = function () {
+	  this.readyState = 'closed';
+	  this.emit('close');
+	};
+
+	},{"component-emitter":15,"engine.io-parser":19}],5:[function(_dereq_,module,exports){
+	(function (global){
+	/**
+	 * Module dependencies
+	 */
+
+	var XMLHttpRequest = _dereq_('xmlhttprequest-ssl');
+	var XHR = _dereq_('./polling-xhr');
+	var JSONP = _dereq_('./polling-jsonp');
+	var websocket = _dereq_('./websocket');
+
+	/**
+	 * Export transports.
+	 */
+
+	exports.polling = polling;
+	exports.websocket = websocket;
+
+	/**
+	 * Polling transport polymorphic constructor.
+	 * Decides on xhr vs jsonp based on feature detection.
+	 *
+	 * @api private
+	 */
+
+	function polling(opts){
+	  var xhr;
+	  var xd = false;
+	  var xs = false;
+	  var jsonp = false !== opts.jsonp;
+
+	  if (global.location) {
+	    var isSSL = 'https:' == location.protocol;
+	    var port = location.port;
+
+	    // some user agents have empty `location.port`
+	    if (!port) {
+	      port = isSSL ? 443 : 80;
 	    }
-	  };
+
+	    xd = opts.hostname != location.hostname || port != opts.port;
+	    xs = opts.secure != isSSL;
+	  }
+
+	  opts.xdomain = xd;
+	  opts.xscheme = xs;
+	  xhr = new XMLHttpRequest(opts);
+
+	  if ('open' in xhr && !opts.forceJSONP) {
+	    return new XHR(opts);
+	  } else {
+	    if (!jsonp) throw new Error('JSONP disabled');
+	    return new JSONP(opts);
+	  }
 	}
 
-	// we do not reassign an already present style value since
-	// if we detect the style property value again we may be
-	// detecting styles that were added via the `from` styles.
-	// We make use of `isDefined` here since an empty string
-	// or null value (which is what getPropertyValue will return
-	// for a non-existing style) will still be marked as a valid
-	// value for the style (a falsy value implies that the style
-	// is to be removed at the end of the animation). If we had a simple
-	// "OR" statement then it would not be enough to catch that.
-	function registerRestorableStyles(backup, node, properties) {
-	  forEach(properties, function(prop) {
-	    backup[prop] = isDefined(backup[prop])
-	        ? backup[prop]
-	        : node.style.getPropertyValue(prop);
+	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
+	},{"./polling-jsonp":6,"./polling-xhr":7,"./websocket":9,"xmlhttprequest-ssl":10}],6:[function(_dereq_,module,exports){
+	(function (global){
+
+	/**
+	 * Module requirements.
+	 */
+
+	var Polling = _dereq_('./polling');
+	var inherit = _dereq_('component-inherit');
+
+	/**
+	 * Module exports.
+	 */
+
+	module.exports = JSONPPolling;
+
+	/**
+	 * Cached regular expressions.
+	 */
+
+	var rNewline = /\n/g;
+	var rEscapedNewline = /\\n/g;
+
+	/**
+	 * Global JSONP callbacks.
+	 */
+
+	var callbacks;
+
+	/**
+	 * Callbacks count.
+	 */
+
+	var index = 0;
+
+	/**
+	 * Noop.
+	 */
+
+	function empty () { }
+
+	/**
+	 * JSONP Polling constructor.
+	 *
+	 * @param {Object} opts.
+	 * @api public
+	 */
+
+	function JSONPPolling (opts) {
+	  Polling.call(this, opts);
+
+	  this.query = this.query || {};
+
+	  // define global callbacks array if not present
+	  // we do this here (lazily) to avoid unneeded global pollution
+	  if (!callbacks) {
+	    // we need to consider multiple engines in the same page
+	    if (!global.___eio) global.___eio = [];
+	    callbacks = global.___eio;
+	  }
+
+	  // callback identifier
+	  this.index = callbacks.length;
+
+	  // add callback to jsonp global
+	  var self = this;
+	  callbacks.push(function (msg) {
+	    self.onData(msg);
 	  });
+
+	  // append to query string
+	  this.query.j = this.index;
+
+	  // prevent spurious errors from being emitted when the window is unloaded
+	  if (global.document && global.addEventListener) {
+	    global.addEventListener('beforeunload', function () {
+	      if (self.script) self.script.onerror = empty;
+	    }, false);
+	  }
 	}
 
-	var $AnimateCssProvider = ['$animateProvider', function($animateProvider) {
-	  var gcsLookup = createLocalCacheLookup();
-	  var gcsStaggerLookup = createLocalCacheLookup();
-
-	  this.$get = ['$window', '$$jqLite', '$$AnimateRunner', '$timeout',
-	               '$$forceReflow', '$sniffer', '$$rAFScheduler', '$$animateQueue',
-	       function($window,   $$jqLite,   $$AnimateRunner,   $timeout,
-	                $$forceReflow,   $sniffer,   $$rAFScheduler, $$animateQueue) {
-
-	    var applyAnimationClasses = applyAnimationClassesFactory($$jqLite);
-
-	    var parentCounter = 0;
-	    function gcsHashFn(node, extraClasses) {
-	      var KEY = "$$ngAnimateParentKey";
-	      var parentNode = node.parentNode;
-	      var parentID = parentNode[KEY] || (parentNode[KEY] = ++parentCounter);
-	      return parentID + '-' + node.getAttribute('class') + '-' + extraClasses;
-	    }
-
-	    function computeCachedCssStyles(node, className, cacheKey, properties) {
-	      var timings = gcsLookup.get(cacheKey);
-
-	      if (!timings) {
-	        timings = computeCssStyles($window, node, properties);
-	        if (timings.animationIterationCount === 'infinite') {
-	          timings.animationIterationCount = 1;
-	        }
-	      }
-
-	      // we keep putting this in multiple times even though the value and the cacheKey are the same
-	      // because we're keeping an internal tally of how many duplicate animations are detected.
-	      gcsLookup.put(cacheKey, timings);
-	      return timings;
-	    }
-
-	    function computeCachedCssStaggerStyles(node, className, cacheKey, properties) {
-	      var stagger;
-
-	      // if we have one or more existing matches of matching elements
-	      // containing the same parent + CSS styles (which is how cacheKey works)
-	      // then staggering is possible
-	      if (gcsLookup.count(cacheKey) > 0) {
-	        stagger = gcsStaggerLookup.get(cacheKey);
-
-	        if (!stagger) {
-	          var staggerClassName = pendClasses(className, '-stagger');
-
-	          $$jqLite.addClass(node, staggerClassName);
-
-	          stagger = computeCssStyles($window, node, properties);
-
-	          // force the conversion of a null value to zero incase not set
-	          stagger.animationDuration = Math.max(stagger.animationDuration, 0);
-	          stagger.transitionDuration = Math.max(stagger.transitionDuration, 0);
-
-	          $$jqLite.removeClass(node, staggerClassName);
-
-	          gcsStaggerLookup.put(cacheKey, stagger);
-	        }
-	      }
-
-	      return stagger || {};
-	    }
-
-	    var cancelLastRAFRequest;
-	    var rafWaitQueue = [];
-	    function waitUntilQuiet(callback) {
-	      rafWaitQueue.push(callback);
-	      $$rAFScheduler.waitUntilQuiet(function() {
-	        gcsLookup.flush();
-	        gcsStaggerLookup.flush();
-
-	        // DO NOT REMOVE THIS LINE OR REFACTOR OUT THE `pageWidth` variable.
-	        // PLEASE EXAMINE THE `$$forceReflow` service to understand why.
-	        var pageWidth = $$forceReflow();
-
-	        // we use a for loop to ensure that if the queue is changed
-	        // during this looping then it will consider new requests
-	        for (var i = 0; i < rafWaitQueue.length; i++) {
-	          rafWaitQueue[i](pageWidth);
-	        }
-	        rafWaitQueue.length = 0;
-	      });
-	    }
-
-	    function computeTimings(node, className, cacheKey) {
-	      var timings = computeCachedCssStyles(node, className, cacheKey, DETECT_CSS_PROPERTIES);
-	      var aD = timings.animationDelay;
-	      var tD = timings.transitionDelay;
-	      timings.maxDelay = aD && tD
-	          ? Math.max(aD, tD)
-	          : (aD || tD);
-	      timings.maxDuration = Math.max(
-	          timings.animationDuration * timings.animationIterationCount,
-	          timings.transitionDuration);
-
-	      return timings;
-	    }
-
-	    return function init(element, initialOptions) {
-	      // all of the animation functions should create
-	      // a copy of the options data, however, if a
-	      // parent service has already created a copy then
-	      // we should stick to using that
-	      var options = initialOptions || {};
-	      if (!options.$$prepared) {
-	        options = prepareAnimationOptions(copy(options));
-	      }
-
-	      var restoreStyles = {};
-	      var node = getDomNode(element);
-	      if (!node
-	          || !node.parentNode
-	          || !$$animateQueue.enabled()) {
-	        return closeAndReturnNoopAnimator();
-	      }
-
-	      var temporaryStyles = [];
-	      var classes = element.attr('class');
-	      var styles = packageStyles(options);
-	      var animationClosed;
-	      var animationPaused;
-	      var animationCompleted;
-	      var runner;
-	      var runnerHost;
-	      var maxDelay;
-	      var maxDelayTime;
-	      var maxDuration;
-	      var maxDurationTime;
-	      var startTime;
-	      var events = [];
-
-	      if (options.duration === 0 || (!$sniffer.animations && !$sniffer.transitions)) {
-	        return closeAndReturnNoopAnimator();
-	      }
-
-	      var method = options.event && isArray(options.event)
-	            ? options.event.join(' ')
-	            : options.event;
-
-	      var isStructural = method && options.structural;
-	      var structuralClassName = '';
-	      var addRemoveClassName = '';
-
-	      if (isStructural) {
-	        structuralClassName = pendClasses(method, EVENT_CLASS_PREFIX, true);
-	      } else if (method) {
-	        structuralClassName = method;
-	      }
-
-	      if (options.addClass) {
-	        addRemoveClassName += pendClasses(options.addClass, ADD_CLASS_SUFFIX);
-	      }
-
-	      if (options.removeClass) {
-	        if (addRemoveClassName.length) {
-	          addRemoveClassName += ' ';
-	        }
-	        addRemoveClassName += pendClasses(options.removeClass, REMOVE_CLASS_SUFFIX);
-	      }
-
-	      // there may be a situation where a structural animation is combined together
-	      // with CSS classes that need to resolve before the animation is computed.
-	      // However this means that there is no explicit CSS code to block the animation
-	      // from happening (by setting 0s none in the class name). If this is the case
-	      // we need to apply the classes before the first rAF so we know to continue if
-	      // there actually is a detected transition or keyframe animation
-	      if (options.applyClassesEarly && addRemoveClassName.length) {
-	        applyAnimationClasses(element, options);
-	      }
-
-	      var preparationClasses = [structuralClassName, addRemoveClassName].join(' ').trim();
-	      var fullClassName = classes + ' ' + preparationClasses;
-	      var activeClasses = pendClasses(preparationClasses, ACTIVE_CLASS_SUFFIX);
-	      var hasToStyles = styles.to && Object.keys(styles.to).length > 0;
-	      var containsKeyframeAnimation = (options.keyframeStyle || '').length > 0;
-
-	      // there is no way we can trigger an animation if no styles and
-	      // no classes are being applied which would then trigger a transition,
-	      // unless there a is raw keyframe value that is applied to the element.
-	      if (!containsKeyframeAnimation
-	           && !hasToStyles
-	           && !preparationClasses) {
-	        return closeAndReturnNoopAnimator();
-	      }
-
-	      var cacheKey, stagger;
-	      if (options.stagger > 0) {
-	        var staggerVal = parseFloat(options.stagger);
-	        stagger = {
-	          transitionDelay: staggerVal,
-	          animationDelay: staggerVal,
-	          transitionDuration: 0,
-	          animationDuration: 0
-	        };
-	      } else {
-	        cacheKey = gcsHashFn(node, fullClassName);
-	        stagger = computeCachedCssStaggerStyles(node, preparationClasses, cacheKey, DETECT_STAGGER_CSS_PROPERTIES);
-	      }
-
-	      if (!options.$$skipPreparationClasses) {
-	        $$jqLite.addClass(element, preparationClasses);
-	      }
-
-	      var applyOnlyDuration;
-
-	      if (options.transitionStyle) {
-	        var transitionStyle = [TRANSITION_PROP, options.transitionStyle];
-	        applyInlineStyle(node, transitionStyle);
-	        temporaryStyles.push(transitionStyle);
-	      }
-
-	      if (options.duration >= 0) {
-	        applyOnlyDuration = node.style[TRANSITION_PROP].length > 0;
-	        var durationStyle = getCssTransitionDurationStyle(options.duration, applyOnlyDuration);
-
-	        // we set the duration so that it will be picked up by getComputedStyle later
-	        applyInlineStyle(node, durationStyle);
-	        temporaryStyles.push(durationStyle);
-	      }
-
-	      if (options.keyframeStyle) {
-	        var keyframeStyle = [ANIMATION_PROP, options.keyframeStyle];
-	        applyInlineStyle(node, keyframeStyle);
-	        temporaryStyles.push(keyframeStyle);
-	      }
-
-	      var itemIndex = stagger
-	          ? options.staggerIndex >= 0
-	              ? options.staggerIndex
-	              : gcsLookup.count(cacheKey)
-	          : 0;
-
-	      var isFirst = itemIndex === 0;
-
-	      // this is a pre-emptive way of forcing the setup classes to be added and applied INSTANTLY
-	      // without causing any combination of transitions to kick in. By adding a negative delay value
-	      // it forces the setup class' transition to end immediately. We later then remove the negative
-	      // transition delay to allow for the transition to naturally do it's thing. The beauty here is
-	      // that if there is no transition defined then nothing will happen and this will also allow
-	      // other transitions to be stacked on top of each other without any chopping them out.
-	      if (isFirst && !options.skipBlocking) {
-	        blockTransitions(node, SAFE_FAST_FORWARD_DURATION_VALUE);
-	      }
-
-	      var timings = computeTimings(node, fullClassName, cacheKey);
-	      var relativeDelay = timings.maxDelay;
-	      maxDelay = Math.max(relativeDelay, 0);
-	      maxDuration = timings.maxDuration;
-
-	      var flags = {};
-	      flags.hasTransitions          = timings.transitionDuration > 0;
-	      flags.hasAnimations           = timings.animationDuration > 0;
-	      flags.hasTransitionAll        = flags.hasTransitions && timings.transitionProperty == 'all';
-	      flags.applyTransitionDuration = hasToStyles && (
-	                                        (flags.hasTransitions && !flags.hasTransitionAll)
-	                                         || (flags.hasAnimations && !flags.hasTransitions));
-	      flags.applyAnimationDuration  = options.duration && flags.hasAnimations;
-	      flags.applyTransitionDelay    = truthyTimingValue(options.delay) && (flags.applyTransitionDuration || flags.hasTransitions);
-	      flags.applyAnimationDelay     = truthyTimingValue(options.delay) && flags.hasAnimations;
-	      flags.recalculateTimingStyles = addRemoveClassName.length > 0;
-
-	      if (flags.applyTransitionDuration || flags.applyAnimationDuration) {
-	        maxDuration = options.duration ? parseFloat(options.duration) : maxDuration;
-
-	        if (flags.applyTransitionDuration) {
-	          flags.hasTransitions = true;
-	          timings.transitionDuration = maxDuration;
-	          applyOnlyDuration = node.style[TRANSITION_PROP + PROPERTY_KEY].length > 0;
-	          temporaryStyles.push(getCssTransitionDurationStyle(maxDuration, applyOnlyDuration));
-	        }
-
-	        if (flags.applyAnimationDuration) {
-	          flags.hasAnimations = true;
-	          timings.animationDuration = maxDuration;
-	          temporaryStyles.push(getCssKeyframeDurationStyle(maxDuration));
-	        }
-	      }
-
-	      if (maxDuration === 0 && !flags.recalculateTimingStyles) {
-	        return closeAndReturnNoopAnimator();
-	      }
-
-	      if (options.delay != null) {
-	        var delayStyle;
-	        if (typeof options.delay !== "boolean") {
-	          delayStyle = parseFloat(options.delay);
-	          // number in options.delay means we have to recalculate the delay for the closing timeout
-	          maxDelay = Math.max(delayStyle, 0);
-	        }
-
-	        if (flags.applyTransitionDelay) {
-	          temporaryStyles.push(getCssDelayStyle(delayStyle));
-	        }
-
-	        if (flags.applyAnimationDelay) {
-	          temporaryStyles.push(getCssDelayStyle(delayStyle, true));
-	        }
-	      }
-
-	      // we need to recalculate the delay value since we used a pre-emptive negative
-	      // delay value and the delay value is required for the final event checking. This
-	      // property will ensure that this will happen after the RAF phase has passed.
-	      if (options.duration == null && timings.transitionDuration > 0) {
-	        flags.recalculateTimingStyles = flags.recalculateTimingStyles || isFirst;
-	      }
-
-	      maxDelayTime = maxDelay * ONE_SECOND;
-	      maxDurationTime = maxDuration * ONE_SECOND;
-	      if (!options.skipBlocking) {
-	        flags.blockTransition = timings.transitionDuration > 0;
-	        flags.blockKeyframeAnimation = timings.animationDuration > 0 &&
-	                                       stagger.animationDelay > 0 &&
-	                                       stagger.animationDuration === 0;
-	      }
-
-	      if (options.from) {
-	        if (options.cleanupStyles) {
-	          registerRestorableStyles(restoreStyles, node, Object.keys(options.from));
-	        }
-	        applyAnimationFromStyles(element, options);
-	      }
-
-	      if (flags.blockTransition || flags.blockKeyframeAnimation) {
-	        applyBlocking(maxDuration);
-	      } else if (!options.skipBlocking) {
-	        blockTransitions(node, false);
-	      }
-
-	      // TODO(matsko): for 1.5 change this code to have an animator object for better debugging
-	      return {
-	        $$willAnimate: true,
-	        end: endFn,
-	        start: function() {
-	          if (animationClosed) return;
-
-	          runnerHost = {
-	            end: endFn,
-	            cancel: cancelFn,
-	            resume: null, //this will be set during the start() phase
-	            pause: null
-	          };
-
-	          runner = new $$AnimateRunner(runnerHost);
-
-	          waitUntilQuiet(start);
-
-	          // we don't have access to pause/resume the animation
-	          // since it hasn't run yet. AnimateRunner will therefore
-	          // set noop functions for resume and pause and they will
-	          // later be overridden once the animation is triggered
-	          return runner;
-	        }
-	      };
-
-	      function endFn() {
-	        close();
-	      }
-
-	      function cancelFn() {
-	        close(true);
-	      }
-
-	      function close(rejected) { // jshint ignore:line
-	        // if the promise has been called already then we shouldn't close
-	        // the animation again
-	        if (animationClosed || (animationCompleted && animationPaused)) return;
-	        animationClosed = true;
-	        animationPaused = false;
-
-	        if (!options.$$skipPreparationClasses) {
-	          $$jqLite.removeClass(element, preparationClasses);
-	        }
-	        $$jqLite.removeClass(element, activeClasses);
-
-	        blockKeyframeAnimations(node, false);
-	        blockTransitions(node, false);
-
-	        forEach(temporaryStyles, function(entry) {
-	          // There is only one way to remove inline style properties entirely from elements.
-	          // By using `removeProperty` this works, but we need to convert camel-cased CSS
-	          // styles down to hyphenated values.
-	          node.style[entry[0]] = '';
-	        });
-
-	        applyAnimationClasses(element, options);
-	        applyAnimationStyles(element, options);
-
-	        if (Object.keys(restoreStyles).length) {
-	          forEach(restoreStyles, function(value, prop) {
-	            value ? node.style.setProperty(prop, value)
-	                  : node.style.removeProperty(prop);
-	          });
-	        }
-
-	        // the reason why we have this option is to allow a synchronous closing callback
-	        // that is fired as SOON as the animation ends (when the CSS is removed) or if
-	        // the animation never takes off at all. A good example is a leave animation since
-	        // the element must be removed just after the animation is over or else the element
-	        // will appear on screen for one animation frame causing an overbearing flicker.
-	        if (options.onDone) {
-	          options.onDone();
-	        }
-
-	        if (events && events.length) {
-	          // Remove the transitionend / animationend listener(s)
-	          element.off(events.join(' '), onAnimationProgress);
-	        }
-
-	        //Cancel the fallback closing timeout and remove the timer data
-	        var animationTimerData = element.data(ANIMATE_TIMER_KEY);
-	        if (animationTimerData) {
-	          $timeout.cancel(animationTimerData[0].timer);
-	          element.removeData(ANIMATE_TIMER_KEY);
-	        }
-
-	        // if the preparation function fails then the promise is not setup
-	        if (runner) {
-	          runner.complete(!rejected);
-	        }
-	      }
-
-	      function applyBlocking(duration) {
-	        if (flags.blockTransition) {
-	          blockTransitions(node, duration);
-	        }
-
-	        if (flags.blockKeyframeAnimation) {
-	          blockKeyframeAnimations(node, !!duration);
-	        }
-	      }
-
-	      function closeAndReturnNoopAnimator() {
-	        runner = new $$AnimateRunner({
-	          end: endFn,
-	          cancel: cancelFn
-	        });
-
-	        // should flush the cache animation
-	        waitUntilQuiet(noop);
-	        close();
-
-	        return {
-	          $$willAnimate: false,
-	          start: function() {
-	            return runner;
-	          },
-	          end: endFn
-	        };
-	      }
-
-	      function onAnimationProgress(event) {
-	        event.stopPropagation();
-	        var ev = event.originalEvent || event;
-
-	        // we now always use `Date.now()` due to the recent changes with
-	        // event.timeStamp in Firefox, Webkit and Chrome (see #13494 for more info)
-	        var timeStamp = ev.$manualTimeStamp || Date.now();
-
-	        /* Firefox (or possibly just Gecko) likes to not round values up
-	         * when a ms measurement is used for the animation */
-	        var elapsedTime = parseFloat(ev.elapsedTime.toFixed(ELAPSED_TIME_MAX_DECIMAL_PLACES));
-
-	        /* $manualTimeStamp is a mocked timeStamp value which is set
-	         * within browserTrigger(). This is only here so that tests can
-	         * mock animations properly. Real events fallback to event.timeStamp,
-	         * or, if they don't, then a timeStamp is automatically created for them.
-	         * We're checking to see if the timeStamp surpasses the expected delay,
-	         * but we're using elapsedTime instead of the timeStamp on the 2nd
-	         * pre-condition since animationPauseds sometimes close off early */
-	        if (Math.max(timeStamp - startTime, 0) >= maxDelayTime && elapsedTime >= maxDuration) {
-	          // we set this flag to ensure that if the transition is paused then, when resumed,
-	          // the animation will automatically close itself since transitions cannot be paused.
-	          animationCompleted = true;
-	          close();
-	        }
-	      }
-
-	      function start() {
-	        if (animationClosed) return;
-	        if (!node.parentNode) {
-	          close();
-	          return;
-	        }
-
-	        // even though we only pause keyframe animations here the pause flag
-	        // will still happen when transitions are used. Only the transition will
-	        // not be paused since that is not possible. If the animation ends when
-	        // paused then it will not complete until unpaused or cancelled.
-	        var playPause = function(playAnimation) {
-	          if (!animationCompleted) {
-	            animationPaused = !playAnimation;
-	            if (timings.animationDuration) {
-	              var value = blockKeyframeAnimations(node, animationPaused);
-	              animationPaused
-	                  ? temporaryStyles.push(value)
-	                  : removeFromArray(temporaryStyles, value);
-	            }
-	          } else if (animationPaused && playAnimation) {
-	            animationPaused = false;
-	            close();
-	          }
-	        };
-
-	        // checking the stagger duration prevents an accidentally cascade of the CSS delay style
-	        // being inherited from the parent. If the transition duration is zero then we can safely
-	        // rely that the delay value is an intentional stagger delay style.
-	        var maxStagger = itemIndex > 0
-	                         && ((timings.transitionDuration && stagger.transitionDuration === 0) ||
-	                            (timings.animationDuration && stagger.animationDuration === 0))
-	                         && Math.max(stagger.animationDelay, stagger.transitionDelay);
-	        if (maxStagger) {
-	          $timeout(triggerAnimationStart,
-	                   Math.floor(maxStagger * itemIndex * ONE_SECOND),
-	                   false);
-	        } else {
-	          triggerAnimationStart();
-	        }
-
-	        // this will decorate the existing promise runner with pause/resume methods
-	        runnerHost.resume = function() {
-	          playPause(true);
-	        };
-
-	        runnerHost.pause = function() {
-	          playPause(false);
-	        };
-
-	        function triggerAnimationStart() {
-	          // just incase a stagger animation kicks in when the animation
-	          // itself was cancelled entirely
-	          if (animationClosed) return;
-
-	          applyBlocking(false);
-
-	          forEach(temporaryStyles, function(entry) {
-	            var key = entry[0];
-	            var value = entry[1];
-	            node.style[key] = value;
-	          });
-
-	          applyAnimationClasses(element, options);
-	          $$jqLite.addClass(element, activeClasses);
-
-	          if (flags.recalculateTimingStyles) {
-	            fullClassName = node.className + ' ' + preparationClasses;
-	            cacheKey = gcsHashFn(node, fullClassName);
-
-	            timings = computeTimings(node, fullClassName, cacheKey);
-	            relativeDelay = timings.maxDelay;
-	            maxDelay = Math.max(relativeDelay, 0);
-	            maxDuration = timings.maxDuration;
-
-	            if (maxDuration === 0) {
-	              close();
-	              return;
-	            }
-
-	            flags.hasTransitions = timings.transitionDuration > 0;
-	            flags.hasAnimations = timings.animationDuration > 0;
-	          }
-
-	          if (flags.applyAnimationDelay) {
-	            relativeDelay = typeof options.delay !== "boolean" && truthyTimingValue(options.delay)
-	                  ? parseFloat(options.delay)
-	                  : relativeDelay;
-
-	            maxDelay = Math.max(relativeDelay, 0);
-	            timings.animationDelay = relativeDelay;
-	            delayStyle = getCssDelayStyle(relativeDelay, true);
-	            temporaryStyles.push(delayStyle);
-	            node.style[delayStyle[0]] = delayStyle[1];
-	          }
-
-	          maxDelayTime = maxDelay * ONE_SECOND;
-	          maxDurationTime = maxDuration * ONE_SECOND;
-
-	          if (options.easing) {
-	            var easeProp, easeVal = options.easing;
-	            if (flags.hasTransitions) {
-	              easeProp = TRANSITION_PROP + TIMING_KEY;
-	              temporaryStyles.push([easeProp, easeVal]);
-	              node.style[easeProp] = easeVal;
-	            }
-	            if (flags.hasAnimations) {
-	              easeProp = ANIMATION_PROP + TIMING_KEY;
-	              temporaryStyles.push([easeProp, easeVal]);
-	              node.style[easeProp] = easeVal;
-	            }
-	          }
-
-	          if (timings.transitionDuration) {
-	            events.push(TRANSITIONEND_EVENT);
-	          }
-
-	          if (timings.animationDuration) {
-	            events.push(ANIMATIONEND_EVENT);
-	          }
-
-	          startTime = Date.now();
-	          var timerTime = maxDelayTime + CLOSING_TIME_BUFFER * maxDurationTime;
-	          var endTime = startTime + timerTime;
-
-	          var animationsData = element.data(ANIMATE_TIMER_KEY) || [];
-	          var setupFallbackTimer = true;
-	          if (animationsData.length) {
-	            var currentTimerData = animationsData[0];
-	            setupFallbackTimer = endTime > currentTimerData.expectedEndTime;
-	            if (setupFallbackTimer) {
-	              $timeout.cancel(currentTimerData.timer);
-	            } else {
-	              animationsData.push(close);
-	            }
-	          }
-
-	          if (setupFallbackTimer) {
-	            var timer = $timeout(onAnimationExpired, timerTime, false);
-	            animationsData[0] = {
-	              timer: timer,
-	              expectedEndTime: endTime
-	            };
-	            animationsData.push(close);
-	            element.data(ANIMATE_TIMER_KEY, animationsData);
-	          }
-
-	          if (events.length) {
-	            element.on(events.join(' '), onAnimationProgress);
-	          }
-
-	          if (options.to) {
-	            if (options.cleanupStyles) {
-	              registerRestorableStyles(restoreStyles, node, Object.keys(options.to));
-	            }
-	            applyAnimationToStyles(element, options);
-	          }
-	        }
-
-	        function onAnimationExpired() {
-	          var animationsData = element.data(ANIMATE_TIMER_KEY);
-
-	          // this will be false in the event that the element was
-	          // removed from the DOM (via a leave animation or something
-	          // similar)
-	          if (animationsData) {
-	            for (var i = 1; i < animationsData.length; i++) {
-	              animationsData[i]();
-	            }
-	            element.removeData(ANIMATE_TIMER_KEY);
-	          }
-	        }
-	      }
-	    };
-	  }];
-	}];
-
-	var $$AnimateCssDriverProvider = ['$$animationProvider', function($$animationProvider) {
-	  $$animationProvider.drivers.push('$$animateCssDriver');
-
-	  var NG_ANIMATE_SHIM_CLASS_NAME = 'ng-animate-shim';
-	  var NG_ANIMATE_ANCHOR_CLASS_NAME = 'ng-anchor';
-
-	  var NG_OUT_ANCHOR_CLASS_NAME = 'ng-anchor-out';
-	  var NG_IN_ANCHOR_CLASS_NAME = 'ng-anchor-in';
-
-	  function isDocumentFragment(node) {
-	    return node.parentNode && node.parentNode.nodeType === 11;
+	/**
+	 * Inherits from Polling.
+	 */
+
+	inherit(JSONPPolling, Polling);
+
+	/*
+	 * JSONP only supports binary as base64 encoded strings
+	 */
+
+	JSONPPolling.prototype.supportsBinary = false;
+
+	/**
+	 * Closes the socket.
+	 *
+	 * @api private
+	 */
+
+	JSONPPolling.prototype.doClose = function () {
+	  if (this.script) {
+	    this.script.parentNode.removeChild(this.script);
+	    this.script = null;
 	  }
 
-	  this.$get = ['$animateCss', '$rootScope', '$$AnimateRunner', '$rootElement', '$sniffer', '$$jqLite', '$document',
-	       function($animateCss,   $rootScope,   $$AnimateRunner,   $rootElement,   $sniffer,   $$jqLite,   $document) {
-
-	    // only browsers that support these properties can render animations
-	    if (!$sniffer.animations && !$sniffer.transitions) return noop;
-
-	    var bodyNode = $document[0].body;
-	    var rootNode = getDomNode($rootElement);
-
-	    var rootBodyElement = jqLite(
-	      // this is to avoid using something that exists outside of the body
-	      // we also special case the doc fragment case because our unit test code
-	      // appends the $rootElement to the body after the app has been bootstrapped
-	      isDocumentFragment(rootNode) || bodyNode.contains(rootNode) ? rootNode : bodyNode
-	    );
-
-	    var applyAnimationClasses = applyAnimationClassesFactory($$jqLite);
-
-	    return function initDriverFn(animationDetails) {
-	      return animationDetails.from && animationDetails.to
-	          ? prepareFromToAnchorAnimation(animationDetails.from,
-	                                         animationDetails.to,
-	                                         animationDetails.classes,
-	                                         animationDetails.anchors)
-	          : prepareRegularAnimation(animationDetails);
-	    };
-
-	    function filterCssClasses(classes) {
-	      //remove all the `ng-` stuff
-	      return classes.replace(/\bng-\S+\b/g, '');
-	    }
-
-	    function getUniqueValues(a, b) {
-	      if (isString(a)) a = a.split(' ');
-	      if (isString(b)) b = b.split(' ');
-	      return a.filter(function(val) {
-	        return b.indexOf(val) === -1;
-	      }).join(' ');
-	    }
-
-	    function prepareAnchoredAnimation(classes, outAnchor, inAnchor) {
-	      var clone = jqLite(getDomNode(outAnchor).cloneNode(true));
-	      var startingClasses = filterCssClasses(getClassVal(clone));
-
-	      outAnchor.addClass(NG_ANIMATE_SHIM_CLASS_NAME);
-	      inAnchor.addClass(NG_ANIMATE_SHIM_CLASS_NAME);
-
-	      clone.addClass(NG_ANIMATE_ANCHOR_CLASS_NAME);
-
-	      rootBodyElement.append(clone);
-
-	      var animatorIn, animatorOut = prepareOutAnimation();
-
-	      // the user may not end up using the `out` animation and
-	      // only making use of the `in` animation or vice-versa.
-	      // In either case we should allow this and not assume the
-	      // animation is over unless both animations are not used.
-	      if (!animatorOut) {
-	        animatorIn = prepareInAnimation();
-	        if (!animatorIn) {
-	          return end();
-	        }
-	      }
-
-	      var startingAnimator = animatorOut || animatorIn;
-
-	      return {
-	        start: function() {
-	          var runner;
-
-	          var currentAnimation = startingAnimator.start();
-	          currentAnimation.done(function() {
-	            currentAnimation = null;
-	            if (!animatorIn) {
-	              animatorIn = prepareInAnimation();
-	              if (animatorIn) {
-	                currentAnimation = animatorIn.start();
-	                currentAnimation.done(function() {
-	                  currentAnimation = null;
-	                  end();
-	                  runner.complete();
-	                });
-	                return currentAnimation;
-	              }
-	            }
-	            // in the event that there is no `in` animation
-	            end();
-	            runner.complete();
-	          });
-
-	          runner = new $$AnimateRunner({
-	            end: endFn,
-	            cancel: endFn
-	          });
-
-	          return runner;
-
-	          function endFn() {
-	            if (currentAnimation) {
-	              currentAnimation.end();
-	            }
-	          }
-	        }
-	      };
-
-	      function calculateAnchorStyles(anchor) {
-	        var styles = {};
-
-	        var coords = getDomNode(anchor).getBoundingClientRect();
-
-	        // we iterate directly since safari messes up and doesn't return
-	        // all the keys for the coords object when iterated
-	        forEach(['width','height','top','left'], function(key) {
-	          var value = coords[key];
-	          switch (key) {
-	            case 'top':
-	              value += bodyNode.scrollTop;
-	              break;
-	            case 'left':
-	              value += bodyNode.scrollLeft;
-	              break;
-	          }
-	          styles[key] = Math.floor(value) + 'px';
-	        });
-	        return styles;
-	      }
-
-	      function prepareOutAnimation() {
-	        var animator = $animateCss(clone, {
-	          addClass: NG_OUT_ANCHOR_CLASS_NAME,
-	          delay: true,
-	          from: calculateAnchorStyles(outAnchor)
-	        });
-
-	        // read the comment within `prepareRegularAnimation` to understand
-	        // why this check is necessary
-	        return animator.$$willAnimate ? animator : null;
-	      }
-
-	      function getClassVal(element) {
-	        return element.attr('class') || '';
-	      }
-
-	      function prepareInAnimation() {
-	        var endingClasses = filterCssClasses(getClassVal(inAnchor));
-	        var toAdd = getUniqueValues(endingClasses, startingClasses);
-	        var toRemove = getUniqueValues(startingClasses, endingClasses);
-
-	        var animator = $animateCss(clone, {
-	          to: calculateAnchorStyles(inAnchor),
-	          addClass: NG_IN_ANCHOR_CLASS_NAME + ' ' + toAdd,
-	          removeClass: NG_OUT_ANCHOR_CLASS_NAME + ' ' + toRemove,
-	          delay: true
-	        });
-
-	        // read the comment within `prepareRegularAnimation` to understand
-	        // why this check is necessary
-	        return animator.$$willAnimate ? animator : null;
-	      }
-
-	      function end() {
-	        clone.remove();
-	        outAnchor.removeClass(NG_ANIMATE_SHIM_CLASS_NAME);
-	        inAnchor.removeClass(NG_ANIMATE_SHIM_CLASS_NAME);
-	      }
-	    }
-
-	    function prepareFromToAnchorAnimation(from, to, classes, anchors) {
-	      var fromAnimation = prepareRegularAnimation(from, noop);
-	      var toAnimation = prepareRegularAnimation(to, noop);
-
-	      var anchorAnimations = [];
-	      forEach(anchors, function(anchor) {
-	        var outElement = anchor['out'];
-	        var inElement = anchor['in'];
-	        var animator = prepareAnchoredAnimation(classes, outElement, inElement);
-	        if (animator) {
-	          anchorAnimations.push(animator);
-	        }
-	      });
-
-	      // no point in doing anything when there are no elements to animate
-	      if (!fromAnimation && !toAnimation && anchorAnimations.length === 0) return;
-
-	      return {
-	        start: function() {
-	          var animationRunners = [];
-
-	          if (fromAnimation) {
-	            animationRunners.push(fromAnimation.start());
-	          }
-
-	          if (toAnimation) {
-	            animationRunners.push(toAnimation.start());
-	          }
-
-	          forEach(anchorAnimations, function(animation) {
-	            animationRunners.push(animation.start());
-	          });
-
-	          var runner = new $$AnimateRunner({
-	            end: endFn,
-	            cancel: endFn // CSS-driven animations cannot be cancelled, only ended
-	          });
-
-	          $$AnimateRunner.all(animationRunners, function(status) {
-	            runner.complete(status);
-	          });
-
-	          return runner;
-
-	          function endFn() {
-	            forEach(animationRunners, function(runner) {
-	              runner.end();
-	            });
-	          }
-	        }
-	      };
-	    }
-
-	    function prepareRegularAnimation(animationDetails) {
-	      var element = animationDetails.element;
-	      var options = animationDetails.options || {};
-
-	      if (animationDetails.structural) {
-	        options.event = animationDetails.event;
-	        options.structural = true;
-	        options.applyClassesEarly = true;
-
-	        // we special case the leave animation since we want to ensure that
-	        // the element is removed as soon as the animation is over. Otherwise
-	        // a flicker might appear or the element may not be removed at all
-	        if (animationDetails.event === 'leave') {
-	          options.onDone = options.domOperation;
-	        }
-	      }
-
-	      // We assign the preparationClasses as the actual animation event since
-	      // the internals of $animateCss will just suffix the event token values
-	      // with `-active` to trigger the animation.
-	      if (options.preparationClasses) {
-	        options.event = concatWithSpace(options.event, options.preparationClasses);
-	      }
-
-	      var animator = $animateCss(element, options);
-
-	      // the driver lookup code inside of $$animation attempts to spawn a
-	      // driver one by one until a driver returns a.$$willAnimate animator object.
-	      // $animateCss will always return an object, however, it will pass in
-	      // a flag as a hint as to whether an animation was detected or not
-	      return animator.$$willAnimate ? animator : null;
-	    }
-	  }];
-	}];
-
-	// TODO(matsko): use caching here to speed things up for detection
-	// TODO(matsko): add documentation
-	//  by the time...
-
-	var $$AnimateJsProvider = ['$animateProvider', function($animateProvider) {
-	  this.$get = ['$injector', '$$AnimateRunner', '$$jqLite',
-	       function($injector,   $$AnimateRunner,   $$jqLite) {
-
-	    var applyAnimationClasses = applyAnimationClassesFactory($$jqLite);
-	         // $animateJs(element, 'enter');
-	    return function(element, event, classes, options) {
-	      var animationClosed = false;
-
-	      // the `classes` argument is optional and if it is not used
-	      // then the classes will be resolved from the element's className
-	      // property as well as options.addClass/options.removeClass.
-	      if (arguments.length === 3 && isObject(classes)) {
-	        options = classes;
-	        classes = null;
-	      }
-
-	      options = prepareAnimationOptions(options);
-	      if (!classes) {
-	        classes = element.attr('class') || '';
-	        if (options.addClass) {
-	          classes += ' ' + options.addClass;
-	        }
-	        if (options.removeClass) {
-	          classes += ' ' + options.removeClass;
-	        }
-	      }
-
-	      var classesToAdd = options.addClass;
-	      var classesToRemove = options.removeClass;
-
-	      // the lookupAnimations function returns a series of animation objects that are
-	      // matched up with one or more of the CSS classes. These animation objects are
-	      // defined via the module.animation factory function. If nothing is detected then
-	      // we don't return anything which then makes $animation query the next driver.
-	      var animations = lookupAnimations(classes);
-	      var before, after;
-	      if (animations.length) {
-	        var afterFn, beforeFn;
-	        if (event == 'leave') {
-	          beforeFn = 'leave';
-	          afterFn = 'afterLeave'; // TODO(matsko): get rid of this
-	        } else {
-	          beforeFn = 'before' + event.charAt(0).toUpperCase() + event.substr(1);
-	          afterFn = event;
-	        }
-
-	        if (event !== 'enter' && event !== 'move') {
-	          before = packageAnimations(element, event, options, animations, beforeFn);
-	        }
-	        after  = packageAnimations(element, event, options, animations, afterFn);
-	      }
-
-	      // no matching animations
-	      if (!before && !after) return;
-
-	      function applyOptions() {
-	        options.domOperation();
-	        applyAnimationClasses(element, options);
-	      }
-
-	      function close() {
-	        animationClosed = true;
-	        applyOptions();
-	        applyAnimationStyles(element, options);
-	      }
-
-	      var runner;
-
-	      return {
-	        $$willAnimate: true,
-	        end: function() {
-	          if (runner) {
-	            runner.end();
-	          } else {
-	            close();
-	            runner = new $$AnimateRunner();
-	            runner.complete(true);
-	          }
-	          return runner;
-	        },
-	        start: function() {
-	          if (runner) {
-	            return runner;
-	          }
-
-	          runner = new $$AnimateRunner();
-	          var closeActiveAnimations;
-	          var chain = [];
-
-	          if (before) {
-	            chain.push(function(fn) {
-	              closeActiveAnimations = before(fn);
-	            });
-	          }
-
-	          if (chain.length) {
-	            chain.push(function(fn) {
-	              applyOptions();
-	              fn(true);
-	            });
-	          } else {
-	            applyOptions();
-	          }
-
-	          if (after) {
-	            chain.push(function(fn) {
-	              closeActiveAnimations = after(fn);
-	            });
-	          }
-
-	          runner.setHost({
-	            end: function() {
-	              endAnimations();
-	            },
-	            cancel: function() {
-	              endAnimations(true);
-	            }
-	          });
-
-	          $$AnimateRunner.chain(chain, onComplete);
-	          return runner;
-
-	          function onComplete(success) {
-	            close(success);
-	            runner.complete(success);
-	          }
-
-	          function endAnimations(cancelled) {
-	            if (!animationClosed) {
-	              (closeActiveAnimations || noop)(cancelled);
-	              onComplete(cancelled);
-	            }
-	          }
-	        }
-	      };
-
-	      function executeAnimationFn(fn, element, event, options, onDone) {
-	        var args;
-	        switch (event) {
-	          case 'animate':
-	            args = [element, options.from, options.to, onDone];
-	            break;
-
-	          case 'setClass':
-	            args = [element, classesToAdd, classesToRemove, onDone];
-	            break;
-
-	          case 'addClass':
-	            args = [element, classesToAdd, onDone];
-	            break;
-
-	          case 'removeClass':
-	            args = [element, classesToRemove, onDone];
-	            break;
-
-	          default:
-	            args = [element, onDone];
-	            break;
-	        }
-
-	        args.push(options);
-
-	        var value = fn.apply(fn, args);
-	        if (value) {
-	          if (isFunction(value.start)) {
-	            value = value.start();
-	          }
-
-	          if (value instanceof $$AnimateRunner) {
-	            value.done(onDone);
-	          } else if (isFunction(value)) {
-	            // optional onEnd / onCancel callback
-	            return value;
-	          }
-	        }
-
-	        return noop;
-	      }
-
-	      function groupEventedAnimations(element, event, options, animations, fnName) {
-	        var operations = [];
-	        forEach(animations, function(ani) {
-	          var animation = ani[fnName];
-	          if (!animation) return;
-
-	          // note that all of these animations will run in parallel
-	          operations.push(function() {
-	            var runner;
-	            var endProgressCb;
-
-	            var resolved = false;
-	            var onAnimationComplete = function(rejected) {
-	              if (!resolved) {
-	                resolved = true;
-	                (endProgressCb || noop)(rejected);
-	                runner.complete(!rejected);
-	              }
-	            };
-
-	            runner = new $$AnimateRunner({
-	              end: function() {
-	                onAnimationComplete();
-	              },
-	              cancel: function() {
-	                onAnimationComplete(true);
-	              }
-	            });
-
-	            endProgressCb = executeAnimationFn(animation, element, event, options, function(result) {
-	              var cancelled = result === false;
-	              onAnimationComplete(cancelled);
-	            });
-
-	            return runner;
-	          });
-	        });
-
-	        return operations;
-	      }
-
-	      function packageAnimations(element, event, options, animations, fnName) {
-	        var operations = groupEventedAnimations(element, event, options, animations, fnName);
-	        if (operations.length === 0) {
-	          var a,b;
-	          if (fnName === 'beforeSetClass') {
-	            a = groupEventedAnimations(element, 'removeClass', options, animations, 'beforeRemoveClass');
-	            b = groupEventedAnimations(element, 'addClass', options, animations, 'beforeAddClass');
-	          } else if (fnName === 'setClass') {
-	            a = groupEventedAnimations(element, 'removeClass', options, animations, 'removeClass');
-	            b = groupEventedAnimations(element, 'addClass', options, animations, 'addClass');
-	          }
-
-	          if (a) {
-	            operations = operations.concat(a);
-	          }
-	          if (b) {
-	            operations = operations.concat(b);
-	          }
-	        }
-
-	        if (operations.length === 0) return;
-
-	        // TODO(matsko): add documentation
-	        return function startAnimation(callback) {
-	          var runners = [];
-	          if (operations.length) {
-	            forEach(operations, function(animateFn) {
-	              runners.push(animateFn());
-	            });
-	          }
-
-	          runners.length ? $$AnimateRunner.all(runners, callback) : callback();
-
-	          return function endFn(reject) {
-	            forEach(runners, function(runner) {
-	              reject ? runner.cancel() : runner.end();
-	            });
-	          };
-	        };
-	      }
-	    };
-
-	    function lookupAnimations(classes) {
-	      classes = isArray(classes) ? classes : classes.split(' ');
-	      var matches = [], flagMap = {};
-	      for (var i=0; i < classes.length; i++) {
-	        var klass = classes[i],
-	            animationFactory = $animateProvider.$$registeredAnimations[klass];
-	        if (animationFactory && !flagMap[klass]) {
-	          matches.push($injector.get(animationFactory));
-	          flagMap[klass] = true;
-	        }
-	      }
-	      return matches;
-	    }
-	  }];
-	}];
-
-	var $$AnimateJsDriverProvider = ['$$animationProvider', function($$animationProvider) {
-	  $$animationProvider.drivers.push('$$animateJsDriver');
-	  this.$get = ['$$animateJs', '$$AnimateRunner', function($$animateJs, $$AnimateRunner) {
-	    return function initDriverFn(animationDetails) {
-	      if (animationDetails.from && animationDetails.to) {
-	        var fromAnimation = prepareAnimation(animationDetails.from);
-	        var toAnimation = prepareAnimation(animationDetails.to);
-	        if (!fromAnimation && !toAnimation) return;
-
-	        return {
-	          start: function() {
-	            var animationRunners = [];
-
-	            if (fromAnimation) {
-	              animationRunners.push(fromAnimation.start());
-	            }
-
-	            if (toAnimation) {
-	              animationRunners.push(toAnimation.start());
-	            }
-
-	            $$AnimateRunner.all(animationRunners, done);
-
-	            var runner = new $$AnimateRunner({
-	              end: endFnFactory(),
-	              cancel: endFnFactory()
-	            });
-
-	            return runner;
-
-	            function endFnFactory() {
-	              return function() {
-	                forEach(animationRunners, function(runner) {
-	                  // at this point we cannot cancel animations for groups just yet. 1.5+
-	                  runner.end();
-	                });
-	              };
-	            }
-
-	            function done(status) {
-	              runner.complete(status);
-	            }
-	          }
-	        };
-	      } else {
-	        return prepareAnimation(animationDetails);
-	      }
-	    };
-
-	    function prepareAnimation(animationDetails) {
-	      // TODO(matsko): make sure to check for grouped animations and delegate down to normal animations
-	      var element = animationDetails.element;
-	      var event = animationDetails.event;
-	      var options = animationDetails.options;
-	      var classes = animationDetails.classes;
-	      return $$animateJs(element, event, classes, options);
-	    }
-	  }];
-	}];
-
-	var NG_ANIMATE_ATTR_NAME = 'data-ng-animate';
-	var NG_ANIMATE_PIN_DATA = '$ngAnimatePin';
-	var $$AnimateQueueProvider = ['$animateProvider', function($animateProvider) {
-	  var PRE_DIGEST_STATE = 1;
-	  var RUNNING_STATE = 2;
-	  var ONE_SPACE = ' ';
-
-	  var rules = this.rules = {
-	    skip: [],
-	    cancel: [],
-	    join: []
+	  if (this.form) {
+	    this.form.parentNode.removeChild(this.form);
+	    this.form = null;
+	    this.iframe = null;
+	  }
+
+	  Polling.prototype.doClose.call(this);
+	};
+
+	/**
+	 * Starts a poll cycle.
+	 *
+	 * @api private
+	 */
+
+	JSONPPolling.prototype.doPoll = function () {
+	  var self = this;
+	  var script = document.createElement('script');
+
+	  if (this.script) {
+	    this.script.parentNode.removeChild(this.script);
+	    this.script = null;
+	  }
+
+	  script.async = true;
+	  script.src = this.uri();
+	  script.onerror = function(e){
+	    self.onError('jsonp poll error',e);
 	  };
 
-	  function makeTruthyCssClassMap(classString) {
-	    if (!classString) {
-	      return null;
-	    }
+	  var insertAt = document.getElementsByTagName('script')[0];
+	  if (insertAt) {
+	    insertAt.parentNode.insertBefore(script, insertAt);
+	  }
+	  else {
+	    (document.head || document.body).appendChild(script);
+	  }
+	  this.script = script;
 
-	    var keys = classString.split(ONE_SPACE);
-	    var map = Object.create(null);
+	  var isUAgecko = 'undefined' != typeof navigator && /gecko/i.test(navigator.userAgent);
+	  
+	  if (isUAgecko) {
+	    setTimeout(function () {
+	      var iframe = document.createElement('iframe');
+	      document.body.appendChild(iframe);
+	      document.body.removeChild(iframe);
+	    }, 100);
+	  }
+	};
 
-	    forEach(keys, function(key) {
-	      map[key] = true;
-	    });
-	    return map;
+	/**
+	 * Writes with a hidden iframe.
+	 *
+	 * @param {String} data to send
+	 * @param {Function} called upon flush.
+	 * @api private
+	 */
+
+	JSONPPolling.prototype.doWrite = function (data, fn) {
+	  var self = this;
+
+	  if (!this.form) {
+	    var form = document.createElement('form');
+	    var area = document.createElement('textarea');
+	    var id = this.iframeId = 'eio_iframe_' + this.index;
+	    var iframe;
+
+	    form.className = 'socketio';
+	    form.style.position = 'absolute';
+	    form.style.top = '-1000px';
+	    form.style.left = '-1000px';
+	    form.target = id;
+	    form.method = 'POST';
+	    form.setAttribute('accept-charset', 'utf-8');
+	    area.name = 'd';
+	    form.appendChild(area);
+	    document.body.appendChild(form);
+
+	    this.form = form;
+	    this.area = area;
 	  }
 
-	  function hasMatchingClasses(newClassString, currentClassString) {
-	    if (newClassString && currentClassString) {
-	      var currentClassMap = makeTruthyCssClassMap(currentClassString);
-	      return newClassString.split(ONE_SPACE).some(function(className) {
-	        return currentClassMap[className];
+	  this.form.action = this.uri();
+
+	  function complete () {
+	    initIframe();
+	    fn();
+	  }
+
+	  function initIframe () {
+	    if (self.iframe) {
+	      try {
+	        self.form.removeChild(self.iframe);
+	      } catch (e) {
+	        self.onError('jsonp polling iframe removal error', e);
+	      }
+	    }
+
+	    try {
+	      // ie6 dynamic iframes with target="" support (thanks Chris Lambacher)
+	      var html = '<iframe src="javascript:0" name="'+ self.iframeId +'">';
+	      iframe = document.createElement(html);
+	    } catch (e) {
+	      iframe = document.createElement('iframe');
+	      iframe.name = self.iframeId;
+	      iframe.src = 'javascript:0';
+	    }
+
+	    iframe.id = self.iframeId;
+
+	    self.form.appendChild(iframe);
+	    self.iframe = iframe;
+	  }
+
+	  initIframe();
+
+	  // escape \n to prevent it from being converted into \r\n by some UAs
+	  // double escaping is required for escaped new lines because unescaping of new lines can be done safely on server-side
+	  data = data.replace(rEscapedNewline, '\\\n');
+	  this.area.value = data.replace(rNewline, '\\n');
+
+	  try {
+	    this.form.submit();
+	  } catch(e) {}
+
+	  if (this.iframe.attachEvent) {
+	    this.iframe.onreadystatechange = function(){
+	      if (self.iframe.readyState == 'complete') {
+	        complete();
+	      }
+	    };
+	  } else {
+	    this.iframe.onload = complete;
+	  }
+	};
+
+	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
+	},{"./polling":8,"component-inherit":16}],7:[function(_dereq_,module,exports){
+	(function (global){
+	/**
+	 * Module requirements.
+	 */
+
+	var XMLHttpRequest = _dereq_('xmlhttprequest-ssl');
+	var Polling = _dereq_('./polling');
+	var Emitter = _dereq_('component-emitter');
+	var inherit = _dereq_('component-inherit');
+	var debug = _dereq_('debug')('engine.io-client:polling-xhr');
+
+	/**
+	 * Module exports.
+	 */
+
+	module.exports = XHR;
+	module.exports.Request = Request;
+
+	/**
+	 * Empty function
+	 */
+
+	function empty(){}
+
+	/**
+	 * XHR Polling constructor.
+	 *
+	 * @param {Object} opts
+	 * @api public
+	 */
+
+	function XHR(opts){
+	  Polling.call(this, opts);
+
+	  if (global.location) {
+	    var isSSL = 'https:' == location.protocol;
+	    var port = location.port;
+
+	    // some user agents have empty `location.port`
+	    if (!port) {
+	      port = isSSL ? 443 : 80;
+	    }
+
+	    this.xd = opts.hostname != global.location.hostname ||
+	      port != opts.port;
+	    this.xs = opts.secure != isSSL;
+	  } else {
+	    this.extraHeaders = opts.extraHeaders;
+	  }
+	}
+
+	/**
+	 * Inherits from Polling.
+	 */
+
+	inherit(XHR, Polling);
+
+	/**
+	 * XHR supports binary
+	 */
+
+	XHR.prototype.supportsBinary = true;
+
+	/**
+	 * Creates a request.
+	 *
+	 * @param {String} method
+	 * @api private
+	 */
+
+	XHR.prototype.request = function(opts){
+	  opts = opts || {};
+	  opts.uri = this.uri();
+	  opts.xd = this.xd;
+	  opts.xs = this.xs;
+	  opts.agent = this.agent || false;
+	  opts.supportsBinary = this.supportsBinary;
+	  opts.enablesXDR = this.enablesXDR;
+
+	  // SSL options for Node.js client
+	  opts.pfx = this.pfx;
+	  opts.key = this.key;
+	  opts.passphrase = this.passphrase;
+	  opts.cert = this.cert;
+	  opts.ca = this.ca;
+	  opts.ciphers = this.ciphers;
+	  opts.rejectUnauthorized = this.rejectUnauthorized;
+
+	  // other options for Node.js client
+	  opts.extraHeaders = this.extraHeaders;
+
+	  return new Request(opts);
+	};
+
+	/**
+	 * Sends data.
+	 *
+	 * @param {String} data to send.
+	 * @param {Function} called upon flush.
+	 * @api private
+	 */
+
+	XHR.prototype.doWrite = function(data, fn){
+	  var isBinary = typeof data !== 'string' && data !== undefined;
+	  var req = this.request({ method: 'POST', data: data, isBinary: isBinary });
+	  var self = this;
+	  req.on('success', fn);
+	  req.on('error', function(err){
+	    self.onError('xhr post error', err);
+	  });
+	  this.sendXhr = req;
+	};
+
+	/**
+	 * Starts a poll cycle.
+	 *
+	 * @api private
+	 */
+
+	XHR.prototype.doPoll = function(){
+	  debug('xhr poll');
+	  var req = this.request();
+	  var self = this;
+	  req.on('data', function(data){
+	    self.onData(data);
+	  });
+	  req.on('error', function(err){
+	    self.onError('xhr poll error', err);
+	  });
+	  this.pollXhr = req;
+	};
+
+	/**
+	 * Request constructor
+	 *
+	 * @param {Object} options
+	 * @api public
+	 */
+
+	function Request(opts){
+	  this.method = opts.method || 'GET';
+	  this.uri = opts.uri;
+	  this.xd = !!opts.xd;
+	  this.xs = !!opts.xs;
+	  this.async = false !== opts.async;
+	  this.data = undefined != opts.data ? opts.data : null;
+	  this.agent = opts.agent;
+	  this.isBinary = opts.isBinary;
+	  this.supportsBinary = opts.supportsBinary;
+	  this.enablesXDR = opts.enablesXDR;
+
+	  // SSL options for Node.js client
+	  this.pfx = opts.pfx;
+	  this.key = opts.key;
+	  this.passphrase = opts.passphrase;
+	  this.cert = opts.cert;
+	  this.ca = opts.ca;
+	  this.ciphers = opts.ciphers;
+	  this.rejectUnauthorized = opts.rejectUnauthorized;
+
+	  // other options for Node.js client
+	  this.extraHeaders = opts.extraHeaders;
+
+	  this.create();
+	}
+
+	/**
+	 * Mix in `Emitter`.
+	 */
+
+	Emitter(Request.prototype);
+
+	/**
+	 * Creates the XHR object and sends the request.
+	 *
+	 * @api private
+	 */
+
+	Request.prototype.create = function(){
+	  var opts = { agent: this.agent, xdomain: this.xd, xscheme: this.xs, enablesXDR: this.enablesXDR };
+
+	  // SSL options for Node.js client
+	  opts.pfx = this.pfx;
+	  opts.key = this.key;
+	  opts.passphrase = this.passphrase;
+	  opts.cert = this.cert;
+	  opts.ca = this.ca;
+	  opts.ciphers = this.ciphers;
+	  opts.rejectUnauthorized = this.rejectUnauthorized;
+
+	  var xhr = this.xhr = new XMLHttpRequest(opts);
+	  var self = this;
+
+	  try {
+	    debug('xhr open %s: %s', this.method, this.uri);
+	    xhr.open(this.method, this.uri, this.async);
+	    try {
+	      if (this.extraHeaders) {
+	        xhr.setDisableHeaderCheck(true);
+	        for (var i in this.extraHeaders) {
+	          if (this.extraHeaders.hasOwnProperty(i)) {
+	            xhr.setRequestHeader(i, this.extraHeaders[i]);
+	          }
+	        }
+	      }
+	    } catch (e) {}
+	    if (this.supportsBinary) {
+	      // This has to be done after open because Firefox is stupid
+	      // http://stackoverflow.com/questions/13216903/get-binary-data-with-xmlhttprequest-in-a-firefox-extension
+	      xhr.responseType = 'arraybuffer';
+	    }
+
+	    if ('POST' == this.method) {
+	      try {
+	        if (this.isBinary) {
+	          xhr.setRequestHeader('Content-type', 'application/octet-stream');
+	        } else {
+	          xhr.setRequestHeader('Content-type', 'text/plain;charset=UTF-8');
+	        }
+	      } catch (e) {}
+	    }
+
+	    // ie6 check
+	    if ('withCredentials' in xhr) {
+	      xhr.withCredentials = true;
+	    }
+
+	    if (this.hasXDR()) {
+	      xhr.onload = function(){
+	        self.onLoad();
+	      };
+	      xhr.onerror = function(){
+	        self.onError(xhr.responseText);
+	      };
+	    } else {
+	      xhr.onreadystatechange = function(){
+	        if (4 != xhr.readyState) return;
+	        if (200 == xhr.status || 1223 == xhr.status) {
+	          self.onLoad();
+	        } else {
+	          // make sure the `error` event handler that's user-set
+	          // does not throw in the same tick and gets caught here
+	          setTimeout(function(){
+	            self.onError(xhr.status);
+	          }, 0);
+	        }
+	      };
+	    }
+
+	    debug('xhr data %s', this.data);
+	    xhr.send(this.data);
+	  } catch (e) {
+	    // Need to defer since .create() is called directly fhrom the constructor
+	    // and thus the 'error' event can only be only bound *after* this exception
+	    // occurs.  Therefore, also, we cannot throw here at all.
+	    setTimeout(function() {
+	      self.onError(e);
+	    }, 0);
+	    return;
+	  }
+
+	  if (global.document) {
+	    this.index = Request.requestsCount++;
+	    Request.requests[this.index] = this;
+	  }
+	};
+
+	/**
+	 * Called upon successful response.
+	 *
+	 * @api private
+	 */
+
+	Request.prototype.onSuccess = function(){
+	  this.emit('success');
+	  this.cleanup();
+	};
+
+	/**
+	 * Called if we have data.
+	 *
+	 * @api private
+	 */
+
+	Request.prototype.onData = function(data){
+	  this.emit('data', data);
+	  this.onSuccess();
+	};
+
+	/**
+	 * Called upon error.
+	 *
+	 * @api private
+	 */
+
+	Request.prototype.onError = function(err){
+	  this.emit('error', err);
+	  this.cleanup(true);
+	};
+
+	/**
+	 * Cleans up house.
+	 *
+	 * @api private
+	 */
+
+	Request.prototype.cleanup = function(fromError){
+	  if ('undefined' == typeof this.xhr || null === this.xhr) {
+	    return;
+	  }
+	  // xmlhttprequest
+	  if (this.hasXDR()) {
+	    this.xhr.onload = this.xhr.onerror = empty;
+	  } else {
+	    this.xhr.onreadystatechange = empty;
+	  }
+
+	  if (fromError) {
+	    try {
+	      this.xhr.abort();
+	    } catch(e) {}
+	  }
+
+	  if (global.document) {
+	    delete Request.requests[this.index];
+	  }
+
+	  this.xhr = null;
+	};
+
+	/**
+	 * Called upon load.
+	 *
+	 * @api private
+	 */
+
+	Request.prototype.onLoad = function(){
+	  var data;
+	  try {
+	    var contentType;
+	    try {
+	      contentType = this.xhr.getResponseHeader('Content-Type').split(';')[0];
+	    } catch (e) {}
+	    if (contentType === 'application/octet-stream') {
+	      data = this.xhr.response;
+	    } else {
+	      if (!this.supportsBinary) {
+	        data = this.xhr.responseText;
+	      } else {
+	        try {
+	          data = String.fromCharCode.apply(null, new Uint8Array(this.xhr.response));
+	        } catch (e) {
+	          var ui8Arr = new Uint8Array(this.xhr.response);
+	          var dataArray = [];
+	          for (var idx = 0, length = ui8Arr.length; idx < length; idx++) {
+	            dataArray.push(ui8Arr[idx]);
+	          }
+
+	          data = String.fromCharCode.apply(null, dataArray);
+	        }
+	      }
+	    }
+	  } catch (e) {
+	    this.onError(e);
+	  }
+	  if (null != data) {
+	    this.onData(data);
+	  }
+	};
+
+	/**
+	 * Check if it has XDomainRequest.
+	 *
+	 * @api private
+	 */
+
+	Request.prototype.hasXDR = function(){
+	  return 'undefined' !== typeof global.XDomainRequest && !this.xs && this.enablesXDR;
+	};
+
+	/**
+	 * Aborts the request.
+	 *
+	 * @api public
+	 */
+
+	Request.prototype.abort = function(){
+	  this.cleanup();
+	};
+
+	/**
+	 * Aborts pending requests when unloading the window. This is needed to prevent
+	 * memory leaks (e.g. when using IE) and to ensure that no spurious error is
+	 * emitted.
+	 */
+
+	if (global.document) {
+	  Request.requestsCount = 0;
+	  Request.requests = {};
+	  if (global.attachEvent) {
+	    global.attachEvent('onunload', unloadHandler);
+	  } else if (global.addEventListener) {
+	    global.addEventListener('beforeunload', unloadHandler, false);
+	  }
+	}
+
+	function unloadHandler() {
+	  for (var i in Request.requests) {
+	    if (Request.requests.hasOwnProperty(i)) {
+	      Request.requests[i].abort();
+	    }
+	  }
+	}
+
+	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
+	},{"./polling":8,"component-emitter":15,"component-inherit":16,"debug":17,"xmlhttprequest-ssl":10}],8:[function(_dereq_,module,exports){
+	/**
+	 * Module dependencies.
+	 */
+
+	var Transport = _dereq_('../transport');
+	var parseqs = _dereq_('parseqs');
+	var parser = _dereq_('engine.io-parser');
+	var inherit = _dereq_('component-inherit');
+	var yeast = _dereq_('yeast');
+	var debug = _dereq_('debug')('engine.io-client:polling');
+
+	/**
+	 * Module exports.
+	 */
+
+	module.exports = Polling;
+
+	/**
+	 * Is XHR2 supported?
+	 */
+
+	var hasXHR2 = (function() {
+	  var XMLHttpRequest = _dereq_('xmlhttprequest-ssl');
+	  var xhr = new XMLHttpRequest({ xdomain: false });
+	  return null != xhr.responseType;
+	})();
+
+	/**
+	 * Polling interface.
+	 *
+	 * @param {Object} opts
+	 * @api private
+	 */
+
+	function Polling(opts){
+	  var forceBase64 = (opts && opts.forceBase64);
+	  if (!hasXHR2 || forceBase64) {
+	    this.supportsBinary = false;
+	  }
+	  Transport.call(this, opts);
+	}
+
+	/**
+	 * Inherits from Transport.
+	 */
+
+	inherit(Polling, Transport);
+
+	/**
+	 * Transport name.
+	 */
+
+	Polling.prototype.name = 'polling';
+
+	/**
+	 * Opens the socket (triggers polling). We write a PING message to determine
+	 * when the transport is open.
+	 *
+	 * @api private
+	 */
+
+	Polling.prototype.doOpen = function(){
+	  this.poll();
+	};
+
+	/**
+	 * Pauses polling.
+	 *
+	 * @param {Function} callback upon buffers are flushed and transport is paused
+	 * @api private
+	 */
+
+	Polling.prototype.pause = function(onPause){
+	  var pending = 0;
+	  var self = this;
+
+	  this.readyState = 'pausing';
+
+	  function pause(){
+	    debug('paused');
+	    self.readyState = 'paused';
+	    onPause();
+	  }
+
+	  if (this.polling || !this.writable) {
+	    var total = 0;
+
+	    if (this.polling) {
+	      debug('we are currently polling - waiting to pause');
+	      total++;
+	      this.once('pollComplete', function(){
+	        debug('pre-pause polling complete');
+	        --total || pause();
 	      });
 	    }
+
+	    if (!this.writable) {
+	      debug('we are currently writing - waiting to pause');
+	      total++;
+	      this.once('drain', function(){
+	        debug('pre-pause writing complete');
+	        --total || pause();
+	      });
+	    }
+	  } else {
+	    pause();
 	  }
+	};
 
-	  function isAllowed(ruleType, element, currentAnimation, previousAnimation) {
-	    return rules[ruleType].some(function(fn) {
-	      return fn(element, currentAnimation, previousAnimation);
-	    });
-	  }
+	/**
+	 * Starts polling cycle.
+	 *
+	 * @api public
+	 */
 
-	  function hasAnimationClasses(animation, and) {
-	    var a = (animation.addClass || '').length > 0;
-	    var b = (animation.removeClass || '').length > 0;
-	    return and ? a && b : a || b;
-	  }
+	Polling.prototype.poll = function(){
+	  debug('polling');
+	  this.polling = true;
+	  this.doPoll();
+	  this.emit('poll');
+	};
 
-	  rules.join.push(function(element, newAnimation, currentAnimation) {
-	    // if the new animation is class-based then we can just tack that on
-	    return !newAnimation.structural && hasAnimationClasses(newAnimation);
-	  });
+	/**
+	 * Overloads onData to detect payloads.
+	 *
+	 * @api private
+	 */
 
-	  rules.skip.push(function(element, newAnimation, currentAnimation) {
-	    // there is no need to animate anything if no classes are being added and
-	    // there is no structural animation that will be triggered
-	    return !newAnimation.structural && !hasAnimationClasses(newAnimation);
-	  });
+	Polling.prototype.onData = function(data){
+	  var self = this;
+	  debug('polling got data %s', data);
+	  var callback = function(packet, index, total) {
+	    // if its the first message we consider the transport open
+	    if ('opening' == self.readyState) {
+	      self.onOpen();
+	    }
 
-	  rules.skip.push(function(element, newAnimation, currentAnimation) {
-	    // why should we trigger a new structural animation if the element will
-	    // be removed from the DOM anyway?
-	    return currentAnimation.event == 'leave' && newAnimation.structural;
-	  });
-
-	  rules.skip.push(function(element, newAnimation, currentAnimation) {
-	    // if there is an ongoing current animation then don't even bother running the class-based animation
-	    return currentAnimation.structural && currentAnimation.state === RUNNING_STATE && !newAnimation.structural;
-	  });
-
-	  rules.cancel.push(function(element, newAnimation, currentAnimation) {
-	    // there can never be two structural animations running at the same time
-	    return currentAnimation.structural && newAnimation.structural;
-	  });
-
-	  rules.cancel.push(function(element, newAnimation, currentAnimation) {
-	    // if the previous animation is already running, but the new animation will
-	    // be triggered, but the new animation is structural
-	    return currentAnimation.state === RUNNING_STATE && newAnimation.structural;
-	  });
-
-	  rules.cancel.push(function(element, newAnimation, currentAnimation) {
-	    var nA = newAnimation.addClass;
-	    var nR = newAnimation.removeClass;
-	    var cA = currentAnimation.addClass;
-	    var cR = currentAnimation.removeClass;
-
-	    // early detection to save the global CPU shortage :)
-	    if ((isUndefined(nA) && isUndefined(nR)) || (isUndefined(cA) && isUndefined(cR))) {
+	    // if its a close packet, we close the ongoing requests
+	    if ('close' == packet.type) {
+	      self.onClose();
 	      return false;
 	    }
 
-	    return hasMatchingClasses(nA, cR) || hasMatchingClasses(nR, cA);
-	  });
-
-	  this.$get = ['$$rAF', '$rootScope', '$rootElement', '$document', '$$HashMap',
-	               '$$animation', '$$AnimateRunner', '$templateRequest', '$$jqLite', '$$forceReflow',
-	       function($$rAF,   $rootScope,   $rootElement,   $document,   $$HashMap,
-	                $$animation,   $$AnimateRunner,   $templateRequest,   $$jqLite,   $$forceReflow) {
-
-	    var activeAnimationsLookup = new $$HashMap();
-	    var disabledElementsLookup = new $$HashMap();
-	    var animationsEnabled = null;
-
-	    function postDigestTaskFactory() {
-	      var postDigestCalled = false;
-	      return function(fn) {
-	        // we only issue a call to postDigest before
-	        // it has first passed. This prevents any callbacks
-	        // from not firing once the animation has completed
-	        // since it will be out of the digest cycle.
-	        if (postDigestCalled) {
-	          fn();
-	        } else {
-	          $rootScope.$$postDigest(function() {
-	            postDigestCalled = true;
-	            fn();
-	          });
-	        }
-	      };
-	    }
-
-	    // Wait until all directive and route-related templates are downloaded and
-	    // compiled. The $templateRequest.totalPendingRequests variable keeps track of
-	    // all of the remote templates being currently downloaded. If there are no
-	    // templates currently downloading then the watcher will still fire anyway.
-	    var deregisterWatch = $rootScope.$watch(
-	      function() { return $templateRequest.totalPendingRequests === 0; },
-	      function(isEmpty) {
-	        if (!isEmpty) return;
-	        deregisterWatch();
-
-	        // Now that all templates have been downloaded, $animate will wait until
-	        // the post digest queue is empty before enabling animations. By having two
-	        // calls to $postDigest calls we can ensure that the flag is enabled at the
-	        // very end of the post digest queue. Since all of the animations in $animate
-	        // use $postDigest, it's important that the code below executes at the end.
-	        // This basically means that the page is fully downloaded and compiled before
-	        // any animations are triggered.
-	        $rootScope.$$postDigest(function() {
-	          $rootScope.$$postDigest(function() {
-	            // we check for null directly in the event that the application already called
-	            // .enabled() with whatever arguments that it provided it with
-	            if (animationsEnabled === null) {
-	              animationsEnabled = true;
-	            }
-	          });
-	        });
-	      }
-	    );
-
-	    var callbackRegistry = {};
-
-	    // remember that the classNameFilter is set during the provider/config
-	    // stage therefore we can optimize here and setup a helper function
-	    var classNameFilter = $animateProvider.classNameFilter();
-	    var isAnimatableClassName = !classNameFilter
-	              ? function() { return true; }
-	              : function(className) {
-	                return classNameFilter.test(className);
-	              };
-
-	    var applyAnimationClasses = applyAnimationClassesFactory($$jqLite);
-
-	    function normalizeAnimationDetails(element, animation) {
-	      return mergeAnimationDetails(element, animation, {});
-	    }
-
-	    // IE9-11 has no method "contains" in SVG element and in Node.prototype. Bug #10259.
-	    var contains = Node.prototype.contains || function(arg) {
-	      // jshint bitwise: false
-	      return this === arg || !!(this.compareDocumentPosition(arg) & 16);
-	      // jshint bitwise: true
-	    };
-
-	    function findCallbacks(parent, element, event) {
-	      var targetNode = getDomNode(element);
-	      var targetParentNode = getDomNode(parent);
-
-	      var matches = [];
-	      var entries = callbackRegistry[event];
-	      if (entries) {
-	        forEach(entries, function(entry) {
-	          if (contains.call(entry.node, targetNode)) {
-	            matches.push(entry.callback);
-	          } else if (event === 'leave' && contains.call(entry.node, targetParentNode)) {
-	            matches.push(entry.callback);
-	          }
-	        });
-	      }
-
-	      return matches;
-	    }
-
-	    var $animate = {
-	      on: function(event, container, callback) {
-	        var node = extractElementNode(container);
-	        callbackRegistry[event] = callbackRegistry[event] || [];
-	        callbackRegistry[event].push({
-	          node: node,
-	          callback: callback
-	        });
-
-	        // Remove the callback when the element is removed from the DOM
-	        jqLite(container).on('$destroy', function() {
-	          $animate.off(event, container, callback);
-	        });
-	      },
-
-	      off: function(event, container, callback) {
-	        var entries = callbackRegistry[event];
-	        if (!entries) return;
-
-	        callbackRegistry[event] = arguments.length === 1
-	            ? null
-	            : filterFromRegistry(entries, container, callback);
-
-	        function filterFromRegistry(list, matchContainer, matchCallback) {
-	          var containerNode = extractElementNode(matchContainer);
-	          return list.filter(function(entry) {
-	            var isMatch = entry.node === containerNode &&
-	                            (!matchCallback || entry.callback === matchCallback);
-	            return !isMatch;
-	          });
-	        }
-	      },
-
-	      pin: function(element, parentElement) {
-	        assertArg(isElement(element), 'element', 'not an element');
-	        assertArg(isElement(parentElement), 'parentElement', 'not an element');
-	        element.data(NG_ANIMATE_PIN_DATA, parentElement);
-	      },
-
-	      push: function(element, event, options, domOperation) {
-	        options = options || {};
-	        options.domOperation = domOperation;
-	        return queueAnimation(element, event, options);
-	      },
-
-	      // this method has four signatures:
-	      //  () - global getter
-	      //  (bool) - global setter
-	      //  (element) - element getter
-	      //  (element, bool) - element setter<F37>
-	      enabled: function(element, bool) {
-	        var argCount = arguments.length;
-
-	        if (argCount === 0) {
-	          // () - Global getter
-	          bool = !!animationsEnabled;
-	        } else {
-	          var hasElement = isElement(element);
-
-	          if (!hasElement) {
-	            // (bool) - Global setter
-	            bool = animationsEnabled = !!element;
-	          } else {
-	            var node = getDomNode(element);
-	            var recordExists = disabledElementsLookup.get(node);
-
-	            if (argCount === 1) {
-	              // (element) - Element getter
-	              bool = !recordExists;
-	            } else {
-	              // (element, bool) - Element setter
-	              disabledElementsLookup.put(node, !bool);
-	            }
-	          }
-	        }
-
-	        return bool;
-	      }
-	    };
-
-	    return $animate;
-
-	    function queueAnimation(element, event, initialOptions) {
-	      // we always make a copy of the options since
-	      // there should never be any side effects on
-	      // the input data when running `$animateCss`.
-	      var options = copy(initialOptions);
-
-	      var node, parent;
-	      element = stripCommentsFromElement(element);
-	      if (element) {
-	        node = getDomNode(element);
-	        parent = element.parent();
-	      }
-
-	      options = prepareAnimationOptions(options);
-
-	      // we create a fake runner with a working promise.
-	      // These methods will become available after the digest has passed
-	      var runner = new $$AnimateRunner();
-
-	      // this is used to trigger callbacks in postDigest mode
-	      var runInNextPostDigestOrNow = postDigestTaskFactory();
-
-	      if (isArray(options.addClass)) {
-	        options.addClass = options.addClass.join(' ');
-	      }
-
-	      if (options.addClass && !isString(options.addClass)) {
-	        options.addClass = null;
-	      }
-
-	      if (isArray(options.removeClass)) {
-	        options.removeClass = options.removeClass.join(' ');
-	      }
-
-	      if (options.removeClass && !isString(options.removeClass)) {
-	        options.removeClass = null;
-	      }
-
-	      if (options.from && !isObject(options.from)) {
-	        options.from = null;
-	      }
-
-	      if (options.to && !isObject(options.to)) {
-	        options.to = null;
-	      }
-
-	      // there are situations where a directive issues an animation for
-	      // a jqLite wrapper that contains only comment nodes... If this
-	      // happens then there is no way we can perform an animation
-	      if (!node) {
-	        close();
-	        return runner;
-	      }
-
-	      var className = [node.className, options.addClass, options.removeClass].join(' ');
-	      if (!isAnimatableClassName(className)) {
-	        close();
-	        return runner;
-	      }
-
-	      var isStructural = ['enter', 'move', 'leave'].indexOf(event) >= 0;
-
-	      // this is a hard disable of all animations for the application or on
-	      // the element itself, therefore  there is no need to continue further
-	      // past this point if not enabled
-	      // Animations are also disabled if the document is currently hidden (page is not visible
-	      // to the user), because browsers slow down or do not flush calls to requestAnimationFrame
-	      var skipAnimations = !animationsEnabled || $document[0].hidden || disabledElementsLookup.get(node);
-	      var existingAnimation = (!skipAnimations && activeAnimationsLookup.get(node)) || {};
-	      var hasExistingAnimation = !!existingAnimation.state;
-
-	      // there is no point in traversing the same collection of parent ancestors if a followup
-	      // animation will be run on the same element that already did all that checking work
-	      if (!skipAnimations && (!hasExistingAnimation || existingAnimation.state != PRE_DIGEST_STATE)) {
-	        skipAnimations = !areAnimationsAllowed(element, parent, event);
-	      }
-
-	      if (skipAnimations) {
-	        close();
-	        return runner;
-	      }
-
-	      if (isStructural) {
-	        closeChildAnimations(element);
-	      }
-
-	      var newAnimation = {
-	        structural: isStructural,
-	        element: element,
-	        event: event,
-	        addClass: options.addClass,
-	        removeClass: options.removeClass,
-	        close: close,
-	        options: options,
-	        runner: runner
-	      };
-
-	      if (hasExistingAnimation) {
-	        var skipAnimationFlag = isAllowed('skip', element, newAnimation, existingAnimation);
-	        if (skipAnimationFlag) {
-	          if (existingAnimation.state === RUNNING_STATE) {
-	            close();
-	            return runner;
-	          } else {
-	            mergeAnimationDetails(element, existingAnimation, newAnimation);
-	            return existingAnimation.runner;
-	          }
-	        }
-	        var cancelAnimationFlag = isAllowed('cancel', element, newAnimation, existingAnimation);
-	        if (cancelAnimationFlag) {
-	          if (existingAnimation.state === RUNNING_STATE) {
-	            // this will end the animation right away and it is safe
-	            // to do so since the animation is already running and the
-	            // runner callback code will run in async
-	            existingAnimation.runner.end();
-	          } else if (existingAnimation.structural) {
-	            // this means that the animation is queued into a digest, but
-	            // hasn't started yet. Therefore it is safe to run the close
-	            // method which will call the runner methods in async.
-	            existingAnimation.close();
-	          } else {
-	            // this will merge the new animation options into existing animation options
-	            mergeAnimationDetails(element, existingAnimation, newAnimation);
-
-	            return existingAnimation.runner;
-	          }
-	        } else {
-	          // a joined animation means that this animation will take over the existing one
-	          // so an example would involve a leave animation taking over an enter. Then when
-	          // the postDigest kicks in the enter will be ignored.
-	          var joinAnimationFlag = isAllowed('join', element, newAnimation, existingAnimation);
-	          if (joinAnimationFlag) {
-	            if (existingAnimation.state === RUNNING_STATE) {
-	              normalizeAnimationDetails(element, newAnimation);
-	            } else {
-	              applyGeneratedPreparationClasses(element, isStructural ? event : null, options);
-
-	              event = newAnimation.event = existingAnimation.event;
-	              options = mergeAnimationDetails(element, existingAnimation, newAnimation);
-
-	              //we return the same runner since only the option values of this animation will
-	              //be fed into the `existingAnimation`.
-	              return existingAnimation.runner;
-	            }
-	          }
-	        }
-	      } else {
-	        // normalization in this case means that it removes redundant CSS classes that
-	        // already exist (addClass) or do not exist (removeClass) on the element
-	        normalizeAnimationDetails(element, newAnimation);
-	      }
-
-	      // when the options are merged and cleaned up we may end up not having to do
-	      // an animation at all, therefore we should check this before issuing a post
-	      // digest callback. Structural animations will always run no matter what.
-	      var isValidAnimation = newAnimation.structural;
-	      if (!isValidAnimation) {
-	        // animate (from/to) can be quickly checked first, otherwise we check if any classes are present
-	        isValidAnimation = (newAnimation.event === 'animate' && Object.keys(newAnimation.options.to || {}).length > 0)
-	                            || hasAnimationClasses(newAnimation);
-	      }
-
-	      if (!isValidAnimation) {
-	        close();
-	        clearElementAnimationState(element);
-	        return runner;
-	      }
-
-	      // the counter keeps track of cancelled animations
-	      var counter = (existingAnimation.counter || 0) + 1;
-	      newAnimation.counter = counter;
-
-	      markElementAnimationState(element, PRE_DIGEST_STATE, newAnimation);
-
-	      $rootScope.$$postDigest(function() {
-	        var animationDetails = activeAnimationsLookup.get(node);
-	        var animationCancelled = !animationDetails;
-	        animationDetails = animationDetails || {};
-
-	        // if addClass/removeClass is called before something like enter then the
-	        // registered parent element may not be present. The code below will ensure
-	        // that a final value for parent element is obtained
-	        var parentElement = element.parent() || [];
-
-	        // animate/structural/class-based animations all have requirements. Otherwise there
-	        // is no point in performing an animation. The parent node must also be set.
-	        var isValidAnimation = parentElement.length > 0
-	                                && (animationDetails.event === 'animate'
-	                                    || animationDetails.structural
-	                                    || hasAnimationClasses(animationDetails));
-
-	        // this means that the previous animation was cancelled
-	        // even if the follow-up animation is the same event
-	        if (animationCancelled || animationDetails.counter !== counter || !isValidAnimation) {
-	          // if another animation did not take over then we need
-	          // to make sure that the domOperation and options are
-	          // handled accordingly
-	          if (animationCancelled) {
-	            applyAnimationClasses(element, options);
-	            applyAnimationStyles(element, options);
-	          }
-
-	          // if the event changed from something like enter to leave then we do
-	          // it, otherwise if it's the same then the end result will be the same too
-	          if (animationCancelled || (isStructural && animationDetails.event !== event)) {
-	            options.domOperation();
-	            runner.end();
-	          }
-
-	          // in the event that the element animation was not cancelled or a follow-up animation
-	          // isn't allowed to animate from here then we need to clear the state of the element
-	          // so that any future animations won't read the expired animation data.
-	          if (!isValidAnimation) {
-	            clearElementAnimationState(element);
-	          }
-
-	          return;
-	        }
-
-	        // this combined multiple class to addClass / removeClass into a setClass event
-	        // so long as a structural event did not take over the animation
-	        event = !animationDetails.structural && hasAnimationClasses(animationDetails, true)
-	            ? 'setClass'
-	            : animationDetails.event;
-
-	        markElementAnimationState(element, RUNNING_STATE);
-	        var realRunner = $$animation(element, event, animationDetails.options);
-
-	        realRunner.done(function(status) {
-	          close(!status);
-	          var animationDetails = activeAnimationsLookup.get(node);
-	          if (animationDetails && animationDetails.counter === counter) {
-	            clearElementAnimationState(getDomNode(element));
-	          }
-	          notifyProgress(runner, event, 'close', {});
-	        });
-
-	        // this will update the runner's flow-control events based on
-	        // the `realRunner` object.
-	        runner.setHost(realRunner);
-	        notifyProgress(runner, event, 'start', {});
-	      });
-
-	      return runner;
-
-	      function notifyProgress(runner, event, phase, data) {
-	        runInNextPostDigestOrNow(function() {
-	          var callbacks = findCallbacks(parent, element, event);
-	          if (callbacks.length) {
-	            // do not optimize this call here to RAF because
-	            // we don't know how heavy the callback code here will
-	            // be and if this code is buffered then this can
-	            // lead to a performance regression.
-	            $$rAF(function() {
-	              forEach(callbacks, function(callback) {
-	                callback(element, phase, data);
-	              });
-	            });
-	          }
-	        });
-	        runner.progress(event, phase, data);
-	      }
-
-	      function close(reject) { // jshint ignore:line
-	        clearGeneratedClasses(element, options);
-	        applyAnimationClasses(element, options);
-	        applyAnimationStyles(element, options);
-	        options.domOperation();
-	        runner.complete(!reject);
-	      }
-	    }
-
-	    function closeChildAnimations(element) {
-	      var node = getDomNode(element);
-	      var children = node.querySelectorAll('[' + NG_ANIMATE_ATTR_NAME + ']');
-	      forEach(children, function(child) {
-	        var state = parseInt(child.getAttribute(NG_ANIMATE_ATTR_NAME));
-	        var animationDetails = activeAnimationsLookup.get(child);
-	        if (animationDetails) {
-	          switch (state) {
-	            case RUNNING_STATE:
-	              animationDetails.runner.end();
-	              /* falls through */
-	            case PRE_DIGEST_STATE:
-	              activeAnimationsLookup.remove(child);
-	              break;
-	          }
-	        }
-	      });
-	    }
-
-	    function clearElementAnimationState(element) {
-	      var node = getDomNode(element);
-	      node.removeAttribute(NG_ANIMATE_ATTR_NAME);
-	      activeAnimationsLookup.remove(node);
-	    }
-
-	    function isMatchingElement(nodeOrElmA, nodeOrElmB) {
-	      return getDomNode(nodeOrElmA) === getDomNode(nodeOrElmB);
-	    }
-
-	    /**
-	     * This fn returns false if any of the following is true:
-	     * a) animations on any parent element are disabled, and animations on the element aren't explicitly allowed
-	     * b) a parent element has an ongoing structural animation, and animateChildren is false
-	     * c) the element is not a child of the body
-	     * d) the element is not a child of the $rootElement
-	     */
-	    function areAnimationsAllowed(element, parentElement, event) {
-	      var bodyElement = jqLite($document[0].body);
-	      var bodyElementDetected = isMatchingElement(element, bodyElement) || element[0].nodeName === 'HTML';
-	      var rootElementDetected = isMatchingElement(element, $rootElement);
-	      var parentAnimationDetected = false;
-	      var animateChildren;
-	      var elementDisabled = disabledElementsLookup.get(getDomNode(element));
-
-	      var parentHost = jqLite.data(element[0], NG_ANIMATE_PIN_DATA);
-	      if (parentHost) {
-	        parentElement = parentHost;
-	      }
-
-	      parentElement = getDomNode(parentElement);
-
-	      while (parentElement) {
-	        if (!rootElementDetected) {
-	          // angular doesn't want to attempt to animate elements outside of the application
-	          // therefore we need to ensure that the rootElement is an ancestor of the current element
-	          rootElementDetected = isMatchingElement(parentElement, $rootElement);
-	        }
-
-	        if (parentElement.nodeType !== ELEMENT_NODE) {
-	          // no point in inspecting the #document element
-	          break;
-	        }
-
-	        var details = activeAnimationsLookup.get(parentElement) || {};
-	        // either an enter, leave or move animation will commence
-	        // therefore we can't allow any animations to take place
-	        // but if a parent animation is class-based then that's ok
-	        if (!parentAnimationDetected) {
-	          var parentElementDisabled = disabledElementsLookup.get(parentElement);
-
-	          if (parentElementDisabled === true && elementDisabled !== false) {
-	            // disable animations if the user hasn't explicitly enabled animations on the
-	            // current element
-	            elementDisabled = true;
-	            // element is disabled via parent element, no need to check anything else
-	            break;
-	          } else if (parentElementDisabled === false) {
-	            elementDisabled = false;
-	          }
-	          parentAnimationDetected = details.structural;
-	        }
-
-	        if (isUndefined(animateChildren) || animateChildren === true) {
-	          var value = jqLite.data(parentElement, NG_ANIMATE_CHILDREN_DATA);
-	          if (isDefined(value)) {
-	            animateChildren = value;
-	          }
-	        }
-
-	        // there is no need to continue traversing at this point
-	        if (parentAnimationDetected && animateChildren === false) break;
-
-	        if (!bodyElementDetected) {
-	          // we also need to ensure that the element is or will be a part of the body element
-	          // otherwise it is pointless to even issue an animation to be rendered
-	          bodyElementDetected = isMatchingElement(parentElement, bodyElement);
-	        }
-
-	        if (bodyElementDetected && rootElementDetected) {
-	          // If both body and root have been found, any other checks are pointless,
-	          // as no animation data should live outside the application
-	          break;
-	        }
-
-	        if (!rootElementDetected) {
-	          // If no rootElement is detected, check if the parentElement is pinned to another element
-	          parentHost = jqLite.data(parentElement, NG_ANIMATE_PIN_DATA);
-	          if (parentHost) {
-	            // The pin target element becomes the next parent element
-	            parentElement = getDomNode(parentHost);
-	            continue;
-	          }
-	        }
-
-	        parentElement = parentElement.parentNode;
-	      }
-
-	      var allowAnimation = (!parentAnimationDetected || animateChildren) && elementDisabled !== true;
-	      return allowAnimation && rootElementDetected && bodyElementDetected;
-	    }
-
-	    function markElementAnimationState(element, state, details) {
-	      details = details || {};
-	      details.state = state;
-
-	      var node = getDomNode(element);
-	      node.setAttribute(NG_ANIMATE_ATTR_NAME, state);
-
-	      var oldValue = activeAnimationsLookup.get(node);
-	      var newValue = oldValue
-	          ? extend(oldValue, details)
-	          : details;
-	      activeAnimationsLookup.put(node, newValue);
-	    }
-	  }];
-	}];
-
-	var $$AnimationProvider = ['$animateProvider', function($animateProvider) {
-	  var NG_ANIMATE_REF_ATTR = 'ng-animate-ref';
-
-	  var drivers = this.drivers = [];
-
-	  var RUNNER_STORAGE_KEY = '$$animationRunner';
-
-	  function setRunner(element, runner) {
-	    element.data(RUNNER_STORAGE_KEY, runner);
-	  }
-
-	  function removeRunner(element) {
-	    element.removeData(RUNNER_STORAGE_KEY);
-	  }
-
-	  function getRunner(element) {
-	    return element.data(RUNNER_STORAGE_KEY);
-	  }
-
-	  this.$get = ['$$jqLite', '$rootScope', '$injector', '$$AnimateRunner', '$$HashMap', '$$rAFScheduler',
-	       function($$jqLite,   $rootScope,   $injector,   $$AnimateRunner,   $$HashMap,   $$rAFScheduler) {
-
-	    var animationQueue = [];
-	    var applyAnimationClasses = applyAnimationClassesFactory($$jqLite);
-
-	    function sortAnimations(animations) {
-	      var tree = { children: [] };
-	      var i, lookup = new $$HashMap();
-
-	      // this is done first beforehand so that the hashmap
-	      // is filled with a list of the elements that will be animated
-	      for (i = 0; i < animations.length; i++) {
-	        var animation = animations[i];
-	        lookup.put(animation.domNode, animations[i] = {
-	          domNode: animation.domNode,
-	          fn: animation.fn,
-	          children: []
-	        });
-	      }
-
-	      for (i = 0; i < animations.length; i++) {
-	        processNode(animations[i]);
-	      }
-
-	      return flatten(tree);
-
-	      function processNode(entry) {
-	        if (entry.processed) return entry;
-	        entry.processed = true;
-
-	        var elementNode = entry.domNode;
-	        var parentNode = elementNode.parentNode;
-	        lookup.put(elementNode, entry);
-
-	        var parentEntry;
-	        while (parentNode) {
-	          parentEntry = lookup.get(parentNode);
-	          if (parentEntry) {
-	            if (!parentEntry.processed) {
-	              parentEntry = processNode(parentEntry);
-	            }
-	            break;
-	          }
-	          parentNode = parentNode.parentNode;
-	        }
-
-	        (parentEntry || tree).children.push(entry);
-	        return entry;
-	      }
-
-	      function flatten(tree) {
-	        var result = [];
-	        var queue = [];
-	        var i;
-
-	        for (i = 0; i < tree.children.length; i++) {
-	          queue.push(tree.children[i]);
-	        }
-
-	        var remainingLevelEntries = queue.length;
-	        var nextLevelEntries = 0;
-	        var row = [];
-
-	        for (i = 0; i < queue.length; i++) {
-	          var entry = queue[i];
-	          if (remainingLevelEntries <= 0) {
-	            remainingLevelEntries = nextLevelEntries;
-	            nextLevelEntries = 0;
-	            result.push(row);
-	            row = [];
-	          }
-	          row.push(entry.fn);
-	          entry.children.forEach(function(childEntry) {
-	            nextLevelEntries++;
-	            queue.push(childEntry);
-	          });
-	          remainingLevelEntries--;
-	        }
-
-	        if (row.length) {
-	          result.push(row);
-	        }
-
-	        return result;
-	      }
-	    }
-
-	    // TODO(matsko): document the signature in a better way
-	    return function(element, event, options) {
-	      options = prepareAnimationOptions(options);
-	      var isStructural = ['enter', 'move', 'leave'].indexOf(event) >= 0;
-
-	      // there is no animation at the current moment, however
-	      // these runner methods will get later updated with the
-	      // methods leading into the driver's end/cancel methods
-	      // for now they just stop the animation from starting
-	      var runner = new $$AnimateRunner({
-	        end: function() { close(); },
-	        cancel: function() { close(true); }
-	      });
-
-	      if (!drivers.length) {
-	        close();
-	        return runner;
-	      }
-
-	      setRunner(element, runner);
-
-	      var classes = mergeClasses(element.attr('class'), mergeClasses(options.addClass, options.removeClass));
-	      var tempClasses = options.tempClasses;
-	      if (tempClasses) {
-	        classes += ' ' + tempClasses;
-	        options.tempClasses = null;
-	      }
-
-	      var prepareClassName;
-	      if (isStructural) {
-	        prepareClassName = 'ng-' + event + PREPARE_CLASS_SUFFIX;
-	        $$jqLite.addClass(element, prepareClassName);
-	      }
-
-	      animationQueue.push({
-	        // this data is used by the postDigest code and passed into
-	        // the driver step function
-	        element: element,
-	        classes: classes,
-	        event: event,
-	        structural: isStructural,
-	        options: options,
-	        beforeStart: beforeStart,
-	        close: close
-	      });
-
-	      element.on('$destroy', handleDestroyedElement);
-
-	      // we only want there to be one function called within the post digest
-	      // block. This way we can group animations for all the animations that
-	      // were apart of the same postDigest flush call.
-	      if (animationQueue.length > 1) return runner;
-
-	      $rootScope.$$postDigest(function() {
-	        var animations = [];
-	        forEach(animationQueue, function(entry) {
-	          // the element was destroyed early on which removed the runner
-	          // form its storage. This means we can't animate this element
-	          // at all and it already has been closed due to destruction.
-	          if (getRunner(entry.element)) {
-	            animations.push(entry);
-	          } else {
-	            entry.close();
-	          }
-	        });
-
-	        // now any future animations will be in another postDigest
-	        animationQueue.length = 0;
-
-	        var groupedAnimations = groupAnimations(animations);
-	        var toBeSortedAnimations = [];
-
-	        forEach(groupedAnimations, function(animationEntry) {
-	          toBeSortedAnimations.push({
-	            domNode: getDomNode(animationEntry.from ? animationEntry.from.element : animationEntry.element),
-	            fn: function triggerAnimationStart() {
-	              // it's important that we apply the `ng-animate` CSS class and the
-	              // temporary classes before we do any driver invoking since these
-	              // CSS classes may be required for proper CSS detection.
-	              animationEntry.beforeStart();
-
-	              var startAnimationFn, closeFn = animationEntry.close;
-
-	              // in the event that the element was removed before the digest runs or
-	              // during the RAF sequencing then we should not trigger the animation.
-	              var targetElement = animationEntry.anchors
-	                  ? (animationEntry.from.element || animationEntry.to.element)
-	                  : animationEntry.element;
-
-	              if (getRunner(targetElement)) {
-	                var operation = invokeFirstDriver(animationEntry);
-	                if (operation) {
-	                  startAnimationFn = operation.start;
-	                }
-	              }
-
-	              if (!startAnimationFn) {
-	                closeFn();
-	              } else {
-	                var animationRunner = startAnimationFn();
-	                animationRunner.done(function(status) {
-	                  closeFn(!status);
-	                });
-	                updateAnimationRunners(animationEntry, animationRunner);
-	              }
-	            }
-	          });
-	        });
-
-	        // we need to sort each of the animations in order of parent to child
-	        // relationships. This ensures that the child classes are applied at the
-	        // right time.
-	        $$rAFScheduler(sortAnimations(toBeSortedAnimations));
-	      });
-
-	      return runner;
-
-	      // TODO(matsko): change to reference nodes
-	      function getAnchorNodes(node) {
-	        var SELECTOR = '[' + NG_ANIMATE_REF_ATTR + ']';
-	        var items = node.hasAttribute(NG_ANIMATE_REF_ATTR)
-	              ? [node]
-	              : node.querySelectorAll(SELECTOR);
-	        var anchors = [];
-	        forEach(items, function(node) {
-	          var attr = node.getAttribute(NG_ANIMATE_REF_ATTR);
-	          if (attr && attr.length) {
-	            anchors.push(node);
-	          }
-	        });
-	        return anchors;
-	      }
-
-	      function groupAnimations(animations) {
-	        var preparedAnimations = [];
-	        var refLookup = {};
-	        forEach(animations, function(animation, index) {
-	          var element = animation.element;
-	          var node = getDomNode(element);
-	          var event = animation.event;
-	          var enterOrMove = ['enter', 'move'].indexOf(event) >= 0;
-	          var anchorNodes = animation.structural ? getAnchorNodes(node) : [];
-
-	          if (anchorNodes.length) {
-	            var direction = enterOrMove ? 'to' : 'from';
-
-	            forEach(anchorNodes, function(anchor) {
-	              var key = anchor.getAttribute(NG_ANIMATE_REF_ATTR);
-	              refLookup[key] = refLookup[key] || {};
-	              refLookup[key][direction] = {
-	                animationID: index,
-	                element: jqLite(anchor)
-	              };
-	            });
-	          } else {
-	            preparedAnimations.push(animation);
-	          }
-	        });
-
-	        var usedIndicesLookup = {};
-	        var anchorGroups = {};
-	        forEach(refLookup, function(operations, key) {
-	          var from = operations.from;
-	          var to = operations.to;
-
-	          if (!from || !to) {
-	            // only one of these is set therefore we can't have an
-	            // anchor animation since all three pieces are required
-	            var index = from ? from.animationID : to.animationID;
-	            var indexKey = index.toString();
-	            if (!usedIndicesLookup[indexKey]) {
-	              usedIndicesLookup[indexKey] = true;
-	              preparedAnimations.push(animations[index]);
-	            }
-	            return;
-	          }
-
-	          var fromAnimation = animations[from.animationID];
-	          var toAnimation = animations[to.animationID];
-	          var lookupKey = from.animationID.toString();
-	          if (!anchorGroups[lookupKey]) {
-	            var group = anchorGroups[lookupKey] = {
-	              structural: true,
-	              beforeStart: function() {
-	                fromAnimation.beforeStart();
-	                toAnimation.beforeStart();
-	              },
-	              close: function() {
-	                fromAnimation.close();
-	                toAnimation.close();
-	              },
-	              classes: cssClassesIntersection(fromAnimation.classes, toAnimation.classes),
-	              from: fromAnimation,
-	              to: toAnimation,
-	              anchors: [] // TODO(matsko): change to reference nodes
-	            };
-
-	            // the anchor animations require that the from and to elements both have at least
-	            // one shared CSS class which effectively marries the two elements together to use
-	            // the same animation driver and to properly sequence the anchor animation.
-	            if (group.classes.length) {
-	              preparedAnimations.push(group);
-	            } else {
-	              preparedAnimations.push(fromAnimation);
-	              preparedAnimations.push(toAnimation);
-	            }
-	          }
-
-	          anchorGroups[lookupKey].anchors.push({
-	            'out': from.element, 'in': to.element
-	          });
-	        });
-
-	        return preparedAnimations;
-	      }
-
-	      function cssClassesIntersection(a,b) {
-	        a = a.split(' ');
-	        b = b.split(' ');
-	        var matches = [];
-
-	        for (var i = 0; i < a.length; i++) {
-	          var aa = a[i];
-	          if (aa.substring(0,3) === 'ng-') continue;
-
-	          for (var j = 0; j < b.length; j++) {
-	            if (aa === b[j]) {
-	              matches.push(aa);
-	              break;
-	            }
-	          }
-	        }
-
-	        return matches.join(' ');
-	      }
-
-	      function invokeFirstDriver(animationDetails) {
-	        // we loop in reverse order since the more general drivers (like CSS and JS)
-	        // may attempt more elements, but custom drivers are more particular
-	        for (var i = drivers.length - 1; i >= 0; i--) {
-	          var driverName = drivers[i];
-	          if (!$injector.has(driverName)) continue; // TODO(matsko): remove this check
-
-	          var factory = $injector.get(driverName);
-	          var driver = factory(animationDetails);
-	          if (driver) {
-	            return driver;
-	          }
-	        }
-	      }
-
-	      function beforeStart() {
-	        element.addClass(NG_ANIMATE_CLASSNAME);
-	        if (tempClasses) {
-	          $$jqLite.addClass(element, tempClasses);
-	        }
-	        if (prepareClassName) {
-	          $$jqLite.removeClass(element, prepareClassName);
-	          prepareClassName = null;
-	        }
-	      }
-
-	      function updateAnimationRunners(animation, newRunner) {
-	        if (animation.from && animation.to) {
-	          update(animation.from.element);
-	          update(animation.to.element);
-	        } else {
-	          update(animation.element);
-	        }
-
-	        function update(element) {
-	          getRunner(element).setHost(newRunner);
-	        }
-	      }
-
-	      function handleDestroyedElement() {
-	        var runner = getRunner(element);
-	        if (runner && (event !== 'leave' || !options.$$domOperationFired)) {
-	          runner.end();
-	        }
-	      }
-
-	      function close(rejected) { // jshint ignore:line
-	        element.off('$destroy', handleDestroyedElement);
-	        removeRunner(element);
-
-	        applyAnimationClasses(element, options);
-	        applyAnimationStyles(element, options);
-	        options.domOperation();
-
-	        if (tempClasses) {
-	          $$jqLite.removeClass(element, tempClasses);
-	        }
-
-	        element.removeClass(NG_ANIMATE_CLASSNAME);
-	        runner.complete(!rejected);
-	      }
-	    };
-	  }];
-	}];
-
-	/**
-	 * @ngdoc directive
-	 * @name ngAnimateSwap
-	 * @restrict A
-	 * @scope
-	 *
-	 * @description
-	 *
-	 * ngAnimateSwap is a animation-oriented directive that allows for the container to
-	 * be removed and entered in whenever the associated expression changes. A
-	 * common usecase for this directive is a rotating banner or slider component which
-	 * contains one image being present at a time. When the active image changes
-	 * then the old image will perform a `leave` animation and the new element
-	 * will be inserted via an `enter` animation.
-	 *
-	 * @animations
-	 * | Animation                        | Occurs                               |
-	 * |----------------------------------|--------------------------------------|
-	 * | {@link ng.$animate#enter enter}  | when the new element is inserted to the DOM  |
-	 * | {@link ng.$animate#leave leave}  | when the old element is removed from the DOM |
-	 *
-	 * @example
-	 * <example name="ngAnimateSwap-directive" module="ngAnimateSwapExample"
-	 *          deps="angular-animate.js"
-	 *          animations="true" fixBase="true">
-	 *   <file name="index.html">
-	 *     <div class="container" ng-controller="AppCtrl">
-	 *       <div ng-animate-swap="number" class="cell swap-animation" ng-class="colorClass(number)">
-	 *         {{ number }}
-	 *       </div>
-	 *     </div>
-	 *   </file>
-	 *   <file name="script.js">
-	 *     angular.module('ngAnimateSwapExample', ['ngAnimate'])
-	 *       .controller('AppCtrl', ['$scope', '$interval', function($scope, $interval) {
-	 *         $scope.number = 0;
-	 *         $interval(function() {
-	 *           $scope.number++;
-	 *         }, 1000);
-	 *
-	 *         var colors = ['red','blue','green','yellow','orange'];
-	 *         $scope.colorClass = function(number) {
-	 *           return colors[number % colors.length];
-	 *         };
-	 *       }]);
-	 *   </file>
-	 *  <file name="animations.css">
-	 *  .container {
-	 *    height:250px;
-	 *    width:250px;
-	 *    position:relative;
-	 *    overflow:hidden;
-	 *    border:2px solid black;
-	 *  }
-	 *  .container .cell {
-	 *    font-size:150px;
-	 *    text-align:center;
-	 *    line-height:250px;
-	 *    position:absolute;
-	 *    top:0;
-	 *    left:0;
-	 *    right:0;
-	 *    border-bottom:2px solid black;
-	 *  }
-	 *  .swap-animation.ng-enter, .swap-animation.ng-leave {
-	 *    transition:0.5s linear all;
-	 *  }
-	 *  .swap-animation.ng-enter {
-	 *    top:-250px;
-	 *  }
-	 *  .swap-animation.ng-enter-active {
-	 *    top:0px;
-	 *  }
-	 *  .swap-animation.ng-leave {
-	 *    top:0px;
-	 *  }
-	 *  .swap-animation.ng-leave-active {
-	 *    top:250px;
-	 *  }
-	 *  .red { background:red; }
-	 *  .green { background:green; }
-	 *  .blue { background:blue; }
-	 *  .yellow { background:yellow; }
-	 *  .orange { background:orange; }
-	 *  </file>
-	 * </example>
-	 */
-	var ngAnimateSwapDirective = ['$animate', '$rootScope', function($animate, $rootScope) {
-	  return {
-	    restrict: 'A',
-	    transclude: 'element',
-	    terminal: true,
-	    priority: 600, // we use 600 here to ensure that the directive is caught before others
-	    link: function(scope, $element, attrs, ctrl, $transclude) {
-	      var previousElement, previousScope;
-	      scope.$watchCollection(attrs.ngAnimateSwap || attrs['for'], function(value) {
-	        if (previousElement) {
-	          $animate.leave(previousElement);
-	        }
-	        if (previousScope) {
-	          previousScope.$destroy();
-	          previousScope = null;
-	        }
-	        if (value || value === 0) {
-	          previousScope = scope.$new();
-	          $transclude(previousScope, function(element) {
-	            previousElement = element;
-	            $animate.enter(element, null, $element);
-	          });
-	        }
-	      });
-	    }
+	    // otherwise bypass onData and handle the message
+	    self.onPacket(packet);
 	  };
-	}];
 
-	/* global angularAnimateModule: true,
+	  // decode payload
+	  parser.decodePayload(data, this.socket.binaryType, callback);
 
-	   ngAnimateSwapDirective,
-	   $$AnimateAsyncRunFactory,
-	   $$rAFSchedulerFactory,
-	   $$AnimateChildrenDirective,
-	   $$AnimateQueueProvider,
-	   $$AnimationProvider,
-	   $AnimateCssProvider,
-	   $$AnimateCssDriverProvider,
-	   $$AnimateJsProvider,
-	   $$AnimateJsDriverProvider,
-	*/
+	  // if an event did not trigger closing
+	  if ('closed' != this.readyState) {
+	    // if we got data we're not polling
+	    this.polling = false;
+	    this.emit('pollComplete');
 
-	/**
-	 * @ngdoc module
-	 * @name ngAnimate
-	 * @description
-	 *
-	 * The `ngAnimate` module provides support for CSS-based animations (keyframes and transitions) as well as JavaScript-based animations via
-	 * callback hooks. Animations are not enabled by default, however, by including `ngAnimate` the animation hooks are enabled for an Angular app.
-	 *
-	 * <div doc-module-components="ngAnimate"></div>
-	 *
-	 * # Usage
-	 * Simply put, there are two ways to make use of animations when ngAnimate is used: by using **CSS** and **JavaScript**. The former works purely based
-	 * using CSS (by using matching CSS selectors/styles) and the latter triggers animations that are registered via `module.animation()`. For
-	 * both CSS and JS animations the sole requirement is to have a matching `CSS class` that exists both in the registered animation and within
-	 * the HTML element that the animation will be triggered on.
-	 *
-	 * ## Directive Support
-	 * The following directives are "animation aware":
-	 *
-	 * | Directive                                                                                                | Supported Animations                                                     |
-	 * |----------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
-	 * | {@link ng.directive:ngRepeat#animations ngRepeat}                                                        | enter, leave and move                                                    |
-	 * | {@link ngRoute.directive:ngView#animations ngView}                                                       | enter and leave                                                          |
-	 * | {@link ng.directive:ngInclude#animations ngInclude}                                                      | enter and leave                                                          |
-	 * | {@link ng.directive:ngSwitch#animations ngSwitch}                                                        | enter and leave                                                          |
-	 * | {@link ng.directive:ngIf#animations ngIf}                                                                | enter and leave                                                          |
-	 * | {@link ng.directive:ngClass#animations ngClass}                                                          | add and remove (the CSS class(es) present)                               |
-	 * | {@link ng.directive:ngShow#animations ngShow} & {@link ng.directive:ngHide#animations ngHide}            | add and remove (the ng-hide class value)                                 |
-	 * | {@link ng.directive:form#animation-hooks form} & {@link ng.directive:ngModel#animation-hooks ngModel}    | add and remove (dirty, pristine, valid, invalid & all other validations) |
-	 * | {@link module:ngMessages#animations ngMessages}                                                          | add and remove (ng-active & ng-inactive)                                 |
-	 * | {@link module:ngMessages#animations ngMessage}                                                           | enter and leave                                                          |
-	 *
-	 * (More information can be found by visiting each the documentation associated with each directive.)
-	 *
-	 * ## CSS-based Animations
-	 *
-	 * CSS-based animations with ngAnimate are unique since they require no JavaScript code at all. By using a CSS class that we reference between our HTML
-	 * and CSS code we can create an animation that will be picked up by Angular when an the underlying directive performs an operation.
-	 *
-	 * The example below shows how an `enter` animation can be made possible on an element using `ng-if`:
-	 *
-	 * ```html
-	 * <div ng-if="bool" class="fade">
-	 *    Fade me in out
-	 * </div>
-	 * <button ng-click="bool=true">Fade In!</button>
-	 * <button ng-click="bool=false">Fade Out!</button>
-	 * ```
-	 *
-	 * Notice the CSS class **fade**? We can now create the CSS transition code that references this class:
-	 *
-	 * ```css
-	 * /&#42; The starting CSS styles for the enter animation &#42;/
-	 * .fade.ng-enter {
-	 *   transition:0.5s linear all;
-	 *   opacity:0;
-	 * }
-	 *
-	 * /&#42; The finishing CSS styles for the enter animation &#42;/
-	 * .fade.ng-enter.ng-enter-active {
-	 *   opacity:1;
-	 * }
-	 * ```
-	 *
-	 * The key thing to remember here is that, depending on the animation event (which each of the directives above trigger depending on what's going on) two
-	 * generated CSS classes will be applied to the element; in the example above we have `.ng-enter` and `.ng-enter-active`. For CSS transitions, the transition
-	 * code **must** be defined within the starting CSS class (in this case `.ng-enter`). The destination class is what the transition will animate towards.
-	 *
-	 * If for example we wanted to create animations for `leave` and `move` (ngRepeat triggers move) then we can do so using the same CSS naming conventions:
-	 *
-	 * ```css
-	 * /&#42; now the element will fade out before it is removed from the DOM &#42;/
-	 * .fade.ng-leave {
-	 *   transition:0.5s linear all;
-	 *   opacity:1;
-	 * }
-	 * .fade.ng-leave.ng-leave-active {
-	 *   opacity:0;
-	 * }
-	 * ```
-	 *
-	 * We can also make use of **CSS Keyframes** by referencing the keyframe animation within the starting CSS class:
-	 *
-	 * ```css
-	 * /&#42; there is no need to define anything inside of the destination
-	 * CSS class since the keyframe will take charge of the animation &#42;/
-	 * .fade.ng-leave {
-	 *   animation: my_fade_animation 0.5s linear;
-	 *   -webkit-animation: my_fade_animation 0.5s linear;
-	 * }
-	 *
-	 * @keyframes my_fade_animation {
-	 *   from { opacity:1; }
-	 *   to { opacity:0; }
-	 * }
-	 *
-	 * @-webkit-keyframes my_fade_animation {
-	 *   from { opacity:1; }
-	 *   to { opacity:0; }
-	 * }
-	 * ```
-	 *
-	 * Feel free also mix transitions and keyframes together as well as any other CSS classes on the same element.
-	 *
-	 * ### CSS Class-based Animations
-	 *
-	 * Class-based animations (animations that are triggered via `ngClass`, `ngShow`, `ngHide` and some other directives) have a slightly different
-	 * naming convention. Class-based animations are basic enough that a standard transition or keyframe can be referenced on the class being added
-	 * and removed.
-	 *
-	 * For example if we wanted to do a CSS animation for `ngHide` then we place an animation on the `.ng-hide` CSS class:
-	 *
-	 * ```html
-	 * <div ng-show="bool" class="fade">
-	 *   Show and hide me
-	 * </div>
-	 * <button ng-click="bool=true">Toggle</button>
-	 *
-	 * <style>
-	 * .fade.ng-hide {
-	 *   transition:0.5s linear all;
-	 *   opacity:0;
-	 * }
-	 * </style>
-	 * ```
-	 *
-	 * All that is going on here with ngShow/ngHide behind the scenes is the `.ng-hide` class is added/removed (when the hidden state is valid). Since
-	 * ngShow and ngHide are animation aware then we can match up a transition and ngAnimate handles the rest.
-	 *
-	 * In addition the addition and removal of the CSS class, ngAnimate also provides two helper methods that we can use to further decorate the animation
-	 * with CSS styles.
-	 *
-	 * ```html
-	 * <div ng-class="{on:onOff}" class="highlight">
-	 *   Highlight this box
-	 * </div>
-	 * <button ng-click="onOff=!onOff">Toggle</button>
-	 *
-	 * <style>
-	 * .highlight {
-	 *   transition:0.5s linear all;
-	 * }
-	 * .highlight.on-add {
-	 *   background:white;
-	 * }
-	 * .highlight.on {
-	 *   background:yellow;
-	 * }
-	 * .highlight.on-remove {
-	 *   background:black;
-	 * }
-	 * </style>
-	 * ```
-	 *
-	 * We can also make use of CSS keyframes by placing them within the CSS classes.
-	 *
-	 *
-	 * ### CSS Staggering Animations
-	 * A Staggering animation is a collection of animations that are issued with a slight delay in between each successive operation resulting in a
-	 * curtain-like effect. The ngAnimate module (versions >=1.2) supports staggering animations and the stagger effect can be
-	 * performed by creating a **ng-EVENT-stagger** CSS class and attaching that class to the base CSS class used for
-	 * the animation. The style property expected within the stagger class can either be a **transition-delay** or an
-	 * **animation-delay** property (or both if your animation contains both transitions and keyframe animations).
-	 *
-	 * ```css
-	 * .my-animation.ng-enter {
-	 *   /&#42; standard transition code &#42;/
-	 *   transition: 1s linear all;
-	 *   opacity:0;
-	 * }
-	 * .my-animation.ng-enter-stagger {
-	 *   /&#42; this will have a 100ms delay between each successive leave animation &#42;/
-	 *   transition-delay: 0.1s;
-	 *
-	 *   /&#42; As of 1.4.4, this must always be set: it signals ngAnimate
-	 *     to not accidentally inherit a delay property from another CSS class &#42;/
-	 *   transition-duration: 0s;
-	 * }
-	 * .my-animation.ng-enter.ng-enter-active {
-	 *   /&#42; standard transition styles &#42;/
-	 *   opacity:1;
-	 * }
-	 * ```
-	 *
-	 * Staggering animations work by default in ngRepeat (so long as the CSS class is defined). Outside of ngRepeat, to use staggering animations
-	 * on your own, they can be triggered by firing multiple calls to the same event on $animate. However, the restrictions surrounding this
-	 * are that each of the elements must have the same CSS className value as well as the same parent element. A stagger operation
-	 * will also be reset if one or more animation frames have passed since the multiple calls to `$animate` were fired.
-	 *
-	 * The following code will issue the **ng-leave-stagger** event on the element provided:
-	 *
-	 * ```js
-	 * var kids = parent.children();
-	 *
-	 * $animate.leave(kids[0]); //stagger index=0
-	 * $animate.leave(kids[1]); //stagger index=1
-	 * $animate.leave(kids[2]); //stagger index=2
-	 * $animate.leave(kids[3]); //stagger index=3
-	 * $animate.leave(kids[4]); //stagger index=4
-	 *
-	 * window.requestAnimationFrame(function() {
-	 *   //stagger has reset itself
-	 *   $animate.leave(kids[5]); //stagger index=0
-	 *   $animate.leave(kids[6]); //stagger index=1
-	 *
-	 *   $scope.$digest();
-	 * });
-	 * ```
-	 *
-	 * Stagger animations are currently only supported within CSS-defined animations.
-	 *
-	 * ### The `ng-animate` CSS class
-	 *
-	 * When ngAnimate is animating an element it will apply the `ng-animate` CSS class to the element for the duration of the animation.
-	 * This is a temporary CSS class and it will be removed once the animation is over (for both JavaScript and CSS-based animations).
-	 *
-	 * Therefore, animations can be applied to an element using this temporary class directly via CSS.
-	 *
-	 * ```css
-	 * .zipper.ng-animate {
-	 *   transition:0.5s linear all;
-	 * }
-	 * .zipper.ng-enter {
-	 *   opacity:0;
-	 * }
-	 * .zipper.ng-enter.ng-enter-active {
-	 *   opacity:1;
-	 * }
-	 * .zipper.ng-leave {
-	 *   opacity:1;
-	 * }
-	 * .zipper.ng-leave.ng-leave-active {
-	 *   opacity:0;
-	 * }
-	 * ```
-	 *
-	 * (Note that the `ng-animate` CSS class is reserved and it cannot be applied on an element directly since ngAnimate will always remove
-	 * the CSS class once an animation has completed.)
-	 *
-	 *
-	 * ### The `ng-[event]-prepare` class
-	 *
-	 * This is a special class that can be used to prevent unwanted flickering / flash of content before
-	 * the actual animation starts. The class is added as soon as an animation is initialized, but removed
-	 * before the actual animation starts (after waiting for a $digest).
-	 * It is also only added for *structural* animations (`enter`, `move`, and `leave`).
-	 *
-	 * In practice, flickering can appear when nesting elements with structural animations such as `ngIf`
-	 * into elements that have class-based animations such as `ngClass`.
-	 *
-	 * ```html
-	 * <div ng-class="{red: myProp}">
-	 *   <div ng-class="{blue: myProp}">
-	 *     <div class="message" ng-if="myProp"></div>
-	 *   </div>
-	 * </div>
-	 * ```
-	 *
-	 * It is possible that during the `enter` animation, the `.message` div will be briefly visible before it starts animating.
-	 * In that case, you can add styles to the CSS that make sure the element stays hidden before the animation starts:
-	 *
-	 * ```css
-	 * .message.ng-enter-prepare {
-	 *   opacity: 0;
-	 * }
-	 *
-	 * ```
-	 *
-	 * ## JavaScript-based Animations
-	 *
-	 * ngAnimate also allows for animations to be consumed by JavaScript code. The approach is similar to CSS-based animations (where there is a shared
-	 * CSS class that is referenced in our HTML code) but in addition we need to register the JavaScript animation on the module. By making use of the
-	 * `module.animation()` module function we can register the animation.
-	 *
-	 * Let's see an example of a enter/leave animation using `ngRepeat`:
-	 *
-	 * ```html
-	 * <div ng-repeat="item in items" class="slide">
-	 *   {{ item }}
-	 * </div>
-	 * ```
-	 *
-	 * See the **slide** CSS class? Let's use that class to define an animation that we'll structure in our module code by using `module.animation`:
-	 *
-	 * ```js
-	 * myModule.animation('.slide', [function() {
-	 *   return {
-	 *     // make note that other events (like addClass/removeClass)
-	 *     // have different function input parameters
-	 *     enter: function(element, doneFn) {
-	 *       jQuery(element).fadeIn(1000, doneFn);
-	 *
-	 *       // remember to call doneFn so that angular
-	 *       // knows that the animation has concluded
-	 *     },
-	 *
-	 *     move: function(element, doneFn) {
-	 *       jQuery(element).fadeIn(1000, doneFn);
-	 *     },
-	 *
-	 *     leave: function(element, doneFn) {
-	 *       jQuery(element).fadeOut(1000, doneFn);
-	 *     }
-	 *   }
-	 * }]);
-	 * ```
-	 *
-	 * The nice thing about JS-based animations is that we can inject other services and make use of advanced animation libraries such as
-	 * greensock.js and velocity.js.
-	 *
-	 * If our animation code class-based (meaning that something like `ngClass`, `ngHide` and `ngShow` triggers it) then we can still define
-	 * our animations inside of the same registered animation, however, the function input arguments are a bit different:
-	 *
-	 * ```html
-	 * <div ng-class="color" class="colorful">
-	 *   this box is moody
-	 * </div>
-	 * <button ng-click="color='red'">Change to red</button>
-	 * <button ng-click="color='blue'">Change to blue</button>
-	 * <button ng-click="color='green'">Change to green</button>
-	 * ```
-	 *
-	 * ```js
-	 * myModule.animation('.colorful', [function() {
-	 *   return {
-	 *     addClass: function(element, className, doneFn) {
-	 *       // do some cool animation and call the doneFn
-	 *     },
-	 *     removeClass: function(element, className, doneFn) {
-	 *       // do some cool animation and call the doneFn
-	 *     },
-	 *     setClass: function(element, addedClass, removedClass, doneFn) {
-	 *       // do some cool animation and call the doneFn
-	 *     }
-	 *   }
-	 * }]);
-	 * ```
-	 *
-	 * ## CSS + JS Animations Together
-	 *
-	 * AngularJS 1.4 and higher has taken steps to make the amalgamation of CSS and JS animations more flexible. However, unlike earlier versions of Angular,
-	 * defining CSS and JS animations to work off of the same CSS class will not work anymore. Therefore the example below will only result in **JS animations taking
-	 * charge of the animation**:
-	 *
-	 * ```html
-	 * <div ng-if="bool" class="slide">
-	 *   Slide in and out
-	 * </div>
-	 * ```
-	 *
-	 * ```js
-	 * myModule.animation('.slide', [function() {
-	 *   return {
-	 *     enter: function(element, doneFn) {
-	 *       jQuery(element).slideIn(1000, doneFn);
-	 *     }
-	 *   }
-	 * }]);
-	 * ```
-	 *
-	 * ```css
-	 * .slide.ng-enter {
-	 *   transition:0.5s linear all;
-	 *   transform:translateY(-100px);
-	 * }
-	 * .slide.ng-enter.ng-enter-active {
-	 *   transform:translateY(0);
-	 * }
-	 * ```
-	 *
-	 * Does this mean that CSS and JS animations cannot be used together? Do JS-based animations always have higher priority? We can make up for the
-	 * lack of CSS animations by using the `$animateCss` service to trigger our own tweaked-out, CSS-based animations directly from
-	 * our own JS-based animation code:
-	 *
-	 * ```js
-	 * myModule.animation('.slide', ['$animateCss', function($animateCss) {
-	 *   return {
-	 *     enter: function(element) {
-	*        // this will trigger `.slide.ng-enter` and `.slide.ng-enter-active`.
-	 *       return $animateCss(element, {
-	 *         event: 'enter',
-	 *         structural: true
-	 *       });
-	 *     }
-	 *   }
-	 * }]);
-	 * ```
-	 *
-	 * The nice thing here is that we can save bandwidth by sticking to our CSS-based animation code and we don't need to rely on a 3rd-party animation framework.
-	 *
-	 * The `$animateCss` service is very powerful since we can feed in all kinds of extra properties that will be evaluated and fed into a CSS transition or
-	 * keyframe animation. For example if we wanted to animate the height of an element while adding and removing classes then we can do so by providing that
-	 * data into `$animateCss` directly:
-	 *
-	 * ```js
-	 * myModule.animation('.slide', ['$animateCss', function($animateCss) {
-	 *   return {
-	 *     enter: function(element) {
-	 *       return $animateCss(element, {
-	 *         event: 'enter',
-	 *         structural: true,
-	 *         addClass: 'maroon-setting',
-	 *         from: { height:0 },
-	 *         to: { height: 200 }
-	 *       });
-	 *     }
-	 *   }
-	 * }]);
-	 * ```
-	 *
-	 * Now we can fill in the rest via our transition CSS code:
-	 *
-	 * ```css
-	 * /&#42; the transition tells ngAnimate to make the animation happen &#42;/
-	 * .slide.ng-enter { transition:0.5s linear all; }
-	 *
-	 * /&#42; this extra CSS class will be absorbed into the transition
-	 * since the $animateCss code is adding the class &#42;/
-	 * .maroon-setting { background:red; }
-	 * ```
-	 *
-	 * And `$animateCss` will figure out the rest. Just make sure to have the `done()` callback fire the `doneFn` function to signal when the animation is over.
-	 *
-	 * To learn more about what's possible be sure to visit the {@link ngAnimate.$animateCss $animateCss service}.
-	 *
-	 * ## Animation Anchoring (via `ng-animate-ref`)
-	 *
-	 * ngAnimate in AngularJS 1.4 comes packed with the ability to cross-animate elements between
-	 * structural areas of an application (like views) by pairing up elements using an attribute
-	 * called `ng-animate-ref`.
-	 *
-	 * Let's say for example we have two views that are managed by `ng-view` and we want to show
-	 * that there is a relationship between two components situated in within these views. By using the
-	 * `ng-animate-ref` attribute we can identify that the two components are paired together and we
-	 * can then attach an animation, which is triggered when the view changes.
-	 *
-	 * Say for example we have the following template code:
-	 *
-	 * ```html
-	 * <!-- index.html -->
-	 * <div ng-view class="view-animation">
-	 * </div>
-	 *
-	 * <!-- home.html -->
-	 * <a href="#/banner-page">
-	 *   <img src="./banner.jpg" class="banner" ng-animate-ref="banner">
-	 * </a>
-	 *
-	 * <!-- banner-page.html -->
-	 * <img src="./banner.jpg" class="banner" ng-animate-ref="banner">
-	 * ```
-	 *
-	 * Now, when the view changes (once the link is clicked), ngAnimate will examine the
-	 * HTML contents to see if there is a match reference between any components in the view
-	 * that is leaving and the view that is entering. It will scan both the view which is being
-	 * removed (leave) and inserted (enter) to see if there are any paired DOM elements that
-	 * contain a matching ref value.
-	 *
-	 * The two images match since they share the same ref value. ngAnimate will now create a
-	 * transport element (which is a clone of the first image element) and it will then attempt
-	 * to animate to the position of the second image element in the next view. For the animation to
-	 * work a special CSS class called `ng-anchor` will be added to the transported element.
-	 *
-	 * We can now attach a transition onto the `.banner.ng-anchor` CSS class and then
-	 * ngAnimate will handle the entire transition for us as well as the addition and removal of
-	 * any changes of CSS classes between the elements:
-	 *
-	 * ```css
-	 * .banner.ng-anchor {
-	 *   /&#42; this animation will last for 1 second since there are
-	 *          two phases to the animation (an `in` and an `out` phase) &#42;/
-	 *   transition:0.5s linear all;
-	 * }
-	 * ```
-	 *
-	 * We also **must** include animations for the views that are being entered and removed
-	 * (otherwise anchoring wouldn't be possible since the new view would be inserted right away).
-	 *
-	 * ```css
-	 * .view-animation.ng-enter, .view-animation.ng-leave {
-	 *   transition:0.5s linear all;
-	 *   position:fixed;
-	 *   left:0;
-	 *   top:0;
-	 *   width:100%;
-	 * }
-	 * .view-animation.ng-enter {
-	 *   transform:translateX(100%);
-	 * }
-	 * .view-animation.ng-leave,
-	 * .view-animation.ng-enter.ng-enter-active {
-	 *   transform:translateX(0%);
-	 * }
-	 * .view-animation.ng-leave.ng-leave-active {
-	 *   transform:translateX(-100%);
-	 * }
-	 * ```
-	 *
-	 * Now we can jump back to the anchor animation. When the animation happens, there are two stages that occur:
-	 * an `out` and an `in` stage. The `out` stage happens first and that is when the element is animated away
-	 * from its origin. Once that animation is over then the `in` stage occurs which animates the
-	 * element to its destination. The reason why there are two animations is to give enough time
-	 * for the enter animation on the new element to be ready.
-	 *
-	 * The example above sets up a transition for both the in and out phases, but we can also target the out or
-	 * in phases directly via `ng-anchor-out` and `ng-anchor-in`.
-	 *
-	 * ```css
-	 * .banner.ng-anchor-out {
-	 *   transition: 0.5s linear all;
-	 *
-	 *   /&#42; the scale will be applied during the out animation,
-	 *          but will be animated away when the in animation runs &#42;/
-	 *   transform: scale(1.2);
-	 * }
-	 *
-	 * .banner.ng-anchor-in {
-	 *   transition: 1s linear all;
-	 * }
-	 * ```
-	 *
-	 *
-	 *
-	 *
-	 * ### Anchoring Demo
-	 *
-	  <example module="anchoringExample"
-	           name="anchoringExample"
-	           id="anchoringExample"
-	           deps="angular-animate.js;angular-route.js"
-	           animations="true">
-	    <file name="index.html">
-	      <a href="#/">Home</a>
-	      <hr />
-	      <div class="view-container">
-	        <div ng-view class="view"></div>
-	      </div>
-	    </file>
-	    <file name="script.js">
-	      angular.module('anchoringExample', ['ngAnimate', 'ngRoute'])
-	        .config(['$routeProvider', function($routeProvider) {
-	          $routeProvider.when('/', {
-	            templateUrl: 'home.html',
-	            controller: 'HomeController as home'
-	          });
-	          $routeProvider.when('/profile/:id', {
-	            templateUrl: 'profile.html',
-	            controller: 'ProfileController as profile'
-	          });
-	        }])
-	        .run(['$rootScope', function($rootScope) {
-	          $rootScope.records = [
-	            { id:1, title: "Miss Beulah Roob" },
-	            { id:2, title: "Trent Morissette" },
-	            { id:3, title: "Miss Ava Pouros" },
-	            { id:4, title: "Rod Pouros" },
-	            { id:5, title: "Abdul Rice" },
-	            { id:6, title: "Laurie Rutherford Sr." },
-	            { id:7, title: "Nakia McLaughlin" },
-	            { id:8, title: "Jordon Blanda DVM" },
-	            { id:9, title: "Rhoda Hand" },
-	            { id:10, title: "Alexandrea Sauer" }
-	          ];
-	        }])
-	        .controller('HomeController', [function() {
-	          //empty
-	        }])
-	        .controller('ProfileController', ['$rootScope', '$routeParams', function($rootScope, $routeParams) {
-	          var index = parseInt($routeParams.id, 10);
-	          var record = $rootScope.records[index - 1];
-
-	          this.title = record.title;
-	          this.id = record.id;
-	        }]);
-	    </file>
-	    <file name="home.html">
-	      <h2>Welcome to the home page</h1>
-	      <p>Please click on an element</p>
-	      <a class="record"
-	         ng-href="#/profile/{{ record.id }}"
-	         ng-animate-ref="{{ record.id }}"
-	         ng-repeat="record in records">
-	        {{ record.title }}
-	      </a>
-	    </file>
-	    <file name="profile.html">
-	      <div class="profile record" ng-animate-ref="{{ profile.id }}">
-	        {{ profile.title }}
-	      </div>
-	    </file>
-	    <file name="animations.css">
-	      .record {
-	        display:block;
-	        font-size:20px;
-	      }
-	      .profile {
-	        background:black;
-	        color:white;
-	        font-size:100px;
-	      }
-	      .view-container {
-	        position:relative;
-	      }
-	      .view-container > .view.ng-animate {
-	        position:absolute;
-	        top:0;
-	        left:0;
-	        width:100%;
-	        min-height:500px;
-	      }
-	      .view.ng-enter, .view.ng-leave,
-	      .record.ng-anchor {
-	        transition:0.5s linear all;
-	      }
-	      .view.ng-enter {
-	        transform:translateX(100%);
-	      }
-	      .view.ng-enter.ng-enter-active, .view.ng-leave {
-	        transform:translateX(0%);
-	      }
-	      .view.ng-leave.ng-leave-active {
-	        transform:translateX(-100%);
-	      }
-	      .record.ng-anchor-out {
-	        background:red;
-	      }
-	    </file>
-	  </example>
-	 *
-	 * ### How is the element transported?
-	 *
-	 * When an anchor animation occurs, ngAnimate will clone the starting element and position it exactly where the starting
-	 * element is located on screen via absolute positioning. The cloned element will be placed inside of the root element
-	 * of the application (where ng-app was defined) and all of the CSS classes of the starting element will be applied. The
-	 * element will then animate into the `out` and `in` animations and will eventually reach the coordinates and match
-	 * the dimensions of the destination element. During the entire animation a CSS class of `.ng-animate-shim` will be applied
-	 * to both the starting and destination elements in order to hide them from being visible (the CSS styling for the class
-	 * is: `visibility:hidden`). Once the anchor reaches its destination then it will be removed and the destination element
-	 * will become visible since the shim class will be removed.
-	 *
-	 * ### How is the morphing handled?
-	 *
-	 * CSS Anchoring relies on transitions and keyframes and the internal code is intelligent enough to figure out
-	 * what CSS classes differ between the starting element and the destination element. These different CSS classes
-	 * will be added/removed on the anchor element and a transition will be applied (the transition that is provided
-	 * in the anchor class). Long story short, ngAnimate will figure out what classes to add and remove which will
-	 * make the transition of the element as smooth and automatic as possible. Be sure to use simple CSS classes that
-	 * do not rely on DOM nesting structure so that the anchor element appears the same as the starting element (since
-	 * the cloned element is placed inside of root element which is likely close to the body element).
-	 *
-	 * Note that if the root element is on the `<html>` element then the cloned node will be placed inside of body.
-	 *
-	 *
-	 * ## Using $animate in your directive code
-	 *
-	 * So far we've explored how to feed in animations into an Angular application, but how do we trigger animations within our own directives in our application?
-	 * By injecting the `$animate` service into our directive code, we can trigger structural and class-based hooks which can then be consumed by animations. Let's
-	 * imagine we have a greeting box that shows and hides itself when the data changes
-	 *
-	 * ```html
-	 * <greeting-box active="onOrOff">Hi there</greeting-box>
-	 * ```
-	 *
-	 * ```js
-	 * ngModule.directive('greetingBox', ['$animate', function($animate) {
-	 *   return function(scope, element, attrs) {
-	 *     attrs.$observe('active', function(value) {
-	 *       value ? $animate.addClass(element, 'on') : $animate.removeClass(element, 'on');
-	 *     });
-	 *   });
-	 * }]);
-	 * ```
-	 *
-	 * Now the `on` CSS class is added and removed on the greeting box component. Now if we add a CSS class on top of the greeting box element
-	 * in our HTML code then we can trigger a CSS or JS animation to happen.
-	 *
-	 * ```css
-	 * /&#42; normally we would create a CSS class to reference on the element &#42;/
-	 * greeting-box.on { transition:0.5s linear all; background:green; color:white; }
-	 * ```
-	 *
-	 * The `$animate` service contains a variety of other methods like `enter`, `leave`, `animate` and `setClass`. To learn more about what's
-	 * possible be sure to visit the {@link ng.$animate $animate service API page}.
-	 *
-	 *
-	 * ## Callbacks and Promises
-	 *
-	 * When `$animate` is called it returns a promise that can be used to capture when the animation has ended. Therefore if we were to trigger
-	 * an animation (within our directive code) then we can continue performing directive and scope related activities after the animation has
-	 * ended by chaining onto the returned promise that animation method returns.
-	 *
-	 * ```js
-	 * // somewhere within the depths of the directive
-	 * $animate.enter(element, parent).then(function() {
-	 *   //the animation has completed
-	 * });
-	 * ```
-	 *
-	 * (Note that earlier versions of Angular prior to v1.4 required the promise code to be wrapped using `$scope.$apply(...)`. This is not the case
-	 * anymore.)
-	 *
-	 * In addition to the animation promise, we can also make use of animation-related callbacks within our directives and controller code by registering
-	 * an event listener using the `$animate` service. Let's say for example that an animation was triggered on our view
-	 * routing controller to hook into that:
-	 *
-	 * ```js
-	 * ngModule.controller('HomePageController', ['$animate', function($animate) {
-	 *   $animate.on('enter', ngViewElement, function(element) {
-	 *     // the animation for this route has completed
-	 *   }]);
-	 * }])
-	 * ```
-	 *
-	 * (Note that you will need to trigger a digest within the callback to get angular to notice any scope-related changes.)
-	 */
-
-	/**
-	 * @ngdoc service
-	 * @name $animate
-	 * @kind object
-	 *
-	 * @description
-	 * The ngAnimate `$animate` service documentation is the same for the core `$animate` service.
-	 *
-	 * Click here {@link ng.$animate to learn more about animations with `$animate`}.
-	 */
-	angular.module('ngAnimate', [])
-	  .directive('ngAnimateSwap', ngAnimateSwapDirective)
-
-	  .directive('ngAnimateChildren', $$AnimateChildrenDirective)
-	  .factory('$$rAFScheduler', $$rAFSchedulerFactory)
-
-	  .provider('$$animateQueue', $$AnimateQueueProvider)
-	  .provider('$$animation', $$AnimationProvider)
-
-	  .provider('$animateCss', $AnimateCssProvider)
-	  .provider('$$animateCssDriver', $$AnimateCssDriverProvider)
-
-	  .provider('$$animateJs', $$AnimateJsProvider)
-	  .provider('$$animateJsDriver', $$AnimateJsDriverProvider);
-
-
-	})(window, window.angular);
-
-
-/***/ },
-/* 29 */
-/***/ function(module, exports, __webpack_require__) {
-
-	__webpack_require__(30);
-	module.exports = 'ngAria';
-
-
-/***/ },
-/* 30 */
-/***/ function(module, exports) {
-
-	/**
-	 * @license AngularJS v1.5.2
-	 * (c) 2010-2016 Google, Inc. http://angularjs.org
-	 * License: MIT
-	 */
-	(function(window, angular, undefined) {'use strict';
-
-	/**
-	 * @ngdoc module
-	 * @name ngAria
-	 * @description
-	 *
-	 * The `ngAria` module provides support for common
-	 * [<abbr title="Accessible Rich Internet Applications">ARIA</abbr>](http://www.w3.org/TR/wai-aria/)
-	 * attributes that convey state or semantic information about the application for users
-	 * of assistive technologies, such as screen readers.
-	 *
-	 * <div doc-module-components="ngAria"></div>
-	 *
-	 * ## Usage
-	 *
-	 * For ngAria to do its magic, simply include the module `ngAria` as a dependency. The following
-	 * directives are supported:
-	 * `ngModel`, `ngChecked`, `ngRequired`, `ngValue`, `ngDisabled`, `ngShow`, `ngHide`, `ngClick`,
-	 * `ngDblClick`, and `ngMessages`.
-	 *
-	 * Below is a more detailed breakdown of the attributes handled by ngAria:
-	 *
-	 * | Directive                                   | Supported Attributes                                                                   |
-	 * |---------------------------------------------|----------------------------------------------------------------------------------------|
-	 * | {@link ng.directive:ngModel ngModel}        | aria-checked, aria-valuemin, aria-valuemax, aria-valuenow, aria-invalid, aria-required, input roles |
-	 * | {@link ng.directive:ngDisabled ngDisabled}  | aria-disabled                                                                          |
-	 * | {@link ng.directive:ngRequired ngRequired}  | aria-required                                                                          |
-	 * | {@link ng.directive:ngChecked ngChecked}    | aria-checked                                                                           |
-	 * | {@link ng.directive:ngValue ngValue}        | aria-checked                                                                           |
-	 * | {@link ng.directive:ngShow ngShow}          | aria-hidden                                                                            |
-	 * | {@link ng.directive:ngHide ngHide}          | aria-hidden                                                                            |
-	 * | {@link ng.directive:ngDblclick ngDblclick}  | tabindex                                                                               |
-	 * | {@link module:ngMessages ngMessages}        | aria-live                                                                              |
-	 * | {@link ng.directive:ngClick ngClick}        | tabindex, keypress event, button role                                                  |
-	 *
-	 * Find out more information about each directive by reading the
-	 * {@link guide/accessibility ngAria Developer Guide}.
-	 *
-	 * ##Example
-	 * Using ngDisabled with ngAria:
-	 * ```html
-	 * <md-checkbox ng-disabled="disabled">
-	 * ```
-	 * Becomes:
-	 * ```html
-	 * <md-checkbox ng-disabled="disabled" aria-disabled="true">
-	 * ```
-	 *
-	 * ##Disabling Attributes
-	 * It's possible to disable individual attributes added by ngAria with the
-	 * {@link ngAria.$ariaProvider#config config} method. For more details, see the
-	 * {@link guide/accessibility Developer Guide}.
-	 */
-	 /* global -ngAriaModule */
-	var ngAriaModule = angular.module('ngAria', ['ng']).
-	                        provider('$aria', $AriaProvider);
-
-	/**
-	* Internal Utilities
-	*/
-	var nodeBlackList = ['BUTTON', 'A', 'INPUT', 'TEXTAREA', 'SELECT', 'DETAILS', 'SUMMARY'];
-
-	var isNodeOneOf = function(elem, nodeTypeArray) {
-	  if (nodeTypeArray.indexOf(elem[0].nodeName) !== -1) {
-	    return true;
+	    if ('open' == this.readyState) {
+	      this.poll();
+	    } else {
+	      debug('ignoring poll - transport state "%s"', this.readyState);
+	    }
 	  }
 	};
+
 	/**
-	 * @ngdoc provider
-	 * @name $ariaProvider
+	 * For polling, send a close packet.
 	 *
-	 * @description
-	 *
-	 * Used for configuring the ARIA attributes injected and managed by ngAria.
-	 *
-	 * ```js
-	 * angular.module('myApp', ['ngAria'], function config($ariaProvider) {
-	 *   $ariaProvider.config({
-	 *     ariaValue: true,
-	 *     tabindex: false
-	 *   });
-	 * });
-	 *```
-	 *
-	 * ## Dependencies
-	 * Requires the {@link ngAria} module to be installed.
-	 *
+	 * @api private
 	 */
-	function $AriaProvider() {
-	  var config = {
-	    ariaHidden: true,
-	    ariaChecked: true,
-	    ariaDisabled: true,
-	    ariaRequired: true,
-	    ariaInvalid: true,
-	    ariaValue: true,
-	    tabindex: true,
-	    bindKeypress: true,
-	    bindRoleForClick: true
-	  };
 
-	  /**
-	   * @ngdoc method
-	   * @name $ariaProvider#config
-	   *
-	   * @param {object} config object to enable/disable specific ARIA attributes
-	   *
-	   *  - **ariaHidden** – `{boolean}` – Enables/disables aria-hidden tags
-	   *  - **ariaChecked** – `{boolean}` – Enables/disables aria-checked tags
-	   *  - **ariaDisabled** – `{boolean}` – Enables/disables aria-disabled tags
-	   *  - **ariaRequired** – `{boolean}` – Enables/disables aria-required tags
-	   *  - **ariaInvalid** – `{boolean}` – Enables/disables aria-invalid tags
-	   *  - **ariaValue** – `{boolean}` – Enables/disables aria-valuemin, aria-valuemax and aria-valuenow tags
-	   *  - **tabindex** – `{boolean}` – Enables/disables tabindex tags
-	   *  - **bindKeypress** – `{boolean}` – Enables/disables keypress event binding on `div` and
-	   *    `li` elements with ng-click
-	   *  - **bindRoleForClick** – `{boolean}` – Adds role=button to non-interactive elements like `div`
-	   *    using ng-click, making them more accessible to users of assistive technologies
-	   *
-	   * @description
-	   * Enables/disables various ARIA attributes
-	   */
-	  this.config = function(newConfig) {
-	    config = angular.extend(config, newConfig);
-	  };
+	Polling.prototype.doClose = function(){
+	  var self = this;
 
-	  function watchExpr(attrName, ariaAttr, nodeBlackList, negate) {
-	    return function(scope, elem, attr) {
-	      var ariaCamelName = attr.$normalize(ariaAttr);
-	      if (config[ariaCamelName] && !isNodeOneOf(elem, nodeBlackList) && !attr[ariaCamelName]) {
-	        scope.$watch(attr[attrName], function(boolVal) {
-	          // ensure boolean value
-	          boolVal = negate ? !boolVal : !!boolVal;
-	          elem.attr(ariaAttr, boolVal);
-	        });
-	      }
-	    };
+	  function close(){
+	    debug('writing close packet');
+	    self.write([{ type: 'close' }]);
 	  }
-	  /**
-	   * @ngdoc service
-	   * @name $aria
-	   *
-	   * @description
-	   * @priority 200
-	   *
-	   * The $aria service contains helper methods for applying common
-	   * [ARIA](http://www.w3.org/TR/wai-aria/) attributes to HTML directives.
-	   *
-	   * ngAria injects common accessibility attributes that tell assistive technologies when HTML
-	   * elements are enabled, selected, hidden, and more. To see how this is performed with ngAria,
-	   * let's review a code snippet from ngAria itself:
-	   *
-	   *```js
-	   * ngAriaModule.directive('ngDisabled', ['$aria', function($aria) {
-	   *   return $aria.$$watchExpr('ngDisabled', 'aria-disabled', nodeBlackList, false);
-	   * }])
-	   *```
-	   * Shown above, the ngAria module creates a directive with the same signature as the
-	   * traditional `ng-disabled` directive. But this ngAria version is dedicated to
-	   * solely managing accessibility attributes on custom elements. The internal `$aria` service is
-	   * used to watch the boolean attribute `ngDisabled`. If it has not been explicitly set by the
-	   * developer, `aria-disabled` is injected as an attribute with its value synchronized to the
-	   * value in `ngDisabled`.
-	   *
-	   * Because ngAria hooks into the `ng-disabled` directive, developers do not have to do
-	   * anything to enable this feature. The `aria-disabled` attribute is automatically managed
-	   * simply as a silent side-effect of using `ng-disabled` with the ngAria module.
-	   *
-	   * The full list of directives that interface with ngAria:
-	   * * **ngModel**
-	   * * **ngChecked**
-	   * * **ngRequired**
-	   * * **ngDisabled**
-	   * * **ngValue**
-	   * * **ngShow**
-	   * * **ngHide**
-	   * * **ngClick**
-	   * * **ngDblclick**
-	   * * **ngMessages**
-	   *
-	   * Read the {@link guide/accessibility ngAria Developer Guide} for a thorough explanation of each
-	   * directive.
-	   *
-	   *
-	   * ## Dependencies
-	   * Requires the {@link ngAria} module to be installed.
-	   */
-	  this.$get = function() {
-	    return {
-	      config: function(key) {
-	        return config[key];
-	      },
-	      $$watchExpr: watchExpr
-	    };
+
+	  if ('open' == this.readyState) {
+	    debug('transport open - closing');
+	    close();
+	  } else {
+	    // in case we're trying to close while
+	    // handshaking is in progress (GH-164)
+	    debug('transport not open - deferring close');
+	    this.once('open', close);
+	  }
+	};
+
+	/**
+	 * Writes a packets payload.
+	 *
+	 * @param {Array} data packets
+	 * @param {Function} drain callback
+	 * @api private
+	 */
+
+	Polling.prototype.write = function(packets){
+	  var self = this;
+	  this.writable = false;
+	  var callbackfn = function() {
+	    self.writable = true;
+	    self.emit('drain');
+	  };
+
+	  var self = this;
+	  parser.encodePayload(packets, this.supportsBinary, function(data) {
+	    self.doWrite(data, callbackfn);
+	  });
+	};
+
+	/**
+	 * Generates uri for connection.
+	 *
+	 * @api private
+	 */
+
+	Polling.prototype.uri = function(){
+	  var query = this.query || {};
+	  var schema = this.secure ? 'https' : 'http';
+	  var port = '';
+
+	  // cache busting is forced
+	  if (false !== this.timestampRequests) {
+	    query[this.timestampParam] = yeast();
+	  }
+
+	  if (!this.supportsBinary && !query.sid) {
+	    query.b64 = 1;
+	  }
+
+	  query = parseqs.encode(query);
+
+	  // avoid port if default for schema
+	  if (this.port && (('https' == schema && this.port != 443) ||
+	     ('http' == schema && this.port != 80))) {
+	    port = ':' + this.port;
+	  }
+
+	  // prepend ? to query
+	  if (query.length) {
+	    query = '?' + query;
+	  }
+
+	  var ipv6 = this.hostname.indexOf(':') !== -1;
+	  return schema + '://' + (ipv6 ? '[' + this.hostname + ']' : this.hostname) + port + this.path + query;
+	};
+
+	},{"../transport":4,"component-inherit":16,"debug":17,"engine.io-parser":19,"parseqs":27,"xmlhttprequest-ssl":10,"yeast":30}],9:[function(_dereq_,module,exports){
+	(function (global){
+	/**
+	 * Module dependencies.
+	 */
+
+	var Transport = _dereq_('../transport');
+	var parser = _dereq_('engine.io-parser');
+	var parseqs = _dereq_('parseqs');
+	var inherit = _dereq_('component-inherit');
+	var yeast = _dereq_('yeast');
+	var debug = _dereq_('debug')('engine.io-client:websocket');
+	var BrowserWebSocket = global.WebSocket || global.MozWebSocket;
+
+	/**
+	 * Get either the `WebSocket` or `MozWebSocket` globals
+	 * in the browser or try to resolve WebSocket-compatible
+	 * interface exposed by `ws` for Node-like environment.
+	 */
+
+	var WebSocket = BrowserWebSocket;
+	if (!WebSocket && typeof window === 'undefined') {
+	  try {
+	    WebSocket = _dereq_('ws');
+	  } catch (e) { }
+	}
+
+	/**
+	 * Module exports.
+	 */
+
+	module.exports = WS;
+
+	/**
+	 * WebSocket transport constructor.
+	 *
+	 * @api {Object} connection options
+	 * @api public
+	 */
+
+	function WS(opts){
+	  var forceBase64 = (opts && opts.forceBase64);
+	  if (forceBase64) {
+	    this.supportsBinary = false;
+	  }
+	  this.perMessageDeflate = opts.perMessageDeflate;
+	  Transport.call(this, opts);
+	}
+
+	/**
+	 * Inherits from Transport.
+	 */
+
+	inherit(WS, Transport);
+
+	/**
+	 * Transport name.
+	 *
+	 * @api public
+	 */
+
+	WS.prototype.name = 'websocket';
+
+	/*
+	 * WebSockets support binary
+	 */
+
+	WS.prototype.supportsBinary = true;
+
+	/**
+	 * Opens socket.
+	 *
+	 * @api private
+	 */
+
+	WS.prototype.doOpen = function(){
+	  if (!this.check()) {
+	    // let probe timeout
+	    return;
+	  }
+
+	  var self = this;
+	  var uri = this.uri();
+	  var protocols = void(0);
+	  var opts = {
+	    agent: this.agent,
+	    perMessageDeflate: this.perMessageDeflate
+	  };
+
+	  // SSL options for Node.js client
+	  opts.pfx = this.pfx;
+	  opts.key = this.key;
+	  opts.passphrase = this.passphrase;
+	  opts.cert = this.cert;
+	  opts.ca = this.ca;
+	  opts.ciphers = this.ciphers;
+	  opts.rejectUnauthorized = this.rejectUnauthorized;
+	  if (this.extraHeaders) {
+	    opts.headers = this.extraHeaders;
+	  }
+
+	  this.ws = BrowserWebSocket ? new WebSocket(uri) : new WebSocket(uri, protocols, opts);
+
+	  if (this.ws.binaryType === undefined) {
+	    this.supportsBinary = false;
+	  }
+
+	  if (this.ws.supports && this.ws.supports.binary) {
+	    this.supportsBinary = true;
+	    this.ws.binaryType = 'buffer';
+	  } else {
+	    this.ws.binaryType = 'arraybuffer';
+	  }
+
+	  this.addEventListeners();
+	};
+
+	/**
+	 * Adds event listeners to the socket
+	 *
+	 * @api private
+	 */
+
+	WS.prototype.addEventListeners = function(){
+	  var self = this;
+
+	  this.ws.onopen = function(){
+	    self.onOpen();
+	  };
+	  this.ws.onclose = function(){
+	    self.onClose();
+	  };
+	  this.ws.onmessage = function(ev){
+	    self.onData(ev.data);
+	  };
+	  this.ws.onerror = function(e){
+	    self.onError('websocket error', e);
+	  };
+	};
+
+	/**
+	 * Override `onData` to use a timer on iOS.
+	 * See: https://gist.github.com/mloughran/2052006
+	 *
+	 * @api private
+	 */
+
+	if ('undefined' != typeof navigator
+	  && /iPad|iPhone|iPod/i.test(navigator.userAgent)) {
+	  WS.prototype.onData = function(data){
+	    var self = this;
+	    setTimeout(function(){
+	      Transport.prototype.onData.call(self, data);
+	    }, 0);
 	  };
 	}
 
+	/**
+	 * Writes data to socket.
+	 *
+	 * @param {Array} array of packets.
+	 * @api private
+	 */
 
-	ngAriaModule.directive('ngShow', ['$aria', function($aria) {
-	  return $aria.$$watchExpr('ngShow', 'aria-hidden', [], true);
-	}])
-	.directive('ngHide', ['$aria', function($aria) {
-	  return $aria.$$watchExpr('ngHide', 'aria-hidden', [], false);
-	}])
-	.directive('ngValue', ['$aria', function($aria) {
-	  return $aria.$$watchExpr('ngValue', 'aria-checked', nodeBlackList, false);
-	}])
-	.directive('ngChecked', ['$aria', function($aria) {
-	  return $aria.$$watchExpr('ngChecked', 'aria-checked', nodeBlackList, false);
-	}])
-	.directive('ngRequired', ['$aria', function($aria) {
-	  return $aria.$$watchExpr('ngRequired', 'aria-required', nodeBlackList, false);
-	}])
-	.directive('ngModel', ['$aria', function($aria) {
+	WS.prototype.write = function(packets){
+	  var self = this;
+	  this.writable = false;
 
-	  function shouldAttachAttr(attr, normalizedAttr, elem, allowBlacklistEls) {
-	    return $aria.config(normalizedAttr) && !elem.attr(attr) && (allowBlacklistEls || !isNodeOneOf(elem, nodeBlackList));
-	  }
-
-	  function shouldAttachRole(role, elem) {
-	    // if element does not have role attribute
-	    // AND element type is equal to role (if custom element has a type equaling shape) <-- remove?
-	    // AND element is not INPUT
-	    return !elem.attr('role') && (elem.attr('type') === role) && (elem[0].nodeName !== 'INPUT');
-	  }
-
-	  function getShape(attr, elem) {
-	    var type = attr.type,
-	        role = attr.role;
-
-	    return ((type || role) === 'checkbox' || role === 'menuitemcheckbox') ? 'checkbox' :
-	           ((type || role) === 'radio'    || role === 'menuitemradio') ? 'radio' :
-	           (type === 'range'              || role === 'progressbar' || role === 'slider') ? 'range' : '';
-	  }
-
-	  return {
-	    restrict: 'A',
-	    require: 'ngModel',
-	    priority: 200, //Make sure watches are fired after any other directives that affect the ngModel value
-	    compile: function(elem, attr) {
-	      var shape = getShape(attr, elem);
-
-	      return {
-	        pre: function(scope, elem, attr, ngModel) {
-	          if (shape === 'checkbox') {
-	            //Use the input[checkbox] $isEmpty implementation for elements with checkbox roles
-	            ngModel.$isEmpty = function(value) {
-	              return value === false;
-	            };
-	          }
-	        },
-	        post: function(scope, elem, attr, ngModel) {
-	          var needsTabIndex = shouldAttachAttr('tabindex', 'tabindex', elem, false);
-
-	          function ngAriaWatchModelValue() {
-	            return ngModel.$modelValue;
+	  // encodePacket efficient as it uses WS framing
+	  // no need for encodePayload
+	  var total = packets.length;
+	  for (var i = 0, l = total; i < l; i++) {
+	    (function(packet) {
+	      parser.encodePacket(packet, self.supportsBinary, function(data) {
+	        if (!BrowserWebSocket) {
+	          // always create a new object (GH-437)
+	          var opts = {};
+	          if (packet.options) {
+	            opts.compress = packet.options.compress;
 	          }
 
-	          function getRadioReaction(newVal) {
-	            var boolVal = (attr.value == ngModel.$viewValue);
-	            elem.attr('aria-checked', boolVal);
-	          }
-
-	          function getCheckboxReaction() {
-	            elem.attr('aria-checked', !ngModel.$isEmpty(ngModel.$viewValue));
-	          }
-
-	          switch (shape) {
-	            case 'radio':
-	            case 'checkbox':
-	              if (shouldAttachRole(shape, elem)) {
-	                elem.attr('role', shape);
-	              }
-	              if (shouldAttachAttr('aria-checked', 'ariaChecked', elem, false)) {
-	                scope.$watch(ngAriaWatchModelValue, shape === 'radio' ?
-	                    getRadioReaction : getCheckboxReaction);
-	              }
-	              if (needsTabIndex) {
-	                elem.attr('tabindex', 0);
-	              }
-	              break;
-	            case 'range':
-	              if (shouldAttachRole(shape, elem)) {
-	                elem.attr('role', 'slider');
-	              }
-	              if ($aria.config('ariaValue')) {
-	                var needsAriaValuemin = !elem.attr('aria-valuemin') &&
-	                    (attr.hasOwnProperty('min') || attr.hasOwnProperty('ngMin'));
-	                var needsAriaValuemax = !elem.attr('aria-valuemax') &&
-	                    (attr.hasOwnProperty('max') || attr.hasOwnProperty('ngMax'));
-	                var needsAriaValuenow = !elem.attr('aria-valuenow');
-
-	                if (needsAriaValuemin) {
-	                  attr.$observe('min', function ngAriaValueMinReaction(newVal) {
-	                    elem.attr('aria-valuemin', newVal);
-	                  });
-	                }
-	                if (needsAriaValuemax) {
-	                  attr.$observe('max', function ngAriaValueMinReaction(newVal) {
-	                    elem.attr('aria-valuemax', newVal);
-	                  });
-	                }
-	                if (needsAriaValuenow) {
-	                  scope.$watch(ngAriaWatchModelValue, function ngAriaValueNowReaction(newVal) {
-	                    elem.attr('aria-valuenow', newVal);
-	                  });
-	                }
-	              }
-	              if (needsTabIndex) {
-	                elem.attr('tabindex', 0);
-	              }
-	              break;
-	          }
-
-	          if (!attr.hasOwnProperty('ngRequired') && ngModel.$validators.required
-	            && shouldAttachAttr('aria-required', 'ariaRequired', elem, false)) {
-	            // ngModel.$error.required is undefined on custom controls
-	            attr.$observe('required', function() {
-	              elem.attr('aria-required', !!attr['required']);
-	            });
-	          }
-
-	          if (shouldAttachAttr('aria-invalid', 'ariaInvalid', elem, true)) {
-	            scope.$watch(function ngAriaInvalidWatch() {
-	              return ngModel.$invalid;
-	            }, function ngAriaInvalidReaction(newVal) {
-	              elem.attr('aria-invalid', !!newVal);
-	            });
+	          if (self.perMessageDeflate) {
+	            var len = 'string' == typeof data ? global.Buffer.byteLength(data) : data.length;
+	            if (len < self.perMessageDeflate.threshold) {
+	              opts.compress = false;
+	            }
 	          }
 	        }
-	      };
+
+	        //Sometimes the websocket has already been closed but the browser didn't
+	        //have a chance of informing us about it yet, in that case send will
+	        //throw an error
+	        try {
+	          if (BrowserWebSocket) {
+	            // TypeError is thrown when passing the second argument on Safari
+	            self.ws.send(data);
+	          } else {
+	            self.ws.send(data, opts);
+	          }
+	        } catch (e){
+	          debug('websocket closed before onclose event');
+	        }
+
+	        --total || done();
+	      });
+	    })(packets[i]);
+	  }
+
+	  function done(){
+	    self.emit('flush');
+
+	    // fake drain
+	    // defer to next tick to allow Socket to clear writeBuffer
+	    setTimeout(function(){
+	      self.writable = true;
+	      self.emit('drain');
+	    }, 0);
+	  }
+	};
+
+	/**
+	 * Called upon close
+	 *
+	 * @api private
+	 */
+
+	WS.prototype.onClose = function(){
+	  Transport.prototype.onClose.call(this);
+	};
+
+	/**
+	 * Closes socket.
+	 *
+	 * @api private
+	 */
+
+	WS.prototype.doClose = function(){
+	  if (typeof this.ws !== 'undefined') {
+	    this.ws.close();
+	  }
+	};
+
+	/**
+	 * Generates uri for connection.
+	 *
+	 * @api private
+	 */
+
+	WS.prototype.uri = function(){
+	  var query = this.query || {};
+	  var schema = this.secure ? 'wss' : 'ws';
+	  var port = '';
+
+	  // avoid port if default for schema
+	  if (this.port && (('wss' == schema && this.port != 443)
+	    || ('ws' == schema && this.port != 80))) {
+	    port = ':' + this.port;
+	  }
+
+	  // append timestamp to URI
+	  if (this.timestampRequests) {
+	    query[this.timestampParam] = yeast();
+	  }
+
+	  // communicate binary support capabilities
+	  if (!this.supportsBinary) {
+	    query.b64 = 1;
+	  }
+
+	  query = parseqs.encode(query);
+
+	  // prepend ? to query
+	  if (query.length) {
+	    query = '?' + query;
+	  }
+
+	  var ipv6 = this.hostname.indexOf(':') !== -1;
+	  return schema + '://' + (ipv6 ? '[' + this.hostname + ']' : this.hostname) + port + this.path + query;
+	};
+
+	/**
+	 * Feature detection for WebSocket.
+	 *
+	 * @return {Boolean} whether this transport is available.
+	 * @api public
+	 */
+
+	WS.prototype.check = function(){
+	  return !!WebSocket && !('__initialize' in WebSocket && this.name === WS.prototype.name);
+	};
+
+	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
+	},{"../transport":4,"component-inherit":16,"debug":17,"engine.io-parser":19,"parseqs":27,"ws":undefined,"yeast":30}],10:[function(_dereq_,module,exports){
+	// browser shim for xmlhttprequest module
+	var hasCORS = _dereq_('has-cors');
+
+	module.exports = function(opts) {
+	  var xdomain = opts.xdomain;
+
+	  // scheme must be same when usign XDomainRequest
+	  // http://blogs.msdn.com/b/ieinternals/archive/2010/05/13/xdomainrequest-restrictions-limitations-and-workarounds.aspx
+	  var xscheme = opts.xscheme;
+
+	  // XDomainRequest has a flow of not sending cookie, therefore it should be disabled as a default.
+	  // https://github.com/Automattic/engine.io-client/pull/217
+	  var enablesXDR = opts.enablesXDR;
+
+	  // XMLHttpRequest can be disabled on IE
+	  try {
+	    if ('undefined' != typeof XMLHttpRequest && (!xdomain || hasCORS)) {
+	      return new XMLHttpRequest();
 	    }
+	  } catch (e) { }
+
+	  // Use XDomainRequest for IE8 if enablesXDR is true
+	  // because loading bar keeps flashing when using jsonp-polling
+	  // https://github.com/yujiosaka/socke.io-ie8-loading-example
+	  try {
+	    if ('undefined' != typeof XDomainRequest && !xscheme && enablesXDR) {
+	      return new XDomainRequest();
+	    }
+	  } catch (e) { }
+
+	  if (!xdomain) {
+	    try {
+	      return new ActiveXObject('Microsoft.XMLHTTP');
+	    } catch(e) { }
+	  }
+	}
+
+	},{"has-cors":22}],11:[function(_dereq_,module,exports){
+	module.exports = after
+
+	function after(count, callback, err_cb) {
+	    var bail = false
+	    err_cb = err_cb || noop
+	    proxy.count = count
+
+	    return (count === 0) ? callback() : proxy
+
+	    function proxy(err, result) {
+	        if (proxy.count <= 0) {
+	            throw new Error('after called too many times')
+	        }
+	        --proxy.count
+
+	        // after first error, rest are passed to err_cb
+	        if (err) {
+	            bail = true
+	            callback(err)
+	            // future error callbacks will go to error handler
+	            callback = err_cb
+	        } else if (proxy.count === 0 && !bail) {
+	            callback(null, result)
+	        }
+	    }
+	}
+
+	function noop() {}
+
+	},{}],12:[function(_dereq_,module,exports){
+	/**
+	 * An abstraction for slicing an arraybuffer even when
+	 * ArrayBuffer.prototype.slice is not supported
+	 *
+	 * @api public
+	 */
+
+	module.exports = function(arraybuffer, start, end) {
+	  var bytes = arraybuffer.byteLength;
+	  start = start || 0;
+	  end = end || bytes;
+
+	  if (arraybuffer.slice) { return arraybuffer.slice(start, end); }
+
+	  if (start < 0) { start += bytes; }
+	  if (end < 0) { end += bytes; }
+	  if (end > bytes) { end = bytes; }
+
+	  if (start >= bytes || start >= end || bytes === 0) {
+	    return new ArrayBuffer(0);
+	  }
+
+	  var abv = new Uint8Array(arraybuffer);
+	  var result = new Uint8Array(end - start);
+	  for (var i = start, ii = 0; i < end; i++, ii++) {
+	    result[ii] = abv[i];
+	  }
+	  return result.buffer;
+	};
+
+	},{}],13:[function(_dereq_,module,exports){
+	/*
+	 * base64-arraybuffer
+	 * https://github.com/niklasvh/base64-arraybuffer
+	 *
+	 * Copyright (c) 2012 Niklas von Hertzen
+	 * Licensed under the MIT license.
+	 */
+	(function(chars){
+	  "use strict";
+
+	  exports.encode = function(arraybuffer) {
+	    var bytes = new Uint8Array(arraybuffer),
+	    i, len = bytes.length, base64 = "";
+
+	    for (i = 0; i < len; i+=3) {
+	      base64 += chars[bytes[i] >> 2];
+	      base64 += chars[((bytes[i] & 3) << 4) | (bytes[i + 1] >> 4)];
+	      base64 += chars[((bytes[i + 1] & 15) << 2) | (bytes[i + 2] >> 6)];
+	      base64 += chars[bytes[i + 2] & 63];
+	    }
+
+	    if ((len % 3) === 2) {
+	      base64 = base64.substring(0, base64.length - 1) + "=";
+	    } else if (len % 3 === 1) {
+	      base64 = base64.substring(0, base64.length - 2) + "==";
+	    }
+
+	    return base64;
 	  };
-	}])
-	.directive('ngDisabled', ['$aria', function($aria) {
-	  return $aria.$$watchExpr('ngDisabled', 'aria-disabled', nodeBlackList, false);
-	}])
-	.directive('ngMessages', function() {
-	  return {
-	    restrict: 'A',
-	    require: '?ngMessages',
-	    link: function(scope, elem, attr, ngMessages) {
-	      if (!elem.attr('aria-live')) {
-	        elem.attr('aria-live', 'assertive');
+
+	  exports.decode =  function(base64) {
+	    var bufferLength = base64.length * 0.75,
+	    len = base64.length, i, p = 0,
+	    encoded1, encoded2, encoded3, encoded4;
+
+	    if (base64[base64.length - 1] === "=") {
+	      bufferLength--;
+	      if (base64[base64.length - 2] === "=") {
+	        bufferLength--;
 	      }
 	    }
+
+	    var arraybuffer = new ArrayBuffer(bufferLength),
+	    bytes = new Uint8Array(arraybuffer);
+
+	    for (i = 0; i < len; i+=4) {
+	      encoded1 = chars.indexOf(base64[i]);
+	      encoded2 = chars.indexOf(base64[i+1]);
+	      encoded3 = chars.indexOf(base64[i+2]);
+	      encoded4 = chars.indexOf(base64[i+3]);
+
+	      bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
+	      bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
+	      bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
+	    }
+
+	    return arraybuffer;
 	  };
-	})
-	.directive('ngClick',['$aria', '$parse', function($aria, $parse) {
+	})("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
+
+	},{}],14:[function(_dereq_,module,exports){
+	(function (global){
+	/**
+	 * Create a blob builder even when vendor prefixes exist
+	 */
+
+	var BlobBuilder = global.BlobBuilder
+	  || global.WebKitBlobBuilder
+	  || global.MSBlobBuilder
+	  || global.MozBlobBuilder;
+
+	/**
+	 * Check if Blob constructor is supported
+	 */
+
+	var blobSupported = (function() {
+	  try {
+	    var a = new Blob(['hi']);
+	    return a.size === 2;
+	  } catch(e) {
+	    return false;
+	  }
+	})();
+
+	/**
+	 * Check if Blob constructor supports ArrayBufferViews
+	 * Fails in Safari 6, so we need to map to ArrayBuffers there.
+	 */
+
+	var blobSupportsArrayBufferView = blobSupported && (function() {
+	  try {
+	    var b = new Blob([new Uint8Array([1,2])]);
+	    return b.size === 2;
+	  } catch(e) {
+	    return false;
+	  }
+	})();
+
+	/**
+	 * Check if BlobBuilder is supported
+	 */
+
+	var blobBuilderSupported = BlobBuilder
+	  && BlobBuilder.prototype.append
+	  && BlobBuilder.prototype.getBlob;
+
+	/**
+	 * Helper function that maps ArrayBufferViews to ArrayBuffers
+	 * Used by BlobBuilder constructor and old browsers that didn't
+	 * support it in the Blob constructor.
+	 */
+
+	function mapArrayBufferViews(ary) {
+	  for (var i = 0; i < ary.length; i++) {
+	    var chunk = ary[i];
+	    if (chunk.buffer instanceof ArrayBuffer) {
+	      var buf = chunk.buffer;
+
+	      // if this is a subarray, make a copy so we only
+	      // include the subarray region from the underlying buffer
+	      if (chunk.byteLength !== buf.byteLength) {
+	        var copy = new Uint8Array(chunk.byteLength);
+	        copy.set(new Uint8Array(buf, chunk.byteOffset, chunk.byteLength));
+	        buf = copy.buffer;
+	      }
+
+	      ary[i] = buf;
+	    }
+	  }
+	}
+
+	function BlobBuilderConstructor(ary, options) {
+	  options = options || {};
+
+	  var bb = new BlobBuilder();
+	  mapArrayBufferViews(ary);
+
+	  for (var i = 0; i < ary.length; i++) {
+	    bb.append(ary[i]);
+	  }
+
+	  return (options.type) ? bb.getBlob(options.type) : bb.getBlob();
+	};
+
+	function BlobConstructor(ary, options) {
+	  mapArrayBufferViews(ary);
+	  return new Blob(ary, options || {});
+	};
+
+	module.exports = (function() {
+	  if (blobSupported) {
+	    return blobSupportsArrayBufferView ? global.Blob : BlobConstructor;
+	  } else if (blobBuilderSupported) {
+	    return BlobBuilderConstructor;
+	  } else {
+	    return undefined;
+	  }
+	})();
+
+	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
+	},{}],15:[function(_dereq_,module,exports){
+
+	/**
+	 * Expose `Emitter`.
+	 */
+
+	module.exports = Emitter;
+
+	/**
+	 * Initialize a new `Emitter`.
+	 *
+	 * @api public
+	 */
+
+	function Emitter(obj) {
+	  if (obj) return mixin(obj);
+	};
+
+	/**
+	 * Mixin the emitter properties.
+	 *
+	 * @param {Object} obj
+	 * @return {Object}
+	 * @api private
+	 */
+
+	function mixin(obj) {
+	  for (var key in Emitter.prototype) {
+	    obj[key] = Emitter.prototype[key];
+	  }
+	  return obj;
+	}
+
+	/**
+	 * Listen on the given `event` with `fn`.
+	 *
+	 * @param {String} event
+	 * @param {Function} fn
+	 * @return {Emitter}
+	 * @api public
+	 */
+
+	Emitter.prototype.on =
+	Emitter.prototype.addEventListener = function(event, fn){
+	  this._callbacks = this._callbacks || {};
+	  (this._callbacks[event] = this._callbacks[event] || [])
+	    .push(fn);
+	  return this;
+	};
+
+	/**
+	 * Adds an `event` listener that will be invoked a single
+	 * time then automatically removed.
+	 *
+	 * @param {String} event
+	 * @param {Function} fn
+	 * @return {Emitter}
+	 * @api public
+	 */
+
+	Emitter.prototype.once = function(event, fn){
+	  var self = this;
+	  this._callbacks = this._callbacks || {};
+
+	  function on() {
+	    self.off(event, on);
+	    fn.apply(this, arguments);
+	  }
+
+	  on.fn = fn;
+	  this.on(event, on);
+	  return this;
+	};
+
+	/**
+	 * Remove the given callback for `event` or all
+	 * registered callbacks.
+	 *
+	 * @param {String} event
+	 * @param {Function} fn
+	 * @return {Emitter}
+	 * @api public
+	 */
+
+	Emitter.prototype.off =
+	Emitter.prototype.removeListener =
+	Emitter.prototype.removeAllListeners =
+	Emitter.prototype.removeEventListener = function(event, fn){
+	  this._callbacks = this._callbacks || {};
+
+	  // all
+	  if (0 == arguments.length) {
+	    this._callbacks = {};
+	    return this;
+	  }
+
+	  // specific event
+	  var callbacks = this._callbacks[event];
+	  if (!callbacks) return this;
+
+	  // remove all handlers
+	  if (1 == arguments.length) {
+	    delete this._callbacks[event];
+	    return this;
+	  }
+
+	  // remove specific handler
+	  var cb;
+	  for (var i = 0; i < callbacks.length; i++) {
+	    cb = callbacks[i];
+	    if (cb === fn || cb.fn === fn) {
+	      callbacks.splice(i, 1);
+	      break;
+	    }
+	  }
+	  return this;
+	};
+
+	/**
+	 * Emit `event` with the given args.
+	 *
+	 * @param {String} event
+	 * @param {Mixed} ...
+	 * @return {Emitter}
+	 */
+
+	Emitter.prototype.emit = function(event){
+	  this._callbacks = this._callbacks || {};
+	  var args = [].slice.call(arguments, 1)
+	    , callbacks = this._callbacks[event];
+
+	  if (callbacks) {
+	    callbacks = callbacks.slice(0);
+	    for (var i = 0, len = callbacks.length; i < len; ++i) {
+	      callbacks[i].apply(this, args);
+	    }
+	  }
+
+	  return this;
+	};
+
+	/**
+	 * Return array of callbacks for `event`.
+	 *
+	 * @param {String} event
+	 * @return {Array}
+	 * @api public
+	 */
+
+	Emitter.prototype.listeners = function(event){
+	  this._callbacks = this._callbacks || {};
+	  return this._callbacks[event] || [];
+	};
+
+	/**
+	 * Check if this emitter has `event` handlers.
+	 *
+	 * @param {String} event
+	 * @return {Boolean}
+	 * @api public
+	 */
+
+	Emitter.prototype.hasListeners = function(event){
+	  return !! this.listeners(event).length;
+	};
+
+	},{}],16:[function(_dereq_,module,exports){
+
+	module.exports = function(a, b){
+	  var fn = function(){};
+	  fn.prototype = b.prototype;
+	  a.prototype = new fn;
+	  a.prototype.constructor = a;
+	};
+	},{}],17:[function(_dereq_,module,exports){
+
+	/**
+	 * This is the web browser implementation of `debug()`.
+	 *
+	 * Expose `debug()` as the module.
+	 */
+
+	exports = module.exports = _dereq_('./debug');
+	exports.log = log;
+	exports.formatArgs = formatArgs;
+	exports.save = save;
+	exports.load = load;
+	exports.useColors = useColors;
+	exports.storage = 'undefined' != typeof chrome
+	               && 'undefined' != typeof chrome.storage
+	                  ? chrome.storage.local
+	                  : localstorage();
+
+	/**
+	 * Colors.
+	 */
+
+	exports.colors = [
+	  'lightseagreen',
+	  'forestgreen',
+	  'goldenrod',
+	  'dodgerblue',
+	  'darkorchid',
+	  'crimson'
+	];
+
+	/**
+	 * Currently only WebKit-based Web Inspectors, Firefox >= v31,
+	 * and the Firebug extension (any Firefox version) are known
+	 * to support "%c" CSS customizations.
+	 *
+	 * TODO: add a `localStorage` variable to explicitly enable/disable colors
+	 */
+
+	function useColors() {
+	  // is webkit? http://stackoverflow.com/a/16459606/376773
+	  return ('WebkitAppearance' in document.documentElement.style) ||
+	    // is firebug? http://stackoverflow.com/a/398120/376773
+	    (window.console && (console.firebug || (console.exception && console.table))) ||
+	    // is firefox >= v31?
+	    // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
+	    (navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31);
+	}
+
+	/**
+	 * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
+	 */
+
+	exports.formatters.j = function(v) {
+	  return JSON.stringify(v);
+	};
+
+
+	/**
+	 * Colorize log arguments if enabled.
+	 *
+	 * @api public
+	 */
+
+	function formatArgs() {
+	  var args = arguments;
+	  var useColors = this.useColors;
+
+	  args[0] = (useColors ? '%c' : '')
+	    + this.namespace
+	    + (useColors ? ' %c' : ' ')
+	    + args[0]
+	    + (useColors ? '%c ' : ' ')
+	    + '+' + exports.humanize(this.diff);
+
+	  if (!useColors) return args;
+
+	  var c = 'color: ' + this.color;
+	  args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1));
+
+	  // the final "%c" is somewhat tricky, because there could be other
+	  // arguments passed either before or after the %c, so we need to
+	  // figure out the correct index to insert the CSS into
+	  var index = 0;
+	  var lastC = 0;
+	  args[0].replace(/%[a-z%]/g, function(match) {
+	    if ('%%' === match) return;
+	    index++;
+	    if ('%c' === match) {
+	      // we only are interested in the *last* %c
+	      // (the user may have provided their own)
+	      lastC = index;
+	    }
+	  });
+
+	  args.splice(lastC, 0, c);
+	  return args;
+	}
+
+	/**
+	 * Invokes `console.log()` when available.
+	 * No-op when `console.log` is not a "function".
+	 *
+	 * @api public
+	 */
+
+	function log() {
+	  // this hackery is required for IE8/9, where
+	  // the `console.log` function doesn't have 'apply'
+	  return 'object' === typeof console
+	    && console.log
+	    && Function.prototype.apply.call(console.log, console, arguments);
+	}
+
+	/**
+	 * Save `namespaces`.
+	 *
+	 * @param {String} namespaces
+	 * @api private
+	 */
+
+	function save(namespaces) {
+	  try {
+	    if (null == namespaces) {
+	      exports.storage.removeItem('debug');
+	    } else {
+	      exports.storage.debug = namespaces;
+	    }
+	  } catch(e) {}
+	}
+
+	/**
+	 * Load `namespaces`.
+	 *
+	 * @return {String} returns the previously persisted debug modes
+	 * @api private
+	 */
+
+	function load() {
+	  var r;
+	  try {
+	    r = exports.storage.debug;
+	  } catch(e) {}
+	  return r;
+	}
+
+	/**
+	 * Enable namespaces listed in `localStorage.debug` initially.
+	 */
+
+	exports.enable(load());
+
+	/**
+	 * Localstorage attempts to return the localstorage.
+	 *
+	 * This is necessary because safari throws
+	 * when a user disables cookies/localstorage
+	 * and you attempt to access it.
+	 *
+	 * @return {LocalStorage}
+	 * @api private
+	 */
+
+	function localstorage(){
+	  try {
+	    return window.localStorage;
+	  } catch (e) {}
+	}
+
+	},{"./debug":18}],18:[function(_dereq_,module,exports){
+
+	/**
+	 * This is the common logic for both the Node.js and web browser
+	 * implementations of `debug()`.
+	 *
+	 * Expose `debug()` as the module.
+	 */
+
+	exports = module.exports = debug;
+	exports.coerce = coerce;
+	exports.disable = disable;
+	exports.enable = enable;
+	exports.enabled = enabled;
+	exports.humanize = _dereq_('ms');
+
+	/**
+	 * The currently active debug mode names, and names to skip.
+	 */
+
+	exports.names = [];
+	exports.skips = [];
+
+	/**
+	 * Map of special "%n" handling functions, for the debug "format" argument.
+	 *
+	 * Valid key names are a single, lowercased letter, i.e. "n".
+	 */
+
+	exports.formatters = {};
+
+	/**
+	 * Previously assigned color.
+	 */
+
+	var prevColor = 0;
+
+	/**
+	 * Previous log timestamp.
+	 */
+
+	var prevTime;
+
+	/**
+	 * Select a color.
+	 *
+	 * @return {Number}
+	 * @api private
+	 */
+
+	function selectColor() {
+	  return exports.colors[prevColor++ % exports.colors.length];
+	}
+
+	/**
+	 * Create a debugger with the given `namespace`.
+	 *
+	 * @param {String} namespace
+	 * @return {Function}
+	 * @api public
+	 */
+
+	function debug(namespace) {
+
+	  // define the `disabled` version
+	  function disabled() {
+	  }
+	  disabled.enabled = false;
+
+	  // define the `enabled` version
+	  function enabled() {
+
+	    var self = enabled;
+
+	    // set `diff` timestamp
+	    var curr = +new Date();
+	    var ms = curr - (prevTime || curr);
+	    self.diff = ms;
+	    self.prev = prevTime;
+	    self.curr = curr;
+	    prevTime = curr;
+
+	    // add the `color` if not set
+	    if (null == self.useColors) self.useColors = exports.useColors();
+	    if (null == self.color && self.useColors) self.color = selectColor();
+
+	    var args = Array.prototype.slice.call(arguments);
+
+	    args[0] = exports.coerce(args[0]);
+
+	    if ('string' !== typeof args[0]) {
+	      // anything else let's inspect with %o
+	      args = ['%o'].concat(args);
+	    }
+
+	    // apply any `formatters` transformations
+	    var index = 0;
+	    args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
+	      // if we encounter an escaped % then don't increase the array index
+	      if (match === '%%') return match;
+	      index++;
+	      var formatter = exports.formatters[format];
+	      if ('function' === typeof formatter) {
+	        var val = args[index];
+	        match = formatter.call(self, val);
+
+	        // now we need to remove `args[index]` since it's inlined in the `format`
+	        args.splice(index, 1);
+	        index--;
+	      }
+	      return match;
+	    });
+
+	    if ('function' === typeof exports.formatArgs) {
+	      args = exports.formatArgs.apply(self, args);
+	    }
+	    var logFn = enabled.log || exports.log || console.log.bind(console);
+	    logFn.apply(self, args);
+	  }
+	  enabled.enabled = true;
+
+	  var fn = exports.enabled(namespace) ? enabled : disabled;
+
+	  fn.namespace = namespace;
+
+	  return fn;
+	}
+
+	/**
+	 * Enables a debug mode by namespaces. This can include modes
+	 * separated by a colon and wildcards.
+	 *
+	 * @param {String} namespaces
+	 * @api public
+	 */
+
+	function enable(namespaces) {
+	  exports.save(namespaces);
+
+	  var split = (namespaces || '').split(/[\s,]+/);
+	  var len = split.length;
+
+	  for (var i = 0; i < len; i++) {
+	    if (!split[i]) continue; // ignore empty strings
+	    namespaces = split[i].replace(/\*/g, '.*?');
+	    if (namespaces[0] === '-') {
+	      exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+	    } else {
+	      exports.names.push(new RegExp('^' + namespaces + '$'));
+	    }
+	  }
+	}
+
+	/**
+	 * Disable debug output.
+	 *
+	 * @api public
+	 */
+
+	function disable() {
+	  exports.enable('');
+	}
+
+	/**
+	 * Returns true if the given mode name is enabled, false otherwise.
+	 *
+	 * @param {String} name
+	 * @return {Boolean}
+	 * @api public
+	 */
+
+	function enabled(name) {
+	  var i, len;
+	  for (i = 0, len = exports.skips.length; i < len; i++) {
+	    if (exports.skips[i].test(name)) {
+	      return false;
+	    }
+	  }
+	  for (i = 0, len = exports.names.length; i < len; i++) {
+	    if (exports.names[i].test(name)) {
+	      return true;
+	    }
+	  }
+	  return false;
+	}
+
+	/**
+	 * Coerce `val`.
+	 *
+	 * @param {Mixed} val
+	 * @return {Mixed}
+	 * @api private
+	 */
+
+	function coerce(val) {
+	  if (val instanceof Error) return val.stack || val.message;
+	  return val;
+	}
+
+	},{"ms":25}],19:[function(_dereq_,module,exports){
+	(function (global){
+	/**
+	 * Module dependencies.
+	 */
+
+	var keys = _dereq_('./keys');
+	var hasBinary = _dereq_('has-binary');
+	var sliceBuffer = _dereq_('arraybuffer.slice');
+	var base64encoder = _dereq_('base64-arraybuffer');
+	var after = _dereq_('after');
+	var utf8 = _dereq_('utf8');
+
+	/**
+	 * Check if we are running an android browser. That requires us to use
+	 * ArrayBuffer with polling transports...
+	 *
+	 * http://ghinda.net/jpeg-blob-ajax-android/
+	 */
+
+	var isAndroid = navigator.userAgent.match(/Android/i);
+
+	/**
+	 * Check if we are running in PhantomJS.
+	 * Uploading a Blob with PhantomJS does not work correctly, as reported here:
+	 * https://github.com/ariya/phantomjs/issues/11395
+	 * @type boolean
+	 */
+	var isPhantomJS = /PhantomJS/i.test(navigator.userAgent);
+
+	/**
+	 * When true, avoids using Blobs to encode payloads.
+	 * @type boolean
+	 */
+	var dontSendBlobs = isAndroid || isPhantomJS;
+
+	/**
+	 * Current protocol version.
+	 */
+
+	exports.protocol = 3;
+
+	/**
+	 * Packet types.
+	 */
+
+	var packets = exports.packets = {
+	    open:     0    // non-ws
+	  , close:    1    // non-ws
+	  , ping:     2
+	  , pong:     3
+	  , message:  4
+	  , upgrade:  5
+	  , noop:     6
+	};
+
+	var packetslist = keys(packets);
+
+	/**
+	 * Premade error packet.
+	 */
+
+	var err = { type: 'error', data: 'parser error' };
+
+	/**
+	 * Create a blob api even for blob builder when vendor prefixes exist
+	 */
+
+	var Blob = _dereq_('blob');
+
+	/**
+	 * Encodes a packet.
+	 *
+	 *     <packet type id> [ <data> ]
+	 *
+	 * Example:
+	 *
+	 *     5hello world
+	 *     3
+	 *     4
+	 *
+	 * Binary is encoded in an identical principle
+	 *
+	 * @api private
+	 */
+
+	exports.encodePacket = function (packet, supportsBinary, utf8encode, callback) {
+	  if ('function' == typeof supportsBinary) {
+	    callback = supportsBinary;
+	    supportsBinary = false;
+	  }
+
+	  if ('function' == typeof utf8encode) {
+	    callback = utf8encode;
+	    utf8encode = null;
+	  }
+
+	  var data = (packet.data === undefined)
+	    ? undefined
+	    : packet.data.buffer || packet.data;
+
+	  if (global.ArrayBuffer && data instanceof ArrayBuffer) {
+	    return encodeArrayBuffer(packet, supportsBinary, callback);
+	  } else if (Blob && data instanceof global.Blob) {
+	    return encodeBlob(packet, supportsBinary, callback);
+	  }
+
+	  // might be an object with { base64: true, data: dataAsBase64String }
+	  if (data && data.base64) {
+	    return encodeBase64Object(packet, callback);
+	  }
+
+	  // Sending data as a utf-8 string
+	  var encoded = packets[packet.type];
+
+	  // data fragment is optional
+	  if (undefined !== packet.data) {
+	    encoded += utf8encode ? utf8.encode(String(packet.data)) : String(packet.data);
+	  }
+
+	  return callback('' + encoded);
+
+	};
+
+	function encodeBase64Object(packet, callback) {
+	  // packet data is an object { base64: true, data: dataAsBase64String }
+	  var message = 'b' + exports.packets[packet.type] + packet.data.data;
+	  return callback(message);
+	}
+
+	/**
+	 * Encode packet helpers for binary types
+	 */
+
+	function encodeArrayBuffer(packet, supportsBinary, callback) {
+	  if (!supportsBinary) {
+	    return exports.encodeBase64Packet(packet, callback);
+	  }
+
+	  var data = packet.data;
+	  var contentArray = new Uint8Array(data);
+	  var resultBuffer = new Uint8Array(1 + data.byteLength);
+
+	  resultBuffer[0] = packets[packet.type];
+	  for (var i = 0; i < contentArray.length; i++) {
+	    resultBuffer[i+1] = contentArray[i];
+	  }
+
+	  return callback(resultBuffer.buffer);
+	}
+
+	function encodeBlobAsArrayBuffer(packet, supportsBinary, callback) {
+	  if (!supportsBinary) {
+	    return exports.encodeBase64Packet(packet, callback);
+	  }
+
+	  var fr = new FileReader();
+	  fr.onload = function() {
+	    packet.data = fr.result;
+	    exports.encodePacket(packet, supportsBinary, true, callback);
+	  };
+	  return fr.readAsArrayBuffer(packet.data);
+	}
+
+	function encodeBlob(packet, supportsBinary, callback) {
+	  if (!supportsBinary) {
+	    return exports.encodeBase64Packet(packet, callback);
+	  }
+
+	  if (dontSendBlobs) {
+	    return encodeBlobAsArrayBuffer(packet, supportsBinary, callback);
+	  }
+
+	  var length = new Uint8Array(1);
+	  length[0] = packets[packet.type];
+	  var blob = new Blob([length.buffer, packet.data]);
+
+	  return callback(blob);
+	}
+
+	/**
+	 * Encodes a packet with binary data in a base64 string
+	 *
+	 * @param {Object} packet, has `type` and `data`
+	 * @return {String} base64 encoded message
+	 */
+
+	exports.encodeBase64Packet = function(packet, callback) {
+	  var message = 'b' + exports.packets[packet.type];
+	  if (Blob && packet.data instanceof global.Blob) {
+	    var fr = new FileReader();
+	    fr.onload = function() {
+	      var b64 = fr.result.split(',')[1];
+	      callback(message + b64);
+	    };
+	    return fr.readAsDataURL(packet.data);
+	  }
+
+	  var b64data;
+	  try {
+	    b64data = String.fromCharCode.apply(null, new Uint8Array(packet.data));
+	  } catch (e) {
+	    // iPhone Safari doesn't let you apply with typed arrays
+	    var typed = new Uint8Array(packet.data);
+	    var basic = new Array(typed.length);
+	    for (var i = 0; i < typed.length; i++) {
+	      basic[i] = typed[i];
+	    }
+	    b64data = String.fromCharCode.apply(null, basic);
+	  }
+	  message += global.btoa(b64data);
+	  return callback(message);
+	};
+
+	/**
+	 * Decodes a packet. Changes format to Blob if requested.
+	 *
+	 * @return {Object} with `type` and `data` (if any)
+	 * @api private
+	 */
+
+	exports.decodePacket = function (data, binaryType, utf8decode) {
+	  // String data
+	  if (typeof data == 'string' || data === undefined) {
+	    if (data.charAt(0) == 'b') {
+	      return exports.decodeBase64Packet(data.substr(1), binaryType);
+	    }
+
+	    if (utf8decode) {
+	      try {
+	        data = utf8.decode(data);
+	      } catch (e) {
+	        return err;
+	      }
+	    }
+	    var type = data.charAt(0);
+
+	    if (Number(type) != type || !packetslist[type]) {
+	      return err;
+	    }
+
+	    if (data.length > 1) {
+	      return { type: packetslist[type], data: data.substring(1) };
+	    } else {
+	      return { type: packetslist[type] };
+	    }
+	  }
+
+	  var asArray = new Uint8Array(data);
+	  var type = asArray[0];
+	  var rest = sliceBuffer(data, 1);
+	  if (Blob && binaryType === 'blob') {
+	    rest = new Blob([rest]);
+	  }
+	  return { type: packetslist[type], data: rest };
+	};
+
+	/**
+	 * Decodes a packet encoded in a base64 string
+	 *
+	 * @param {String} base64 encoded message
+	 * @return {Object} with `type` and `data` (if any)
+	 */
+
+	exports.decodeBase64Packet = function(msg, binaryType) {
+	  var type = packetslist[msg.charAt(0)];
+	  if (!global.ArrayBuffer) {
+	    return { type: type, data: { base64: true, data: msg.substr(1) } };
+	  }
+
+	  var data = base64encoder.decode(msg.substr(1));
+
+	  if (binaryType === 'blob' && Blob) {
+	    data = new Blob([data]);
+	  }
+
+	  return { type: type, data: data };
+	};
+
+	/**
+	 * Encodes multiple messages (payload).
+	 *
+	 *     <length>:data
+	 *
+	 * Example:
+	 *
+	 *     11:hello world2:hi
+	 *
+	 * If any contents are binary, they will be encoded as base64 strings. Base64
+	 * encoded strings are marked with a b before the length specifier
+	 *
+	 * @param {Array} packets
+	 * @api private
+	 */
+
+	exports.encodePayload = function (packets, supportsBinary, callback) {
+	  if (typeof supportsBinary == 'function') {
+	    callback = supportsBinary;
+	    supportsBinary = null;
+	  }
+
+	  var isBinary = hasBinary(packets);
+
+	  if (supportsBinary && isBinary) {
+	    if (Blob && !dontSendBlobs) {
+	      return exports.encodePayloadAsBlob(packets, callback);
+	    }
+
+	    return exports.encodePayloadAsArrayBuffer(packets, callback);
+	  }
+
+	  if (!packets.length) {
+	    return callback('0:');
+	  }
+
+	  function setLengthHeader(message) {
+	    return message.length + ':' + message;
+	  }
+
+	  function encodeOne(packet, doneCallback) {
+	    exports.encodePacket(packet, !isBinary ? false : supportsBinary, true, function(message) {
+	      doneCallback(null, setLengthHeader(message));
+	    });
+	  }
+
+	  map(packets, encodeOne, function(err, results) {
+	    return callback(results.join(''));
+	  });
+	};
+
+	/**
+	 * Async array map using after
+	 */
+
+	function map(ary, each, done) {
+	  var result = new Array(ary.length);
+	  var next = after(ary.length, done);
+
+	  var eachWithIndex = function(i, el, cb) {
+	    each(el, function(error, msg) {
+	      result[i] = msg;
+	      cb(error, result);
+	    });
+	  };
+
+	  for (var i = 0; i < ary.length; i++) {
+	    eachWithIndex(i, ary[i], next);
+	  }
+	}
+
+	/*
+	 * Decodes data when a payload is maybe expected. Possible binary contents are
+	 * decoded from their base64 representation
+	 *
+	 * @param {String} data, callback method
+	 * @api public
+	 */
+
+	exports.decodePayload = function (data, binaryType, callback) {
+	  if (typeof data != 'string') {
+	    return exports.decodePayloadAsBinary(data, binaryType, callback);
+	  }
+
+	  if (typeof binaryType === 'function') {
+	    callback = binaryType;
+	    binaryType = null;
+	  }
+
+	  var packet;
+	  if (data == '') {
+	    // parser error - ignoring payload
+	    return callback(err, 0, 1);
+	  }
+
+	  var length = ''
+	    , n, msg;
+
+	  for (var i = 0, l = data.length; i < l; i++) {
+	    var chr = data.charAt(i);
+
+	    if (':' != chr) {
+	      length += chr;
+	    } else {
+	      if ('' == length || (length != (n = Number(length)))) {
+	        // parser error - ignoring payload
+	        return callback(err, 0, 1);
+	      }
+
+	      msg = data.substr(i + 1, n);
+
+	      if (length != msg.length) {
+	        // parser error - ignoring payload
+	        return callback(err, 0, 1);
+	      }
+
+	      if (msg.length) {
+	        packet = exports.decodePacket(msg, binaryType, true);
+
+	        if (err.type == packet.type && err.data == packet.data) {
+	          // parser error in individual packet - ignoring payload
+	          return callback(err, 0, 1);
+	        }
+
+	        var ret = callback(packet, i + n, l);
+	        if (false === ret) return;
+	      }
+
+	      // advance cursor
+	      i += n;
+	      length = '';
+	    }
+	  }
+
+	  if (length != '') {
+	    // parser error - ignoring payload
+	    return callback(err, 0, 1);
+	  }
+
+	};
+
+	/**
+	 * Encodes multiple messages (payload) as binary.
+	 *
+	 * <1 = binary, 0 = string><number from 0-9><number from 0-9>[...]<number
+	 * 255><data>
+	 *
+	 * Example:
+	 * 1 3 255 1 2 3, if the binary contents are interpreted as 8 bit integers
+	 *
+	 * @param {Array} packets
+	 * @return {ArrayBuffer} encoded payload
+	 * @api private
+	 */
+
+	exports.encodePayloadAsArrayBuffer = function(packets, callback) {
+	  if (!packets.length) {
+	    return callback(new ArrayBuffer(0));
+	  }
+
+	  function encodeOne(packet, doneCallback) {
+	    exports.encodePacket(packet, true, true, function(data) {
+	      return doneCallback(null, data);
+	    });
+	  }
+
+	  map(packets, encodeOne, function(err, encodedPackets) {
+	    var totalLength = encodedPackets.reduce(function(acc, p) {
+	      var len;
+	      if (typeof p === 'string'){
+	        len = p.length;
+	      } else {
+	        len = p.byteLength;
+	      }
+	      return acc + len.toString().length + len + 2; // string/binary identifier + separator = 2
+	    }, 0);
+
+	    var resultArray = new Uint8Array(totalLength);
+
+	    var bufferIndex = 0;
+	    encodedPackets.forEach(function(p) {
+	      var isString = typeof p === 'string';
+	      var ab = p;
+	      if (isString) {
+	        var view = new Uint8Array(p.length);
+	        for (var i = 0; i < p.length; i++) {
+	          view[i] = p.charCodeAt(i);
+	        }
+	        ab = view.buffer;
+	      }
+
+	      if (isString) { // not true binary
+	        resultArray[bufferIndex++] = 0;
+	      } else { // true binary
+	        resultArray[bufferIndex++] = 1;
+	      }
+
+	      var lenStr = ab.byteLength.toString();
+	      for (var i = 0; i < lenStr.length; i++) {
+	        resultArray[bufferIndex++] = parseInt(lenStr[i]);
+	      }
+	      resultArray[bufferIndex++] = 255;
+
+	      var view = new Uint8Array(ab);
+	      for (var i = 0; i < view.length; i++) {
+	        resultArray[bufferIndex++] = view[i];
+	      }
+	    });
+
+	    return callback(resultArray.buffer);
+	  });
+	};
+
+	/**
+	 * Encode as Blob
+	 */
+
+	exports.encodePayloadAsBlob = function(packets, callback) {
+	  function encodeOne(packet, doneCallback) {
+	    exports.encodePacket(packet, true, true, function(encoded) {
+	      var binaryIdentifier = new Uint8Array(1);
+	      binaryIdentifier[0] = 1;
+	      if (typeof encoded === 'string') {
+	        var view = new Uint8Array(encoded.length);
+	        for (var i = 0; i < encoded.length; i++) {
+	          view[i] = encoded.charCodeAt(i);
+	        }
+	        encoded = view.buffer;
+	        binaryIdentifier[0] = 0;
+	      }
+
+	      var len = (encoded instanceof ArrayBuffer)
+	        ? encoded.byteLength
+	        : encoded.size;
+
+	      var lenStr = len.toString();
+	      var lengthAry = new Uint8Array(lenStr.length + 1);
+	      for (var i = 0; i < lenStr.length; i++) {
+	        lengthAry[i] = parseInt(lenStr[i]);
+	      }
+	      lengthAry[lenStr.length] = 255;
+
+	      if (Blob) {
+	        var blob = new Blob([binaryIdentifier.buffer, lengthAry.buffer, encoded]);
+	        doneCallback(null, blob);
+	      }
+	    });
+	  }
+
+	  map(packets, encodeOne, function(err, results) {
+	    return callback(new Blob(results));
+	  });
+	};
+
+	/*
+	 * Decodes data when a payload is maybe expected. Strings are decoded by
+	 * interpreting each byte as a key code for entries marked to start with 0. See
+	 * description of encodePayloadAsBinary
+	 *
+	 * @param {ArrayBuffer} data, callback method
+	 * @api public
+	 */
+
+	exports.decodePayloadAsBinary = function (data, binaryType, callback) {
+	  if (typeof binaryType === 'function') {
+	    callback = binaryType;
+	    binaryType = null;
+	  }
+
+	  var bufferTail = data;
+	  var buffers = [];
+
+	  var numberTooLong = false;
+	  while (bufferTail.byteLength > 0) {
+	    var tailArray = new Uint8Array(bufferTail);
+	    var isString = tailArray[0] === 0;
+	    var msgLength = '';
+
+	    for (var i = 1; ; i++) {
+	      if (tailArray[i] == 255) break;
+
+	      if (msgLength.length > 310) {
+	        numberTooLong = true;
+	        break;
+	      }
+
+	      msgLength += tailArray[i];
+	    }
+
+	    if(numberTooLong) return callback(err, 0, 1);
+
+	    bufferTail = sliceBuffer(bufferTail, 2 + msgLength.length);
+	    msgLength = parseInt(msgLength);
+
+	    var msg = sliceBuffer(bufferTail, 0, msgLength);
+	    if (isString) {
+	      try {
+	        msg = String.fromCharCode.apply(null, new Uint8Array(msg));
+	      } catch (e) {
+	        // iPhone Safari doesn't let you apply to typed arrays
+	        var typed = new Uint8Array(msg);
+	        msg = '';
+	        for (var i = 0; i < typed.length; i++) {
+	          msg += String.fromCharCode(typed[i]);
+	        }
+	      }
+	    }
+
+	    buffers.push(msg);
+	    bufferTail = sliceBuffer(bufferTail, msgLength);
+	  }
+
+	  var total = buffers.length;
+	  buffers.forEach(function(buffer, i) {
+	    callback(exports.decodePacket(buffer, binaryType, true), i, total);
+	  });
+	};
+
+	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
+	},{"./keys":20,"after":11,"arraybuffer.slice":12,"base64-arraybuffer":13,"blob":14,"has-binary":21,"utf8":29}],20:[function(_dereq_,module,exports){
+
+	/**
+	 * Gets the keys for an object.
+	 *
+	 * @return {Array} keys
+	 * @api private
+	 */
+
+	module.exports = Object.keys || function keys (obj){
+	  var arr = [];
+	  var has = Object.prototype.hasOwnProperty;
+
+	  for (var i in obj) {
+	    if (has.call(obj, i)) {
+	      arr.push(i);
+	    }
+	  }
+	  return arr;
+	};
+
+	},{}],21:[function(_dereq_,module,exports){
+	(function (global){
+
+	/*
+	 * Module requirements.
+	 */
+
+	var isArray = _dereq_('isarray');
+
+	/**
+	 * Module exports.
+	 */
+
+	module.exports = hasBinary;
+
+	/**
+	 * Checks for binary data.
+	 *
+	 * Right now only Buffer and ArrayBuffer are supported..
+	 *
+	 * @param {Object} anything
+	 * @api public
+	 */
+
+	function hasBinary(data) {
+
+	  function _hasBinary(obj) {
+	    if (!obj) return false;
+
+	    if ( (global.Buffer && global.Buffer.isBuffer(obj)) ||
+	         (global.ArrayBuffer && obj instanceof ArrayBuffer) ||
+	         (global.Blob && obj instanceof Blob) ||
+	         (global.File && obj instanceof File)
+	        ) {
+	      return true;
+	    }
+
+	    if (isArray(obj)) {
+	      for (var i = 0; i < obj.length; i++) {
+	          if (_hasBinary(obj[i])) {
+	              return true;
+	          }
+	      }
+	    } else if (obj && 'object' == typeof obj) {
+	      if (obj.toJSON) {
+	        obj = obj.toJSON();
+	      }
+
+	      for (var key in obj) {
+	        if (Object.prototype.hasOwnProperty.call(obj, key) && _hasBinary(obj[key])) {
+	          return true;
+	        }
+	      }
+	    }
+
+	    return false;
+	  }
+
+	  return _hasBinary(data);
+	}
+
+	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
+	},{"isarray":24}],22:[function(_dereq_,module,exports){
+
+	/**
+	 * Module exports.
+	 *
+	 * Logic borrowed from Modernizr:
+	 *
+	 *   - https://github.com/Modernizr/Modernizr/blob/master/feature-detects/cors.js
+	 */
+
+	try {
+	  module.exports = typeof XMLHttpRequest !== 'undefined' &&
+	    'withCredentials' in new XMLHttpRequest();
+	} catch (err) {
+	  // if XMLHttp support is disabled in IE then it will throw
+	  // when trying to create
+	  module.exports = false;
+	}
+
+	},{}],23:[function(_dereq_,module,exports){
+
+	var indexOf = [].indexOf;
+
+	module.exports = function(arr, obj){
+	  if (indexOf) return arr.indexOf(obj);
+	  for (var i = 0; i < arr.length; ++i) {
+	    if (arr[i] === obj) return i;
+	  }
+	  return -1;
+	};
+	},{}],24:[function(_dereq_,module,exports){
+	module.exports = Array.isArray || function (arr) {
+	  return Object.prototype.toString.call(arr) == '[object Array]';
+	};
+
+	},{}],25:[function(_dereq_,module,exports){
+	/**
+	 * Helpers.
+	 */
+
+	var s = 1000;
+	var m = s * 60;
+	var h = m * 60;
+	var d = h * 24;
+	var y = d * 365.25;
+
+	/**
+	 * Parse or format the given `val`.
+	 *
+	 * Options:
+	 *
+	 *  - `long` verbose formatting [false]
+	 *
+	 * @param {String|Number} val
+	 * @param {Object} options
+	 * @return {String|Number}
+	 * @api public
+	 */
+
+	module.exports = function(val, options){
+	  options = options || {};
+	  if ('string' == typeof val) return parse(val);
+	  return options.long
+	    ? long(val)
+	    : short(val);
+	};
+
+	/**
+	 * Parse the given `str` and return milliseconds.
+	 *
+	 * @param {String} str
+	 * @return {Number}
+	 * @api private
+	 */
+
+	function parse(str) {
+	  str = '' + str;
+	  if (str.length > 10000) return;
+	  var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str);
+	  if (!match) return;
+	  var n = parseFloat(match[1]);
+	  var type = (match[2] || 'ms').toLowerCase();
+	  switch (type) {
+	    case 'years':
+	    case 'year':
+	    case 'yrs':
+	    case 'yr':
+	    case 'y':
+	      return n * y;
+	    case 'days':
+	    case 'day':
+	    case 'd':
+	      return n * d;
+	    case 'hours':
+	    case 'hour':
+	    case 'hrs':
+	    case 'hr':
+	    case 'h':
+	      return n * h;
+	    case 'minutes':
+	    case 'minute':
+	    case 'mins':
+	    case 'min':
+	    case 'm':
+	      return n * m;
+	    case 'seconds':
+	    case 'second':
+	    case 'secs':
+	    case 'sec':
+	    case 's':
+	      return n * s;
+	    case 'milliseconds':
+	    case 'millisecond':
+	    case 'msecs':
+	    case 'msec':
+	    case 'ms':
+	      return n;
+	  }
+	}
+
+	/**
+	 * Short format for `ms`.
+	 *
+	 * @param {Number} ms
+	 * @return {String}
+	 * @api private
+	 */
+
+	function short(ms) {
+	  if (ms >= d) return Math.round(ms / d) + 'd';
+	  if (ms >= h) return Math.round(ms / h) + 'h';
+	  if (ms >= m) return Math.round(ms / m) + 'm';
+	  if (ms >= s) return Math.round(ms / s) + 's';
+	  return ms + 'ms';
+	}
+
+	/**
+	 * Long format for `ms`.
+	 *
+	 * @param {Number} ms
+	 * @return {String}
+	 * @api private
+	 */
+
+	function long(ms) {
+	  return plural(ms, d, 'day')
+	    || plural(ms, h, 'hour')
+	    || plural(ms, m, 'minute')
+	    || plural(ms, s, 'second')
+	    || ms + ' ms';
+	}
+
+	/**
+	 * Pluralization helper.
+	 */
+
+	function plural(ms, n, name) {
+	  if (ms < n) return;
+	  if (ms < n * 1.5) return Math.floor(ms / n) + ' ' + name;
+	  return Math.ceil(ms / n) + ' ' + name + 's';
+	}
+
+	},{}],26:[function(_dereq_,module,exports){
+	(function (global){
+	/**
+	 * JSON parse.
+	 *
+	 * @see Based on jQuery#parseJSON (MIT) and JSON2
+	 * @api private
+	 */
+
+	var rvalidchars = /^[\],:{}\s]*$/;
+	var rvalidescape = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
+	var rvalidtokens = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
+	var rvalidbraces = /(?:^|:|,)(?:\s*\[)+/g;
+	var rtrimLeft = /^\s+/;
+	var rtrimRight = /\s+$/;
+
+	module.exports = function parsejson(data) {
+	  if ('string' != typeof data || !data) {
+	    return null;
+	  }
+
+	  data = data.replace(rtrimLeft, '').replace(rtrimRight, '');
+
+	  // Attempt to parse using the native JSON parser first
+	  if (global.JSON && JSON.parse) {
+	    return JSON.parse(data);
+	  }
+
+	  if (rvalidchars.test(data.replace(rvalidescape, '@')
+	      .replace(rvalidtokens, ']')
+	      .replace(rvalidbraces, ''))) {
+	    return (new Function('return ' + data))();
+	  }
+	};
+	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
+	},{}],27:[function(_dereq_,module,exports){
+	/**
+	 * Compiles a querystring
+	 * Returns string representation of the object
+	 *
+	 * @param {Object}
+	 * @api private
+	 */
+
+	exports.encode = function (obj) {
+	  var str = '';
+
+	  for (var i in obj) {
+	    if (obj.hasOwnProperty(i)) {
+	      if (str.length) str += '&';
+	      str += encodeURIComponent(i) + '=' + encodeURIComponent(obj[i]);
+	    }
+	  }
+
+	  return str;
+	};
+
+	/**
+	 * Parses a simple querystring into an object
+	 *
+	 * @param {String} qs
+	 * @api private
+	 */
+
+	exports.decode = function(qs){
+	  var qry = {};
+	  var pairs = qs.split('&');
+	  for (var i = 0, l = pairs.length; i < l; i++) {
+	    var pair = pairs[i].split('=');
+	    qry[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+	  }
+	  return qry;
+	};
+
+	},{}],28:[function(_dereq_,module,exports){
+	/**
+	 * Parses an URI
+	 *
+	 * @author Steven Levithan <stevenlevithan.com> (MIT license)
+	 * @api private
+	 */
+
+	var re = /^(?:(?![^:@]+:[^:@\/]*@)(http|https|ws|wss):\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?((?:[a-f0-9]{0,4}:){2,7}[a-f0-9]{0,4}|[^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
+
+	var parts = [
+	    'source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host', 'port', 'relative', 'path', 'directory', 'file', 'query', 'anchor'
+	];
+
+	module.exports = function parseuri(str) {
+	    var src = str,
+	        b = str.indexOf('['),
+	        e = str.indexOf(']');
+
+	    if (b != -1 && e != -1) {
+	        str = str.substring(0, b) + str.substring(b, e).replace(/:/g, ';') + str.substring(e, str.length);
+	    }
+
+	    var m = re.exec(str || ''),
+	        uri = {},
+	        i = 14;
+
+	    while (i--) {
+	        uri[parts[i]] = m[i] || '';
+	    }
+
+	    if (b != -1 && e != -1) {
+	        uri.source = src;
+	        uri.host = uri.host.substring(1, uri.host.length - 1).replace(/;/g, ':');
+	        uri.authority = uri.authority.replace('[', '').replace(']', '').replace(/;/g, ':');
+	        uri.ipv6uri = true;
+	    }
+
+	    return uri;
+	};
+
+	},{}],29:[function(_dereq_,module,exports){
+	(function (global){
+	/*! https://mths.be/utf8js v2.0.0 by @mathias */
+	;(function(root) {
+
+		// Detect free variables `exports`
+		var freeExports = typeof exports == 'object' && exports;
+
+		// Detect free variable `module`
+		var freeModule = typeof module == 'object' && module &&
+			module.exports == freeExports && module;
+
+		// Detect free variable `global`, from Node.js or Browserified code,
+		// and use it as `root`
+		var freeGlobal = typeof global == 'object' && global;
+		if (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal) {
+			root = freeGlobal;
+		}
+
+		/*--------------------------------------------------------------------------*/
+
+		var stringFromCharCode = String.fromCharCode;
+
+		// Taken from https://mths.be/punycode
+		function ucs2decode(string) {
+			var output = [];
+			var counter = 0;
+			var length = string.length;
+			var value;
+			var extra;
+			while (counter < length) {
+				value = string.charCodeAt(counter++);
+				if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
+					// high surrogate, and there is a next character
+					extra = string.charCodeAt(counter++);
+					if ((extra & 0xFC00) == 0xDC00) { // low surrogate
+						output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
+					} else {
+						// unmatched surrogate; only append this code unit, in case the next
+						// code unit is the high surrogate of a surrogate pair
+						output.push(value);
+						counter--;
+					}
+				} else {
+					output.push(value);
+				}
+			}
+			return output;
+		}
+
+		// Taken from https://mths.be/punycode
+		function ucs2encode(array) {
+			var length = array.length;
+			var index = -1;
+			var value;
+			var output = '';
+			while (++index < length) {
+				value = array[index];
+				if (value > 0xFFFF) {
+					value -= 0x10000;
+					output += stringFromCharCode(value >>> 10 & 0x3FF | 0xD800);
+					value = 0xDC00 | value & 0x3FF;
+				}
+				output += stringFromCharCode(value);
+			}
+			return output;
+		}
+
+		function checkScalarValue(codePoint) {
+			if (codePoint >= 0xD800 && codePoint <= 0xDFFF) {
+				throw Error(
+					'Lone surrogate U+' + codePoint.toString(16).toUpperCase() +
+					' is not a scalar value'
+				);
+			}
+		}
+		/*--------------------------------------------------------------------------*/
+
+		function createByte(codePoint, shift) {
+			return stringFromCharCode(((codePoint >> shift) & 0x3F) | 0x80);
+		}
+
+		function encodeCodePoint(codePoint) {
+			if ((codePoint & 0xFFFFFF80) == 0) { // 1-byte sequence
+				return stringFromCharCode(codePoint);
+			}
+			var symbol = '';
+			if ((codePoint & 0xFFFFF800) == 0) { // 2-byte sequence
+				symbol = stringFromCharCode(((codePoint >> 6) & 0x1F) | 0xC0);
+			}
+			else if ((codePoint & 0xFFFF0000) == 0) { // 3-byte sequence
+				checkScalarValue(codePoint);
+				symbol = stringFromCharCode(((codePoint >> 12) & 0x0F) | 0xE0);
+				symbol += createByte(codePoint, 6);
+			}
+			else if ((codePoint & 0xFFE00000) == 0) { // 4-byte sequence
+				symbol = stringFromCharCode(((codePoint >> 18) & 0x07) | 0xF0);
+				symbol += createByte(codePoint, 12);
+				symbol += createByte(codePoint, 6);
+			}
+			symbol += stringFromCharCode((codePoint & 0x3F) | 0x80);
+			return symbol;
+		}
+
+		function utf8encode(string) {
+			var codePoints = ucs2decode(string);
+			var length = codePoints.length;
+			var index = -1;
+			var codePoint;
+			var byteString = '';
+			while (++index < length) {
+				codePoint = codePoints[index];
+				byteString += encodeCodePoint(codePoint);
+			}
+			return byteString;
+		}
+
+		/*--------------------------------------------------------------------------*/
+
+		function readContinuationByte() {
+			if (byteIndex >= byteCount) {
+				throw Error('Invalid byte index');
+			}
+
+			var continuationByte = byteArray[byteIndex] & 0xFF;
+			byteIndex++;
+
+			if ((continuationByte & 0xC0) == 0x80) {
+				return continuationByte & 0x3F;
+			}
+
+			// If we end up here, it’s not a continuation byte
+			throw Error('Invalid continuation byte');
+		}
+
+		function decodeSymbol() {
+			var byte1;
+			var byte2;
+			var byte3;
+			var byte4;
+			var codePoint;
+
+			if (byteIndex > byteCount) {
+				throw Error('Invalid byte index');
+			}
+
+			if (byteIndex == byteCount) {
+				return false;
+			}
+
+			// Read first byte
+			byte1 = byteArray[byteIndex] & 0xFF;
+			byteIndex++;
+
+			// 1-byte sequence (no continuation bytes)
+			if ((byte1 & 0x80) == 0) {
+				return byte1;
+			}
+
+			// 2-byte sequence
+			if ((byte1 & 0xE0) == 0xC0) {
+				var byte2 = readContinuationByte();
+				codePoint = ((byte1 & 0x1F) << 6) | byte2;
+				if (codePoint >= 0x80) {
+					return codePoint;
+				} else {
+					throw Error('Invalid continuation byte');
+				}
+			}
+
+			// 3-byte sequence (may include unpaired surrogates)
+			if ((byte1 & 0xF0) == 0xE0) {
+				byte2 = readContinuationByte();
+				byte3 = readContinuationByte();
+				codePoint = ((byte1 & 0x0F) << 12) | (byte2 << 6) | byte3;
+				if (codePoint >= 0x0800) {
+					checkScalarValue(codePoint);
+					return codePoint;
+				} else {
+					throw Error('Invalid continuation byte');
+				}
+			}
+
+			// 4-byte sequence
+			if ((byte1 & 0xF8) == 0xF0) {
+				byte2 = readContinuationByte();
+				byte3 = readContinuationByte();
+				byte4 = readContinuationByte();
+				codePoint = ((byte1 & 0x0F) << 0x12) | (byte2 << 0x0C) |
+					(byte3 << 0x06) | byte4;
+				if (codePoint >= 0x010000 && codePoint <= 0x10FFFF) {
+					return codePoint;
+				}
+			}
+
+			throw Error('Invalid UTF-8 detected');
+		}
+
+		var byteArray;
+		var byteCount;
+		var byteIndex;
+		function utf8decode(byteString) {
+			byteArray = ucs2decode(byteString);
+			byteCount = byteArray.length;
+			byteIndex = 0;
+			var codePoints = [];
+			var tmp;
+			while ((tmp = decodeSymbol()) !== false) {
+				codePoints.push(tmp);
+			}
+			return ucs2encode(codePoints);
+		}
+
+		/*--------------------------------------------------------------------------*/
+
+		var utf8 = {
+			'version': '2.0.0',
+			'encode': utf8encode,
+			'decode': utf8decode
+		};
+
+		// Some AMD build optimizers, like r.js, check for specific condition patterns
+		// like the following:
+		if (
+			typeof define == 'function' &&
+			typeof define.amd == 'object' &&
+			define.amd
+		) {
+			define(function() {
+				return utf8;
+			});
+		}	else if (freeExports && !freeExports.nodeType) {
+			if (freeModule) { // in Node.js or RingoJS v0.8.0+
+				freeModule.exports = utf8;
+			} else { // in Narwhal or RingoJS v0.7.0-
+				var object = {};
+				var hasOwnProperty = object.hasOwnProperty;
+				for (var key in utf8) {
+					hasOwnProperty.call(utf8, key) && (freeExports[key] = utf8[key]);
+				}
+			}
+		} else { // in Rhino or a web browser
+			root.utf8 = utf8;
+		}
+
+	}(this));
+
+	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
+	},{}],30:[function(_dereq_,module,exports){
+	'use strict';
+
+	var alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_'.split('')
+	  , length = 64
+	  , map = {}
+	  , seed = 0
+	  , i = 0
+	  , prev;
+
+	/**
+	 * Return a string representing the specified number.
+	 *
+	 * @param {Number} num The number to convert.
+	 * @returns {String} The string representation of the number.
+	 * @api public
+	 */
+	function encode(num) {
+	  var encoded = '';
+
+	  do {
+	    encoded = alphabet[num % length] + encoded;
+	    num = Math.floor(num / length);
+	  } while (num > 0);
+
+	  return encoded;
+	}
+
+	/**
+	 * Return the integer value specified by the given string.
+	 *
+	 * @param {String} str The string to convert.
+	 * @returns {Number} The integer value represented by the string.
+	 * @api public
+	 */
+	function decode(str) {
+	  var decoded = 0;
+
+	  for (i = 0; i < str.length; i++) {
+	    decoded = decoded * length + map[str.charAt(i)];
+	  }
+
+	  return decoded;
+	}
+
+	/**
+	 * Yeast: A tiny growing id generator.
+	 *
+	 * @returns {String} A unique id.
+	 * @api public
+	 */
+	function yeast() {
+	  var now = encode(+new Date());
+
+	  if (now !== prev) return seed = 0, prev = now;
+	  return now +'.'+ encode(seed++);
+	}
+
+	//
+	// Map each character to its index.
+	//
+	for (; i < length; i++) map[alphabet[i]] = i;
+
+	//
+	// Expose the `yeast`, `encode` and `decode` functions.
+	//
+	yeast.encode = encode;
+	yeast.decode = decode;
+	module.exports = yeast;
+
+	},{}],31:[function(_dereq_,module,exports){
+
+	/**
+	 * Module dependencies.
+	 */
+
+	var url = _dereq_('./url');
+	var parser = _dereq_('socket.io-parser');
+	var Manager = _dereq_('./manager');
+	var debug = _dereq_('debug')('socket.io-client');
+
+	/**
+	 * Module exports.
+	 */
+
+	module.exports = exports = lookup;
+
+	/**
+	 * Managers cache.
+	 */
+
+	var cache = exports.managers = {};
+
+	/**
+	 * Looks up an existing `Manager` for multiplexing.
+	 * If the user summons:
+	 *
+	 *   `io('http://localhost/a');`
+	 *   `io('http://localhost/b');`
+	 *
+	 * We reuse the existing instance based on same scheme/port/host,
+	 * and we initialize sockets for each namespace.
+	 *
+	 * @api public
+	 */
+
+	function lookup(uri, opts) {
+	  if (typeof uri == 'object') {
+	    opts = uri;
+	    uri = undefined;
+	  }
+
+	  opts = opts || {};
+
+	  var parsed = url(uri);
+	  var source = parsed.source;
+	  var id = parsed.id;
+	  var path = parsed.path;
+	  var sameNamespace = cache[id] && path in cache[id].nsps;
+	  var newConnection = opts.forceNew || opts['force new connection'] ||
+	                      false === opts.multiplex || sameNamespace;
+
+	  var io;
+
+	  if (newConnection) {
+	    debug('ignoring socket cache for %s', source);
+	    io = Manager(source, opts);
+	  } else {
+	    if (!cache[id]) {
+	      debug('new io instance for %s', source);
+	      cache[id] = Manager(source, opts);
+	    }
+	    io = cache[id];
+	  }
+
+	  return io.socket(parsed.path);
+	}
+
+	/**
+	 * Protocol version.
+	 *
+	 * @api public
+	 */
+
+	exports.protocol = parser.protocol;
+
+	/**
+	 * `connect`.
+	 *
+	 * @param {String} uri
+	 * @api public
+	 */
+
+	exports.connect = lookup;
+
+	/**
+	 * Expose constructors for standalone build.
+	 *
+	 * @api public
+	 */
+
+	exports.Manager = _dereq_('./manager');
+	exports.Socket = _dereq_('./socket');
+
+	},{"./manager":32,"./socket":34,"./url":35,"debug":39,"socket.io-parser":47}],32:[function(_dereq_,module,exports){
+
+	/**
+	 * Module dependencies.
+	 */
+
+	var eio = _dereq_('engine.io-client');
+	var Socket = _dereq_('./socket');
+	var Emitter = _dereq_('component-emitter');
+	var parser = _dereq_('socket.io-parser');
+	var on = _dereq_('./on');
+	var bind = _dereq_('component-bind');
+	var debug = _dereq_('debug')('socket.io-client:manager');
+	var indexOf = _dereq_('indexof');
+	var Backoff = _dereq_('backo2');
+
+	/**
+	 * IE6+ hasOwnProperty
+	 */
+
+	var has = Object.prototype.hasOwnProperty;
+
+	/**
+	 * Module exports
+	 */
+
+	module.exports = Manager;
+
+	/**
+	 * `Manager` constructor.
+	 *
+	 * @param {String} engine instance or engine uri/opts
+	 * @param {Object} options
+	 * @api public
+	 */
+
+	function Manager(uri, opts){
+	  if (!(this instanceof Manager)) return new Manager(uri, opts);
+	  if (uri && ('object' == typeof uri)) {
+	    opts = uri;
+	    uri = undefined;
+	  }
+	  opts = opts || {};
+
+	  opts.path = opts.path || '/socket.io';
+	  this.nsps = {};
+	  this.subs = [];
+	  this.opts = opts;
+	  this.reconnection(opts.reconnection !== false);
+	  this.reconnectionAttempts(opts.reconnectionAttempts || Infinity);
+	  this.reconnectionDelay(opts.reconnectionDelay || 1000);
+	  this.reconnectionDelayMax(opts.reconnectionDelayMax || 5000);
+	  this.randomizationFactor(opts.randomizationFactor || 0.5);
+	  this.backoff = new Backoff({
+	    min: this.reconnectionDelay(),
+	    max: this.reconnectionDelayMax(),
+	    jitter: this.randomizationFactor()
+	  });
+	  this.timeout(null == opts.timeout ? 20000 : opts.timeout);
+	  this.readyState = 'closed';
+	  this.uri = uri;
+	  this.connecting = [];
+	  this.lastPing = null;
+	  this.encoding = false;
+	  this.packetBuffer = [];
+	  this.encoder = new parser.Encoder();
+	  this.decoder = new parser.Decoder();
+	  this.autoConnect = opts.autoConnect !== false;
+	  if (this.autoConnect) this.open();
+	}
+
+	/**
+	 * Propagate given event to sockets and emit on `this`
+	 *
+	 * @api private
+	 */
+
+	Manager.prototype.emitAll = function() {
+	  this.emit.apply(this, arguments);
+	  for (var nsp in this.nsps) {
+	    if (has.call(this.nsps, nsp)) {
+	      this.nsps[nsp].emit.apply(this.nsps[nsp], arguments);
+	    }
+	  }
+	};
+
+	/**
+	 * Update `socket.id` of all sockets
+	 *
+	 * @api private
+	 */
+
+	Manager.prototype.updateSocketIds = function(){
+	  for (var nsp in this.nsps) {
+	    if (has.call(this.nsps, nsp)) {
+	      this.nsps[nsp].id = this.engine.id;
+	    }
+	  }
+	};
+
+	/**
+	 * Mix in `Emitter`.
+	 */
+
+	Emitter(Manager.prototype);
+
+	/**
+	 * Sets the `reconnection` config.
+	 *
+	 * @param {Boolean} true/false if it should automatically reconnect
+	 * @return {Manager} self or value
+	 * @api public
+	 */
+
+	Manager.prototype.reconnection = function(v){
+	  if (!arguments.length) return this._reconnection;
+	  this._reconnection = !!v;
+	  return this;
+	};
+
+	/**
+	 * Sets the reconnection attempts config.
+	 *
+	 * @param {Number} max reconnection attempts before giving up
+	 * @return {Manager} self or value
+	 * @api public
+	 */
+
+	Manager.prototype.reconnectionAttempts = function(v){
+	  if (!arguments.length) return this._reconnectionAttempts;
+	  this._reconnectionAttempts = v;
+	  return this;
+	};
+
+	/**
+	 * Sets the delay between reconnections.
+	 *
+	 * @param {Number} delay
+	 * @return {Manager} self or value
+	 * @api public
+	 */
+
+	Manager.prototype.reconnectionDelay = function(v){
+	  if (!arguments.length) return this._reconnectionDelay;
+	  this._reconnectionDelay = v;
+	  this.backoff && this.backoff.setMin(v);
+	  return this;
+	};
+
+	Manager.prototype.randomizationFactor = function(v){
+	  if (!arguments.length) return this._randomizationFactor;
+	  this._randomizationFactor = v;
+	  this.backoff && this.backoff.setJitter(v);
+	  return this;
+	};
+
+	/**
+	 * Sets the maximum delay between reconnections.
+	 *
+	 * @param {Number} delay
+	 * @return {Manager} self or value
+	 * @api public
+	 */
+
+	Manager.prototype.reconnectionDelayMax = function(v){
+	  if (!arguments.length) return this._reconnectionDelayMax;
+	  this._reconnectionDelayMax = v;
+	  this.backoff && this.backoff.setMax(v);
+	  return this;
+	};
+
+	/**
+	 * Sets the connection timeout. `false` to disable
+	 *
+	 * @return {Manager} self or value
+	 * @api public
+	 */
+
+	Manager.prototype.timeout = function(v){
+	  if (!arguments.length) return this._timeout;
+	  this._timeout = v;
+	  return this;
+	};
+
+	/**
+	 * Starts trying to reconnect if reconnection is enabled and we have not
+	 * started reconnecting yet
+	 *
+	 * @api private
+	 */
+
+	Manager.prototype.maybeReconnectOnOpen = function() {
+	  // Only try to reconnect if it's the first time we're connecting
+	  if (!this.reconnecting && this._reconnection && this.backoff.attempts === 0) {
+	    // keeps reconnection from firing twice for the same reconnection loop
+	    this.reconnect();
+	  }
+	};
+
+
+	/**
+	 * Sets the current transport `socket`.
+	 *
+	 * @param {Function} optional, callback
+	 * @return {Manager} self
+	 * @api public
+	 */
+
+	Manager.prototype.open =
+	Manager.prototype.connect = function(fn){
+	  debug('readyState %s', this.readyState);
+	  if (~this.readyState.indexOf('open')) return this;
+
+	  debug('opening %s', this.uri);
+	  this.engine = eio(this.uri, this.opts);
+	  var socket = this.engine;
+	  var self = this;
+	  this.readyState = 'opening';
+	  this.skipReconnect = false;
+
+	  // emit `open`
+	  var openSub = on(socket, 'open', function() {
+	    self.onopen();
+	    fn && fn();
+	  });
+
+	  // emit `connect_error`
+	  var errorSub = on(socket, 'error', function(data){
+	    debug('connect_error');
+	    self.cleanup();
+	    self.readyState = 'closed';
+	    self.emitAll('connect_error', data);
+	    if (fn) {
+	      var err = new Error('Connection error');
+	      err.data = data;
+	      fn(err);
+	    } else {
+	      // Only do this if there is no fn to handle the error
+	      self.maybeReconnectOnOpen();
+	    }
+	  });
+
+	  // emit `connect_timeout`
+	  if (false !== this._timeout) {
+	    var timeout = this._timeout;
+	    debug('connect attempt will timeout after %d', timeout);
+
+	    // set timer
+	    var timer = setTimeout(function(){
+	      debug('connect attempt timed out after %d', timeout);
+	      openSub.destroy();
+	      socket.close();
+	      socket.emit('error', 'timeout');
+	      self.emitAll('connect_timeout', timeout);
+	    }, timeout);
+
+	    this.subs.push({
+	      destroy: function(){
+	        clearTimeout(timer);
+	      }
+	    });
+	  }
+
+	  this.subs.push(openSub);
+	  this.subs.push(errorSub);
+
+	  return this;
+	};
+
+	/**
+	 * Called upon transport open.
+	 *
+	 * @api private
+	 */
+
+	Manager.prototype.onopen = function(){
+	  debug('open');
+
+	  // clear old subs
+	  this.cleanup();
+
+	  // mark as open
+	  this.readyState = 'open';
+	  this.emit('open');
+
+	  // add new subs
+	  var socket = this.engine;
+	  this.subs.push(on(socket, 'data', bind(this, 'ondata')));
+	  this.subs.push(on(socket, 'ping', bind(this, 'onping')));
+	  this.subs.push(on(socket, 'pong', bind(this, 'onpong')));
+	  this.subs.push(on(socket, 'error', bind(this, 'onerror')));
+	  this.subs.push(on(socket, 'close', bind(this, 'onclose')));
+	  this.subs.push(on(this.decoder, 'decoded', bind(this, 'ondecoded')));
+	};
+
+	/**
+	 * Called upon a ping.
+	 *
+	 * @api private
+	 */
+
+	Manager.prototype.onping = function(){
+	  this.lastPing = new Date;
+	  this.emitAll('ping');
+	};
+
+	/**
+	 * Called upon a packet.
+	 *
+	 * @api private
+	 */
+
+	Manager.prototype.onpong = function(){
+	  this.emitAll('pong', new Date - this.lastPing);
+	};
+
+	/**
+	 * Called with data.
+	 *
+	 * @api private
+	 */
+
+	Manager.prototype.ondata = function(data){
+	  this.decoder.add(data);
+	};
+
+	/**
+	 * Called when parser fully decodes a packet.
+	 *
+	 * @api private
+	 */
+
+	Manager.prototype.ondecoded = function(packet) {
+	  this.emit('packet', packet);
+	};
+
+	/**
+	 * Called upon socket error.
+	 *
+	 * @api private
+	 */
+
+	Manager.prototype.onerror = function(err){
+	  debug('error', err);
+	  this.emitAll('error', err);
+	};
+
+	/**
+	 * Creates a new socket for the given `nsp`.
+	 *
+	 * @return {Socket}
+	 * @api public
+	 */
+
+	Manager.prototype.socket = function(nsp){
+	  var socket = this.nsps[nsp];
+	  if (!socket) {
+	    socket = new Socket(this, nsp);
+	    this.nsps[nsp] = socket;
+	    var self = this;
+	    socket.on('connecting', onConnecting);
+	    socket.on('connect', function(){
+	      socket.id = self.engine.id;
+	    });
+
+	    if (this.autoConnect) {
+	      // manually call here since connecting evnet is fired before listening
+	      onConnecting();
+	    }
+	  }
+
+	  function onConnecting() {
+	    if (!~indexOf(self.connecting, socket)) {
+	      self.connecting.push(socket);
+	    }
+	  }
+
+	  return socket;
+	};
+
+	/**
+	 * Called upon a socket close.
+	 *
+	 * @param {Socket} socket
+	 */
+
+	Manager.prototype.destroy = function(socket){
+	  var index = indexOf(this.connecting, socket);
+	  if (~index) this.connecting.splice(index, 1);
+	  if (this.connecting.length) return;
+
+	  this.close();
+	};
+
+	/**
+	 * Writes a packet.
+	 *
+	 * @param {Object} packet
+	 * @api private
+	 */
+
+	Manager.prototype.packet = function(packet){
+	  debug('writing packet %j', packet);
+	  var self = this;
+
+	  if (!self.encoding) {
+	    // encode, then write to engine with result
+	    self.encoding = true;
+	    this.encoder.encode(packet, function(encodedPackets) {
+	      for (var i = 0; i < encodedPackets.length; i++) {
+	        self.engine.write(encodedPackets[i], packet.options);
+	      }
+	      self.encoding = false;
+	      self.processPacketQueue();
+	    });
+	  } else { // add packet to the queue
+	    self.packetBuffer.push(packet);
+	  }
+	};
+
+	/**
+	 * If packet buffer is non-empty, begins encoding the
+	 * next packet in line.
+	 *
+	 * @api private
+	 */
+
+	Manager.prototype.processPacketQueue = function() {
+	  if (this.packetBuffer.length > 0 && !this.encoding) {
+	    var pack = this.packetBuffer.shift();
+	    this.packet(pack);
+	  }
+	};
+
+	/**
+	 * Clean up transport subscriptions and packet buffer.
+	 *
+	 * @api private
+	 */
+
+	Manager.prototype.cleanup = function(){
+	  debug('cleanup');
+
+	  var sub;
+	  while (sub = this.subs.shift()) sub.destroy();
+
+	  this.packetBuffer = [];
+	  this.encoding = false;
+	  this.lastPing = null;
+
+	  this.decoder.destroy();
+	};
+
+	/**
+	 * Close the current socket.
+	 *
+	 * @api private
+	 */
+
+	Manager.prototype.close =
+	Manager.prototype.disconnect = function(){
+	  debug('disconnect');
+	  this.skipReconnect = true;
+	  this.reconnecting = false;
+	  if ('opening' == this.readyState) {
+	    // `onclose` will not fire because
+	    // an open event never happened
+	    this.cleanup();
+	  }
+	  this.backoff.reset();
+	  this.readyState = 'closed';
+	  if (this.engine) this.engine.close();
+	};
+
+	/**
+	 * Called upon engine close.
+	 *
+	 * @api private
+	 */
+
+	Manager.prototype.onclose = function(reason){
+	  debug('onclose');
+
+	  this.cleanup();
+	  this.backoff.reset();
+	  this.readyState = 'closed';
+	  this.emit('close', reason);
+
+	  if (this._reconnection && !this.skipReconnect) {
+	    this.reconnect();
+	  }
+	};
+
+	/**
+	 * Attempt a reconnection.
+	 *
+	 * @api private
+	 */
+
+	Manager.prototype.reconnect = function(){
+	  if (this.reconnecting || this.skipReconnect) return this;
+
+	  var self = this;
+
+	  if (this.backoff.attempts >= this._reconnectionAttempts) {
+	    debug('reconnect failed');
+	    this.backoff.reset();
+	    this.emitAll('reconnect_failed');
+	    this.reconnecting = false;
+	  } else {
+	    var delay = this.backoff.duration();
+	    debug('will wait %dms before reconnect attempt', delay);
+
+	    this.reconnecting = true;
+	    var timer = setTimeout(function(){
+	      if (self.skipReconnect) return;
+
+	      debug('attempting reconnect');
+	      self.emitAll('reconnect_attempt', self.backoff.attempts);
+	      self.emitAll('reconnecting', self.backoff.attempts);
+
+	      // check again for the case socket closed in above events
+	      if (self.skipReconnect) return;
+
+	      self.open(function(err){
+	        if (err) {
+	          debug('reconnect attempt error');
+	          self.reconnecting = false;
+	          self.reconnect();
+	          self.emitAll('reconnect_error', err.data);
+	        } else {
+	          debug('reconnect success');
+	          self.onreconnect();
+	        }
+	      });
+	    }, delay);
+
+	    this.subs.push({
+	      destroy: function(){
+	        clearTimeout(timer);
+	      }
+	    });
+	  }
+	};
+
+	/**
+	 * Called upon successful reconnect.
+	 *
+	 * @api private
+	 */
+
+	Manager.prototype.onreconnect = function(){
+	  var attempt = this.backoff.attempts;
+	  this.reconnecting = false;
+	  this.backoff.reset();
+	  this.updateSocketIds();
+	  this.emitAll('reconnect', attempt);
+	};
+
+	},{"./on":33,"./socket":34,"backo2":36,"component-bind":37,"component-emitter":38,"debug":39,"engine.io-client":1,"indexof":42,"socket.io-parser":47}],33:[function(_dereq_,module,exports){
+
+	/**
+	 * Module exports.
+	 */
+
+	module.exports = on;
+
+	/**
+	 * Helper for subscriptions.
+	 *
+	 * @param {Object|EventEmitter} obj with `Emitter` mixin or `EventEmitter`
+	 * @param {String} event name
+	 * @param {Function} callback
+	 * @api public
+	 */
+
+	function on(obj, ev, fn) {
+	  obj.on(ev, fn);
 	  return {
-	    restrict: 'A',
-	    compile: function(elem, attr) {
-	      var fn = $parse(attr.ngClick, /* interceptorFn */ null, /* expensiveChecks */ true);
-	      return function(scope, elem, attr) {
+	    destroy: function(){
+	      obj.removeListener(ev, fn);
+	    }
+	  };
+	}
 
-	        if (!isNodeOneOf(elem, nodeBlackList)) {
+	},{}],34:[function(_dereq_,module,exports){
 
-	          if ($aria.config('bindRoleForClick') && !elem.attr('role')) {
-	            elem.attr('role', 'button');
+	/**
+	 * Module dependencies.
+	 */
+
+	var parser = _dereq_('socket.io-parser');
+	var Emitter = _dereq_('component-emitter');
+	var toArray = _dereq_('to-array');
+	var on = _dereq_('./on');
+	var bind = _dereq_('component-bind');
+	var debug = _dereq_('debug')('socket.io-client:socket');
+	var hasBin = _dereq_('has-binary');
+
+	/**
+	 * Module exports.
+	 */
+
+	module.exports = exports = Socket;
+
+	/**
+	 * Internal events (blacklisted).
+	 * These events can't be emitted by the user.
+	 *
+	 * @api private
+	 */
+
+	var events = {
+	  connect: 1,
+	  connect_error: 1,
+	  connect_timeout: 1,
+	  connecting: 1,
+	  disconnect: 1,
+	  error: 1,
+	  reconnect: 1,
+	  reconnect_attempt: 1,
+	  reconnect_failed: 1,
+	  reconnect_error: 1,
+	  reconnecting: 1,
+	  ping: 1,
+	  pong: 1
+	};
+
+	/**
+	 * Shortcut to `Emitter#emit`.
+	 */
+
+	var emit = Emitter.prototype.emit;
+
+	/**
+	 * `Socket` constructor.
+	 *
+	 * @api public
+	 */
+
+	function Socket(io, nsp){
+	  this.io = io;
+	  this.nsp = nsp;
+	  this.json = this; // compat
+	  this.ids = 0;
+	  this.acks = {};
+	  this.receiveBuffer = [];
+	  this.sendBuffer = [];
+	  this.connected = false;
+	  this.disconnected = true;
+	  if (this.io.autoConnect) this.open();
+	}
+
+	/**
+	 * Mix in `Emitter`.
+	 */
+
+	Emitter(Socket.prototype);
+
+	/**
+	 * Subscribe to open, close and packet events
+	 *
+	 * @api private
+	 */
+
+	Socket.prototype.subEvents = function() {
+	  if (this.subs) return;
+
+	  var io = this.io;
+	  this.subs = [
+	    on(io, 'open', bind(this, 'onopen')),
+	    on(io, 'packet', bind(this, 'onpacket')),
+	    on(io, 'close', bind(this, 'onclose'))
+	  ];
+	};
+
+	/**
+	 * "Opens" the socket.
+	 *
+	 * @api public
+	 */
+
+	Socket.prototype.open =
+	Socket.prototype.connect = function(){
+	  if (this.connected) return this;
+
+	  this.subEvents();
+	  this.io.open(); // ensure open
+	  if ('open' == this.io.readyState) this.onopen();
+	  this.emit('connecting');
+	  return this;
+	};
+
+	/**
+	 * Sends a `message` event.
+	 *
+	 * @return {Socket} self
+	 * @api public
+	 */
+
+	Socket.prototype.send = function(){
+	  var args = toArray(arguments);
+	  args.unshift('message');
+	  this.emit.apply(this, args);
+	  return this;
+	};
+
+	/**
+	 * Override `emit`.
+	 * If the event is in `events`, it's emitted normally.
+	 *
+	 * @param {String} event name
+	 * @return {Socket} self
+	 * @api public
+	 */
+
+	Socket.prototype.emit = function(ev){
+	  if (events.hasOwnProperty(ev)) {
+	    emit.apply(this, arguments);
+	    return this;
+	  }
+
+	  var args = toArray(arguments);
+	  var parserType = parser.EVENT; // default
+	  if (hasBin(args)) { parserType = parser.BINARY_EVENT; } // binary
+	  var packet = { type: parserType, data: args };
+
+	  packet.options = {};
+	  packet.options.compress = !this.flags || false !== this.flags.compress;
+
+	  // event ack callback
+	  if ('function' == typeof args[args.length - 1]) {
+	    debug('emitting packet with ack id %d', this.ids);
+	    this.acks[this.ids] = args.pop();
+	    packet.id = this.ids++;
+	  }
+
+	  if (this.connected) {
+	    this.packet(packet);
+	  } else {
+	    this.sendBuffer.push(packet);
+	  }
+
+	  delete this.flags;
+
+	  return this;
+	};
+
+	/**
+	 * Sends a packet.
+	 *
+	 * @param {Object} packet
+	 * @api private
+	 */
+
+	Socket.prototype.packet = function(packet){
+	  packet.nsp = this.nsp;
+	  this.io.packet(packet);
+	};
+
+	/**
+	 * Called upon engine `open`.
+	 *
+	 * @api private
+	 */
+
+	Socket.prototype.onopen = function(){
+	  debug('transport is open - connecting');
+
+	  // write connect packet if necessary
+	  if ('/' != this.nsp) {
+	    this.packet({ type: parser.CONNECT });
+	  }
+	};
+
+	/**
+	 * Called upon engine `close`.
+	 *
+	 * @param {String} reason
+	 * @api private
+	 */
+
+	Socket.prototype.onclose = function(reason){
+	  debug('close (%s)', reason);
+	  this.connected = false;
+	  this.disconnected = true;
+	  delete this.id;
+	  this.emit('disconnect', reason);
+	};
+
+	/**
+	 * Called with socket packet.
+	 *
+	 * @param {Object} packet
+	 * @api private
+	 */
+
+	Socket.prototype.onpacket = function(packet){
+	  if (packet.nsp != this.nsp) return;
+
+	  switch (packet.type) {
+	    case parser.CONNECT:
+	      this.onconnect();
+	      break;
+
+	    case parser.EVENT:
+	      this.onevent(packet);
+	      break;
+
+	    case parser.BINARY_EVENT:
+	      this.onevent(packet);
+	      break;
+
+	    case parser.ACK:
+	      this.onack(packet);
+	      break;
+
+	    case parser.BINARY_ACK:
+	      this.onack(packet);
+	      break;
+
+	    case parser.DISCONNECT:
+	      this.ondisconnect();
+	      break;
+
+	    case parser.ERROR:
+	      this.emit('error', packet.data);
+	      break;
+	  }
+	};
+
+	/**
+	 * Called upon a server event.
+	 *
+	 * @param {Object} packet
+	 * @api private
+	 */
+
+	Socket.prototype.onevent = function(packet){
+	  var args = packet.data || [];
+	  debug('emitting event %j', args);
+
+	  if (null != packet.id) {
+	    debug('attaching ack callback to event');
+	    args.push(this.ack(packet.id));
+	  }
+
+	  if (this.connected) {
+	    emit.apply(this, args);
+	  } else {
+	    this.receiveBuffer.push(args);
+	  }
+	};
+
+	/**
+	 * Produces an ack callback to emit with an event.
+	 *
+	 * @api private
+	 */
+
+	Socket.prototype.ack = function(id){
+	  var self = this;
+	  var sent = false;
+	  return function(){
+	    // prevent double callbacks
+	    if (sent) return;
+	    sent = true;
+	    var args = toArray(arguments);
+	    debug('sending ack %j', args);
+
+	    var type = hasBin(args) ? parser.BINARY_ACK : parser.ACK;
+	    self.packet({
+	      type: type,
+	      id: id,
+	      data: args
+	    });
+	  };
+	};
+
+	/**
+	 * Called upon a server acknowlegement.
+	 *
+	 * @param {Object} packet
+	 * @api private
+	 */
+
+	Socket.prototype.onack = function(packet){
+	  var ack = this.acks[packet.id];
+	  if ('function' == typeof ack) {
+	    debug('calling ack %s with %j', packet.id, packet.data);
+	    ack.apply(this, packet.data);
+	    delete this.acks[packet.id];
+	  } else {
+	    debug('bad ack %s', packet.id);
+	  }
+	};
+
+	/**
+	 * Called upon server connect.
+	 *
+	 * @api private
+	 */
+
+	Socket.prototype.onconnect = function(){
+	  this.connected = true;
+	  this.disconnected = false;
+	  this.emit('connect');
+	  this.emitBuffered();
+	};
+
+	/**
+	 * Emit buffered events (received and emitted).
+	 *
+	 * @api private
+	 */
+
+	Socket.prototype.emitBuffered = function(){
+	  var i;
+	  for (i = 0; i < this.receiveBuffer.length; i++) {
+	    emit.apply(this, this.receiveBuffer[i]);
+	  }
+	  this.receiveBuffer = [];
+
+	  for (i = 0; i < this.sendBuffer.length; i++) {
+	    this.packet(this.sendBuffer[i]);
+	  }
+	  this.sendBuffer = [];
+	};
+
+	/**
+	 * Called upon server disconnect.
+	 *
+	 * @api private
+	 */
+
+	Socket.prototype.ondisconnect = function(){
+	  debug('server disconnect (%s)', this.nsp);
+	  this.destroy();
+	  this.onclose('io server disconnect');
+	};
+
+	/**
+	 * Called upon forced client/server side disconnections,
+	 * this method ensures the manager stops tracking us and
+	 * that reconnections don't get triggered for this.
+	 *
+	 * @api private.
+	 */
+
+	Socket.prototype.destroy = function(){
+	  if (this.subs) {
+	    // clean subscriptions to avoid reconnections
+	    for (var i = 0; i < this.subs.length; i++) {
+	      this.subs[i].destroy();
+	    }
+	    this.subs = null;
+	  }
+
+	  this.io.destroy(this);
+	};
+
+	/**
+	 * Disconnects the socket manually.
+	 *
+	 * @return {Socket} self
+	 * @api public
+	 */
+
+	Socket.prototype.close =
+	Socket.prototype.disconnect = function(){
+	  if (this.connected) {
+	    debug('performing disconnect (%s)', this.nsp);
+	    this.packet({ type: parser.DISCONNECT });
+	  }
+
+	  // remove socket from pool
+	  this.destroy();
+
+	  if (this.connected) {
+	    // fire events
+	    this.onclose('io client disconnect');
+	  }
+	  return this;
+	};
+
+	/**
+	 * Sets the compress flag.
+	 *
+	 * @param {Boolean} if `true`, compresses the sending data
+	 * @return {Socket} self
+	 * @api public
+	 */
+
+	Socket.prototype.compress = function(compress){
+	  this.flags = this.flags || {};
+	  this.flags.compress = compress;
+	  return this;
+	};
+
+	},{"./on":33,"component-bind":37,"component-emitter":38,"debug":39,"has-binary":41,"socket.io-parser":47,"to-array":51}],35:[function(_dereq_,module,exports){
+	(function (global){
+
+	/**
+	 * Module dependencies.
+	 */
+
+	var parseuri = _dereq_('parseuri');
+	var debug = _dereq_('debug')('socket.io-client:url');
+
+	/**
+	 * Module exports.
+	 */
+
+	module.exports = url;
+
+	/**
+	 * URL parser.
+	 *
+	 * @param {String} url
+	 * @param {Object} An object meant to mimic window.location.
+	 *                 Defaults to window.location.
+	 * @api public
+	 */
+
+	function url(uri, loc){
+	  var obj = uri;
+
+	  // default to window.location
+	  var loc = loc || global.location;
+	  if (null == uri) uri = loc.protocol + '//' + loc.host;
+
+	  // relative path support
+	  if ('string' == typeof uri) {
+	    if ('/' == uri.charAt(0)) {
+	      if ('/' == uri.charAt(1)) {
+	        uri = loc.protocol + uri;
+	      } else {
+	        uri = loc.host + uri;
+	      }
+	    }
+
+	    if (!/^(https?|wss?):\/\//.test(uri)) {
+	      debug('protocol-less url %s', uri);
+	      if ('undefined' != typeof loc) {
+	        uri = loc.protocol + '//' + uri;
+	      } else {
+	        uri = 'https://' + uri;
+	      }
+	    }
+
+	    // parse
+	    debug('parse %s', uri);
+	    obj = parseuri(uri);
+	  }
+
+	  // make sure we treat `localhost:80` and `localhost` equally
+	  if (!obj.port) {
+	    if (/^(http|ws)$/.test(obj.protocol)) {
+	      obj.port = '80';
+	    }
+	    else if (/^(http|ws)s$/.test(obj.protocol)) {
+	      obj.port = '443';
+	    }
+	  }
+
+	  obj.path = obj.path || '/';
+
+	  var ipv6 = obj.host.indexOf(':') !== -1;
+	  var host = ipv6 ? '[' + obj.host + ']' : obj.host;
+
+	  // define unique id
+	  obj.id = obj.protocol + '://' + host + ':' + obj.port;
+	  // define href
+	  obj.href = obj.protocol + '://' + host + (loc && loc.port == obj.port ? '' : (':' + obj.port));
+
+	  return obj;
+	}
+
+	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
+	},{"debug":39,"parseuri":45}],36:[function(_dereq_,module,exports){
+
+	/**
+	 * Expose `Backoff`.
+	 */
+
+	module.exports = Backoff;
+
+	/**
+	 * Initialize backoff timer with `opts`.
+	 *
+	 * - `min` initial timeout in milliseconds [100]
+	 * - `max` max timeout [10000]
+	 * - `jitter` [0]
+	 * - `factor` [2]
+	 *
+	 * @param {Object} opts
+	 * @api public
+	 */
+
+	function Backoff(opts) {
+	  opts = opts || {};
+	  this.ms = opts.min || 100;
+	  this.max = opts.max || 10000;
+	  this.factor = opts.factor || 2;
+	  this.jitter = opts.jitter > 0 && opts.jitter <= 1 ? opts.jitter : 0;
+	  this.attempts = 0;
+	}
+
+	/**
+	 * Return the backoff duration.
+	 *
+	 * @return {Number}
+	 * @api public
+	 */
+
+	Backoff.prototype.duration = function(){
+	  var ms = this.ms * Math.pow(this.factor, this.attempts++);
+	  if (this.jitter) {
+	    var rand =  Math.random();
+	    var deviation = Math.floor(rand * this.jitter * ms);
+	    ms = (Math.floor(rand * 10) & 1) == 0  ? ms - deviation : ms + deviation;
+	  }
+	  return Math.min(ms, this.max) | 0;
+	};
+
+	/**
+	 * Reset the number of attempts.
+	 *
+	 * @api public
+	 */
+
+	Backoff.prototype.reset = function(){
+	  this.attempts = 0;
+	};
+
+	/**
+	 * Set the minimum duration
+	 *
+	 * @api public
+	 */
+
+	Backoff.prototype.setMin = function(min){
+	  this.ms = min;
+	};
+
+	/**
+	 * Set the maximum duration
+	 *
+	 * @api public
+	 */
+
+	Backoff.prototype.setMax = function(max){
+	  this.max = max;
+	};
+
+	/**
+	 * Set the jitter
+	 *
+	 * @api public
+	 */
+
+	Backoff.prototype.setJitter = function(jitter){
+	  this.jitter = jitter;
+	};
+
+
+	},{}],37:[function(_dereq_,module,exports){
+	/**
+	 * Slice reference.
+	 */
+
+	var slice = [].slice;
+
+	/**
+	 * Bind `obj` to `fn`.
+	 *
+	 * @param {Object} obj
+	 * @param {Function|String} fn or string
+	 * @return {Function}
+	 * @api public
+	 */
+
+	module.exports = function(obj, fn){
+	  if ('string' == typeof fn) fn = obj[fn];
+	  if ('function' != typeof fn) throw new Error('bind() requires a function');
+	  var args = slice.call(arguments, 2);
+	  return function(){
+	    return fn.apply(obj, args.concat(slice.call(arguments)));
+	  }
+	};
+
+	},{}],38:[function(_dereq_,module,exports){
+
+	/**
+	 * Expose `Emitter`.
+	 */
+
+	module.exports = Emitter;
+
+	/**
+	 * Initialize a new `Emitter`.
+	 *
+	 * @api public
+	 */
+
+	function Emitter(obj) {
+	  if (obj) return mixin(obj);
+	};
+
+	/**
+	 * Mixin the emitter properties.
+	 *
+	 * @param {Object} obj
+	 * @return {Object}
+	 * @api private
+	 */
+
+	function mixin(obj) {
+	  for (var key in Emitter.prototype) {
+	    obj[key] = Emitter.prototype[key];
+	  }
+	  return obj;
+	}
+
+	/**
+	 * Listen on the given `event` with `fn`.
+	 *
+	 * @param {String} event
+	 * @param {Function} fn
+	 * @return {Emitter}
+	 * @api public
+	 */
+
+	Emitter.prototype.on =
+	Emitter.prototype.addEventListener = function(event, fn){
+	  this._callbacks = this._callbacks || {};
+	  (this._callbacks['$' + event] = this._callbacks['$' + event] || [])
+	    .push(fn);
+	  return this;
+	};
+
+	/**
+	 * Adds an `event` listener that will be invoked a single
+	 * time then automatically removed.
+	 *
+	 * @param {String} event
+	 * @param {Function} fn
+	 * @return {Emitter}
+	 * @api public
+	 */
+
+	Emitter.prototype.once = function(event, fn){
+	  function on() {
+	    this.off(event, on);
+	    fn.apply(this, arguments);
+	  }
+
+	  on.fn = fn;
+	  this.on(event, on);
+	  return this;
+	};
+
+	/**
+	 * Remove the given callback for `event` or all
+	 * registered callbacks.
+	 *
+	 * @param {String} event
+	 * @param {Function} fn
+	 * @return {Emitter}
+	 * @api public
+	 */
+
+	Emitter.prototype.off =
+	Emitter.prototype.removeListener =
+	Emitter.prototype.removeAllListeners =
+	Emitter.prototype.removeEventListener = function(event, fn){
+	  this._callbacks = this._callbacks || {};
+
+	  // all
+	  if (0 == arguments.length) {
+	    this._callbacks = {};
+	    return this;
+	  }
+
+	  // specific event
+	  var callbacks = this._callbacks['$' + event];
+	  if (!callbacks) return this;
+
+	  // remove all handlers
+	  if (1 == arguments.length) {
+	    delete this._callbacks['$' + event];
+	    return this;
+	  }
+
+	  // remove specific handler
+	  var cb;
+	  for (var i = 0; i < callbacks.length; i++) {
+	    cb = callbacks[i];
+	    if (cb === fn || cb.fn === fn) {
+	      callbacks.splice(i, 1);
+	      break;
+	    }
+	  }
+	  return this;
+	};
+
+	/**
+	 * Emit `event` with the given args.
+	 *
+	 * @param {String} event
+	 * @param {Mixed} ...
+	 * @return {Emitter}
+	 */
+
+	Emitter.prototype.emit = function(event){
+	  this._callbacks = this._callbacks || {};
+	  var args = [].slice.call(arguments, 1)
+	    , callbacks = this._callbacks['$' + event];
+
+	  if (callbacks) {
+	    callbacks = callbacks.slice(0);
+	    for (var i = 0, len = callbacks.length; i < len; ++i) {
+	      callbacks[i].apply(this, args);
+	    }
+	  }
+
+	  return this;
+	};
+
+	/**
+	 * Return array of callbacks for `event`.
+	 *
+	 * @param {String} event
+	 * @return {Array}
+	 * @api public
+	 */
+
+	Emitter.prototype.listeners = function(event){
+	  this._callbacks = this._callbacks || {};
+	  return this._callbacks['$' + event] || [];
+	};
+
+	/**
+	 * Check if this emitter has `event` handlers.
+	 *
+	 * @param {String} event
+	 * @return {Boolean}
+	 * @api public
+	 */
+
+	Emitter.prototype.hasListeners = function(event){
+	  return !! this.listeners(event).length;
+	};
+
+	},{}],39:[function(_dereq_,module,exports){
+	arguments[4][17][0].apply(exports,arguments)
+	},{"./debug":40,"dup":17}],40:[function(_dereq_,module,exports){
+	arguments[4][18][0].apply(exports,arguments)
+	},{"dup":18,"ms":44}],41:[function(_dereq_,module,exports){
+	(function (global){
+
+	/*
+	 * Module requirements.
+	 */
+
+	var isArray = _dereq_('isarray');
+
+	/**
+	 * Module exports.
+	 */
+
+	module.exports = hasBinary;
+
+	/**
+	 * Checks for binary data.
+	 *
+	 * Right now only Buffer and ArrayBuffer are supported..
+	 *
+	 * @param {Object} anything
+	 * @api public
+	 */
+
+	function hasBinary(data) {
+
+	  function _hasBinary(obj) {
+	    if (!obj) return false;
+
+	    if ( (global.Buffer && global.Buffer.isBuffer && global.Buffer.isBuffer(obj)) ||
+	         (global.ArrayBuffer && obj instanceof ArrayBuffer) ||
+	         (global.Blob && obj instanceof Blob) ||
+	         (global.File && obj instanceof File)
+	        ) {
+	      return true;
+	    }
+
+	    if (isArray(obj)) {
+	      for (var i = 0; i < obj.length; i++) {
+	          if (_hasBinary(obj[i])) {
+	              return true;
 	          }
+	      }
+	    } else if (obj && 'object' == typeof obj) {
+	      // see: https://github.com/Automattic/has-binary/pull/4
+	      if (obj.toJSON && 'function' == typeof obj.toJSON) {
+	        obj = obj.toJSON();
+	      }
 
-	          if ($aria.config('tabindex') && !elem.attr('tabindex')) {
-	            elem.attr('tabindex', 0);
-	          }
+	      for (var key in obj) {
+	        if (Object.prototype.hasOwnProperty.call(obj, key) && _hasBinary(obj[key])) {
+	          return true;
+	        }
+	      }
+	    }
 
-	          if ($aria.config('bindKeypress') && !attr.ngKeypress) {
-	            elem.on('keypress', function(event) {
-	              var keyCode = event.which || event.keyCode;
-	              if (keyCode === 32 || keyCode === 13) {
-	                scope.$apply(callback);
-	              }
+	    return false;
+	  }
 
-	              function callback() {
-	                fn(scope, { $event: event });
-	              }
-	            });
-	          }
+	  return _hasBinary(data);
+	}
+
+	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
+	},{"isarray":43}],42:[function(_dereq_,module,exports){
+	arguments[4][23][0].apply(exports,arguments)
+	},{"dup":23}],43:[function(_dereq_,module,exports){
+	arguments[4][24][0].apply(exports,arguments)
+	},{"dup":24}],44:[function(_dereq_,module,exports){
+	arguments[4][25][0].apply(exports,arguments)
+	},{"dup":25}],45:[function(_dereq_,module,exports){
+	arguments[4][28][0].apply(exports,arguments)
+	},{"dup":28}],46:[function(_dereq_,module,exports){
+	(function (global){
+	/*global Blob,File*/
+
+	/**
+	 * Module requirements
+	 */
+
+	var isArray = _dereq_('isarray');
+	var isBuf = _dereq_('./is-buffer');
+
+	/**
+	 * Replaces every Buffer | ArrayBuffer in packet with a numbered placeholder.
+	 * Anything with blobs or files should be fed through removeBlobs before coming
+	 * here.
+	 *
+	 * @param {Object} packet - socket.io event packet
+	 * @return {Object} with deconstructed packet and list of buffers
+	 * @api public
+	 */
+
+	exports.deconstructPacket = function(packet){
+	  var buffers = [];
+	  var packetData = packet.data;
+
+	  function _deconstructPacket(data) {
+	    if (!data) return data;
+
+	    if (isBuf(data)) {
+	      var placeholder = { _placeholder: true, num: buffers.length };
+	      buffers.push(data);
+	      return placeholder;
+	    } else if (isArray(data)) {
+	      var newData = new Array(data.length);
+	      for (var i = 0; i < data.length; i++) {
+	        newData[i] = _deconstructPacket(data[i]);
+	      }
+	      return newData;
+	    } else if ('object' == typeof data && !(data instanceof Date)) {
+	      var newData = {};
+	      for (var key in data) {
+	        newData[key] = _deconstructPacket(data[key]);
+	      }
+	      return newData;
+	    }
+	    return data;
+	  }
+
+	  var pack = packet;
+	  pack.data = _deconstructPacket(packetData);
+	  pack.attachments = buffers.length; // number of binary 'attachments'
+	  return {packet: pack, buffers: buffers};
+	};
+
+	/**
+	 * Reconstructs a binary packet from its placeholder packet and buffers
+	 *
+	 * @param {Object} packet - event packet with placeholders
+	 * @param {Array} buffers - binary buffers to put in placeholder positions
+	 * @return {Object} reconstructed packet
+	 * @api public
+	 */
+
+	exports.reconstructPacket = function(packet, buffers) {
+	  var curPlaceHolder = 0;
+
+	  function _reconstructPacket(data) {
+	    if (data && data._placeholder) {
+	      var buf = buffers[data.num]; // appropriate buffer (should be natural order anyway)
+	      return buf;
+	    } else if (isArray(data)) {
+	      for (var i = 0; i < data.length; i++) {
+	        data[i] = _reconstructPacket(data[i]);
+	      }
+	      return data;
+	    } else if (data && 'object' == typeof data) {
+	      for (var key in data) {
+	        data[key] = _reconstructPacket(data[key]);
+	      }
+	      return data;
+	    }
+	    return data;
+	  }
+
+	  packet.data = _reconstructPacket(packet.data);
+	  packet.attachments = undefined; // no longer useful
+	  return packet;
+	};
+
+	/**
+	 * Asynchronously removes Blobs or Files from data via
+	 * FileReader's readAsArrayBuffer method. Used before encoding
+	 * data as msgpack. Calls callback with the blobless data.
+	 *
+	 * @param {Object} data
+	 * @param {Function} callback
+	 * @api private
+	 */
+
+	exports.removeBlobs = function(data, callback) {
+	  function _removeBlobs(obj, curKey, containingObject) {
+	    if (!obj) return obj;
+
+	    // convert any blob
+	    if ((global.Blob && obj instanceof Blob) ||
+	        (global.File && obj instanceof File)) {
+	      pendingBlobs++;
+
+	      // async filereader
+	      var fileReader = new FileReader();
+	      fileReader.onload = function() { // this.result == arraybuffer
+	        if (containingObject) {
+	          containingObject[curKey] = this.result;
+	        }
+	        else {
+	          bloblessData = this.result;
+	        }
+
+	        // if nothing pending its callback time
+	        if(! --pendingBlobs) {
+	          callback(bloblessData);
 	        }
 	      };
+
+	      fileReader.readAsArrayBuffer(obj); // blob -> arraybuffer
+	    } else if (isArray(obj)) { // handle array
+	      for (var i = 0; i < obj.length; i++) {
+	        _removeBlobs(obj[i], i, obj);
+	      }
+	    } else if (obj && 'object' == typeof obj && !isBuf(obj)) { // and object
+	      for (var key in obj) {
+	        _removeBlobs(obj[key], key, obj);
+	      }
 	    }
-	  };
-	}])
-	.directive('ngDblclick', ['$aria', function($aria) {
-	  return function(scope, elem, attr) {
-	    if ($aria.config('tabindex') && !elem.attr('tabindex') && !isNodeOneOf(elem, nodeBlackList)) {
-	      elem.attr('tabindex', 0);
+	  }
+
+	  var pendingBlobs = 0;
+	  var bloblessData = data;
+	  _removeBlobs(bloblessData);
+	  if (!pendingBlobs) {
+	    callback(bloblessData);
+	  }
+	};
+
+	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
+	},{"./is-buffer":48,"isarray":43}],47:[function(_dereq_,module,exports){
+
+	/**
+	 * Module dependencies.
+	 */
+
+	var debug = _dereq_('debug')('socket.io-parser');
+	var json = _dereq_('json3');
+	var isArray = _dereq_('isarray');
+	var Emitter = _dereq_('component-emitter');
+	var binary = _dereq_('./binary');
+	var isBuf = _dereq_('./is-buffer');
+
+	/**
+	 * Protocol version.
+	 *
+	 * @api public
+	 */
+
+	exports.protocol = 4;
+
+	/**
+	 * Packet types.
+	 *
+	 * @api public
+	 */
+
+	exports.types = [
+	  'CONNECT',
+	  'DISCONNECT',
+	  'EVENT',
+	  'BINARY_EVENT',
+	  'ACK',
+	  'BINARY_ACK',
+	  'ERROR'
+	];
+
+	/**
+	 * Packet type `connect`.
+	 *
+	 * @api public
+	 */
+
+	exports.CONNECT = 0;
+
+	/**
+	 * Packet type `disconnect`.
+	 *
+	 * @api public
+	 */
+
+	exports.DISCONNECT = 1;
+
+	/**
+	 * Packet type `event`.
+	 *
+	 * @api public
+	 */
+
+	exports.EVENT = 2;
+
+	/**
+	 * Packet type `ack`.
+	 *
+	 * @api public
+	 */
+
+	exports.ACK = 3;
+
+	/**
+	 * Packet type `error`.
+	 *
+	 * @api public
+	 */
+
+	exports.ERROR = 4;
+
+	/**
+	 * Packet type 'binary event'
+	 *
+	 * @api public
+	 */
+
+	exports.BINARY_EVENT = 5;
+
+	/**
+	 * Packet type `binary ack`. For acks with binary arguments.
+	 *
+	 * @api public
+	 */
+
+	exports.BINARY_ACK = 6;
+
+	/**
+	 * Encoder constructor.
+	 *
+	 * @api public
+	 */
+
+	exports.Encoder = Encoder;
+
+	/**
+	 * Decoder constructor.
+	 *
+	 * @api public
+	 */
+
+	exports.Decoder = Decoder;
+
+	/**
+	 * A socket.io Encoder instance
+	 *
+	 * @api public
+	 */
+
+	function Encoder() {}
+
+	/**
+	 * Encode a packet as a single string if non-binary, or as a
+	 * buffer sequence, depending on packet type.
+	 *
+	 * @param {Object} obj - packet object
+	 * @param {Function} callback - function to handle encodings (likely engine.write)
+	 * @return Calls callback with Array of encodings
+	 * @api public
+	 */
+
+	Encoder.prototype.encode = function(obj, callback){
+	  debug('encoding packet %j', obj);
+
+	  if (exports.BINARY_EVENT == obj.type || exports.BINARY_ACK == obj.type) {
+	    encodeAsBinary(obj, callback);
+	  }
+	  else {
+	    var encoding = encodeAsString(obj);
+	    callback([encoding]);
+	  }
+	};
+
+	/**
+	 * Encode packet as string.
+	 *
+	 * @param {Object} packet
+	 * @return {String} encoded
+	 * @api private
+	 */
+
+	function encodeAsString(obj) {
+	  var str = '';
+	  var nsp = false;
+
+	  // first is type
+	  str += obj.type;
+
+	  // attachments if we have them
+	  if (exports.BINARY_EVENT == obj.type || exports.BINARY_ACK == obj.type) {
+	    str += obj.attachments;
+	    str += '-';
+	  }
+
+	  // if we have a namespace other than `/`
+	  // we append it followed by a comma `,`
+	  if (obj.nsp && '/' != obj.nsp) {
+	    nsp = true;
+	    str += obj.nsp;
+	  }
+
+	  // immediately followed by the id
+	  if (null != obj.id) {
+	    if (nsp) {
+	      str += ',';
+	      nsp = false;
 	    }
+	    str += obj.id;
+	  }
+
+	  // json data
+	  if (null != obj.data) {
+	    if (nsp) str += ',';
+	    str += json.stringify(obj.data);
+	  }
+
+	  debug('encoded %j as %s', obj, str);
+	  return str;
+	}
+
+	/**
+	 * Encode packet as 'buffer sequence' by removing blobs, and
+	 * deconstructing packet into object with placeholders and
+	 * a list of buffers.
+	 *
+	 * @param {Object} packet
+	 * @return {Buffer} encoded
+	 * @api private
+	 */
+
+	function encodeAsBinary(obj, callback) {
+
+	  function writeEncoding(bloblessData) {
+	    var deconstruction = binary.deconstructPacket(bloblessData);
+	    var pack = encodeAsString(deconstruction.packet);
+	    var buffers = deconstruction.buffers;
+
+	    buffers.unshift(pack); // add packet info to beginning of data list
+	    callback(buffers); // write all the buffers
+	  }
+
+	  binary.removeBlobs(obj, writeEncoding);
+	}
+
+	/**
+	 * A socket.io Decoder instance
+	 *
+	 * @return {Object} decoder
+	 * @api public
+	 */
+
+	function Decoder() {
+	  this.reconstructor = null;
+	}
+
+	/**
+	 * Mix in `Emitter` with Decoder.
+	 */
+
+	Emitter(Decoder.prototype);
+
+	/**
+	 * Decodes an ecoded packet string into packet JSON.
+	 *
+	 * @param {String} obj - encoded packet
+	 * @return {Object} packet
+	 * @api public
+	 */
+
+	Decoder.prototype.add = function(obj) {
+	  var packet;
+	  if ('string' == typeof obj) {
+	    packet = decodeString(obj);
+	    if (exports.BINARY_EVENT == packet.type || exports.BINARY_ACK == packet.type) { // binary packet's json
+	      this.reconstructor = new BinaryReconstructor(packet);
+
+	      // no attachments, labeled binary but no binary data to follow
+	      if (this.reconstructor.reconPack.attachments === 0) {
+	        this.emit('decoded', packet);
+	      }
+	    } else { // non-binary full packet
+	      this.emit('decoded', packet);
+	    }
+	  }
+	  else if (isBuf(obj) || obj.base64) { // raw binary data
+	    if (!this.reconstructor) {
+	      throw new Error('got binary data when not reconstructing a packet');
+	    } else {
+	      packet = this.reconstructor.takeBinaryData(obj);
+	      if (packet) { // received final buffer
+	        this.reconstructor = null;
+	        this.emit('decoded', packet);
+	      }
+	    }
+	  }
+	  else {
+	    throw new Error('Unknown type: ' + obj);
+	  }
+	};
+
+	/**
+	 * Decode a packet String (JSON data)
+	 *
+	 * @param {String} str
+	 * @return {Object} packet
+	 * @api private
+	 */
+
+	function decodeString(str) {
+	  var p = {};
+	  var i = 0;
+
+	  // look up type
+	  p.type = Number(str.charAt(0));
+	  if (null == exports.types[p.type]) return error();
+
+	  // look up attachments if type binary
+	  if (exports.BINARY_EVENT == p.type || exports.BINARY_ACK == p.type) {
+	    var buf = '';
+	    while (str.charAt(++i) != '-') {
+	      buf += str.charAt(i);
+	      if (i == str.length) break;
+	    }
+	    if (buf != Number(buf) || str.charAt(i) != '-') {
+	      throw new Error('Illegal attachments');
+	    }
+	    p.attachments = Number(buf);
+	  }
+
+	  // look up namespace (if any)
+	  if ('/' == str.charAt(i + 1)) {
+	    p.nsp = '';
+	    while (++i) {
+	      var c = str.charAt(i);
+	      if (',' == c) break;
+	      p.nsp += c;
+	      if (i == str.length) break;
+	    }
+	  } else {
+	    p.nsp = '/';
+	  }
+
+	  // look up id
+	  var next = str.charAt(i + 1);
+	  if ('' !== next && Number(next) == next) {
+	    p.id = '';
+	    while (++i) {
+	      var c = str.charAt(i);
+	      if (null == c || Number(c) != c) {
+	        --i;
+	        break;
+	      }
+	      p.id += str.charAt(i);
+	      if (i == str.length) break;
+	    }
+	    p.id = Number(p.id);
+	  }
+
+	  // look up json data
+	  if (str.charAt(++i)) {
+	    try {
+	      p.data = json.parse(str.substr(i));
+	    } catch(e){
+	      return error();
+	    }
+	  }
+
+	  debug('decoded %s as %j', str, p);
+	  return p;
+	}
+
+	/**
+	 * Deallocates a parser's resources
+	 *
+	 * @api public
+	 */
+
+	Decoder.prototype.destroy = function() {
+	  if (this.reconstructor) {
+	    this.reconstructor.finishedReconstruction();
+	  }
+	};
+
+	/**
+	 * A manager of a binary event's 'buffer sequence'. Should
+	 * be constructed whenever a packet of type BINARY_EVENT is
+	 * decoded.
+	 *
+	 * @param {Object} packet
+	 * @return {BinaryReconstructor} initialized reconstructor
+	 * @api private
+	 */
+
+	function BinaryReconstructor(packet) {
+	  this.reconPack = packet;
+	  this.buffers = [];
+	}
+
+	/**
+	 * Method to be called when binary data received from connection
+	 * after a BINARY_EVENT packet.
+	 *
+	 * @param {Buffer | ArrayBuffer} binData - the raw binary data received
+	 * @return {null | Object} returns null if more binary data is expected or
+	 *   a reconstructed packet object if all buffers have been received.
+	 * @api private
+	 */
+
+	BinaryReconstructor.prototype.takeBinaryData = function(binData) {
+	  this.buffers.push(binData);
+	  if (this.buffers.length == this.reconPack.attachments) { // done with buffer list
+	    var packet = binary.reconstructPacket(this.reconPack, this.buffers);
+	    this.finishedReconstruction();
+	    return packet;
+	  }
+	  return null;
+	};
+
+	/**
+	 * Cleans up binary packet reconstruction variables.
+	 *
+	 * @api private
+	 */
+
+	BinaryReconstructor.prototype.finishedReconstruction = function() {
+	  this.reconPack = null;
+	  this.buffers = [];
+	};
+
+	function error(data){
+	  return {
+	    type: exports.ERROR,
+	    data: 'parser error'
 	  };
-	}]);
+	}
 
+	},{"./binary":46,"./is-buffer":48,"component-emitter":49,"debug":39,"isarray":43,"json3":50}],48:[function(_dereq_,module,exports){
+	(function (global){
 
-	})(window, window.angular);
+	module.exports = isBuf;
 
+	/**
+	 * Returns true if obj is a buffer or an arraybuffer.
+	 *
+	 * @api private
+	 */
+
+	function isBuf(obj) {
+	  return (global.Buffer && global.Buffer.isBuffer(obj)) ||
+	         (global.ArrayBuffer && obj instanceof ArrayBuffer);
+	}
+
+	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
+	},{}],49:[function(_dereq_,module,exports){
+	arguments[4][15][0].apply(exports,arguments)
+	},{"dup":15}],50:[function(_dereq_,module,exports){
+	(function (global){
+	/*! JSON v3.3.2 | http://bestiejs.github.io/json3 | Copyright 2012-2014, Kit Cambridge | http://kit.mit-license.org */
+	;(function () {
+	  // Detect the `define` function exposed by asynchronous module loaders. The
+	  // strict `define` check is necessary for compatibility with `r.js`.
+	  var isLoader = typeof define === "function" && define.amd;
+
+	  // A set of types used to distinguish objects from primitives.
+	  var objectTypes = {
+	    "function": true,
+	    "object": true
+	  };
+
+	  // Detect the `exports` object exposed by CommonJS implementations.
+	  var freeExports = objectTypes[typeof exports] && exports && !exports.nodeType && exports;
+
+	  // Use the `global` object exposed by Node (including Browserify via
+	  // `insert-module-globals`), Narwhal, and Ringo as the default context,
+	  // and the `window` object in browsers. Rhino exports a `global` function
+	  // instead.
+	  var root = objectTypes[typeof window] && window || this,
+	      freeGlobal = freeExports && objectTypes[typeof module] && module && !module.nodeType && typeof global == "object" && global;
+
+	  if (freeGlobal && (freeGlobal["global"] === freeGlobal || freeGlobal["window"] === freeGlobal || freeGlobal["self"] === freeGlobal)) {
+	    root = freeGlobal;
+	  }
+
+	  // Public: Initializes JSON 3 using the given `context` object, attaching the
+	  // `stringify` and `parse` functions to the specified `exports` object.
+	  function runInContext(context, exports) {
+	    context || (context = root["Object"]());
+	    exports || (exports = root["Object"]());
+
+	    // Native constructor aliases.
+	    var Number = context["Number"] || root["Number"],
+	        String = context["String"] || root["String"],
+	        Object = context["Object"] || root["Object"],
+	        Date = context["Date"] || root["Date"],
+	        SyntaxError = context["SyntaxError"] || root["SyntaxError"],
+	        TypeError = context["TypeError"] || root["TypeError"],
+	        Math = context["Math"] || root["Math"],
+	        nativeJSON = context["JSON"] || root["JSON"];
+
+	    // Delegate to the native `stringify` and `parse` implementations.
+	    if (typeof nativeJSON == "object" && nativeJSON) {
+	      exports.stringify = nativeJSON.stringify;
+	      exports.parse = nativeJSON.parse;
+	    }
+
+	    // Convenience aliases.
+	    var objectProto = Object.prototype,
+	        getClass = objectProto.toString,
+	        isProperty, forEach, undef;
+
+	    // Test the `Date#getUTC*` methods. Based on work by @Yaffle.
+	    var isExtended = new Date(-3509827334573292);
+	    try {
+	      // The `getUTCFullYear`, `Month`, and `Date` methods return nonsensical
+	      // results for certain dates in Opera >= 10.53.
+	      isExtended = isExtended.getUTCFullYear() == -109252 && isExtended.getUTCMonth() === 0 && isExtended.getUTCDate() === 1 &&
+	        // Safari < 2.0.2 stores the internal millisecond time value correctly,
+	        // but clips the values returned by the date methods to the range of
+	        // signed 32-bit integers ([-2 ** 31, 2 ** 31 - 1]).
+	        isExtended.getUTCHours() == 10 && isExtended.getUTCMinutes() == 37 && isExtended.getUTCSeconds() == 6 && isExtended.getUTCMilliseconds() == 708;
+	    } catch (exception) {}
+
+	    // Internal: Determines whether the native `JSON.stringify` and `parse`
+	    // implementations are spec-compliant. Based on work by Ken Snyder.
+	    function has(name) {
+	      if (has[name] !== undef) {
+	        // Return cached feature test result.
+	        return has[name];
+	      }
+	      var isSupported;
+	      if (name == "bug-string-char-index") {
+	        // IE <= 7 doesn't support accessing string characters using square
+	        // bracket notation. IE 8 only supports this for primitives.
+	        isSupported = "a"[0] != "a";
+	      } else if (name == "json") {
+	        // Indicates whether both `JSON.stringify` and `JSON.parse` are
+	        // supported.
+	        isSupported = has("json-stringify") && has("json-parse");
+	      } else {
+	        var value, serialized = '{"a":[1,true,false,null,"\\u0000\\b\\n\\f\\r\\t"]}';
+	        // Test `JSON.stringify`.
+	        if (name == "json-stringify") {
+	          var stringify = exports.stringify, stringifySupported = typeof stringify == "function" && isExtended;
+	          if (stringifySupported) {
+	            // A test function object with a custom `toJSON` method.
+	            (value = function () {
+	              return 1;
+	            }).toJSON = value;
+	            try {
+	              stringifySupported =
+	                // Firefox 3.1b1 and b2 serialize string, number, and boolean
+	                // primitives as object literals.
+	                stringify(0) === "0" &&
+	                // FF 3.1b1, b2, and JSON 2 serialize wrapped primitives as object
+	                // literals.
+	                stringify(new Number()) === "0" &&
+	                stringify(new String()) == '""' &&
+	                // FF 3.1b1, 2 throw an error if the value is `null`, `undefined`, or
+	                // does not define a canonical JSON representation (this applies to
+	                // objects with `toJSON` properties as well, *unless* they are nested
+	                // within an object or array).
+	                stringify(getClass) === undef &&
+	                // IE 8 serializes `undefined` as `"undefined"`. Safari <= 5.1.7 and
+	                // FF 3.1b3 pass this test.
+	                stringify(undef) === undef &&
+	                // Safari <= 5.1.7 and FF 3.1b3 throw `Error`s and `TypeError`s,
+	                // respectively, if the value is omitted entirely.
+	                stringify() === undef &&
+	                // FF 3.1b1, 2 throw an error if the given value is not a number,
+	                // string, array, object, Boolean, or `null` literal. This applies to
+	                // objects with custom `toJSON` methods as well, unless they are nested
+	                // inside object or array literals. YUI 3.0.0b1 ignores custom `toJSON`
+	                // methods entirely.
+	                stringify(value) === "1" &&
+	                stringify([value]) == "[1]" &&
+	                // Prototype <= 1.6.1 serializes `[undefined]` as `"[]"` instead of
+	                // `"[null]"`.
+	                stringify([undef]) == "[null]" &&
+	                // YUI 3.0.0b1 fails to serialize `null` literals.
+	                stringify(null) == "null" &&
+	                // FF 3.1b1, 2 halts serialization if an array contains a function:
+	                // `[1, true, getClass, 1]` serializes as "[1,true,],". FF 3.1b3
+	                // elides non-JSON values from objects and arrays, unless they
+	                // define custom `toJSON` methods.
+	                stringify([undef, getClass, null]) == "[null,null,null]" &&
+	                // Simple serialization test. FF 3.1b1 uses Unicode escape sequences
+	                // where character escape codes are expected (e.g., `\b` => `\u0008`).
+	                stringify({ "a": [value, true, false, null, "\x00\b\n\f\r\t"] }) == serialized &&
+	                // FF 3.1b1 and b2 ignore the `filter` and `width` arguments.
+	                stringify(null, value) === "1" &&
+	                stringify([1, 2], null, 1) == "[\n 1,\n 2\n]" &&
+	                // JSON 2, Prototype <= 1.7, and older WebKit builds incorrectly
+	                // serialize extended years.
+	                stringify(new Date(-8.64e15)) == '"-271821-04-20T00:00:00.000Z"' &&
+	                // The milliseconds are optional in ES 5, but required in 5.1.
+	                stringify(new Date(8.64e15)) == '"+275760-09-13T00:00:00.000Z"' &&
+	                // Firefox <= 11.0 incorrectly serializes years prior to 0 as negative
+	                // four-digit years instead of six-digit years. Credits: @Yaffle.
+	                stringify(new Date(-621987552e5)) == '"-000001-01-01T00:00:00.000Z"' &&
+	                // Safari <= 5.1.5 and Opera >= 10.53 incorrectly serialize millisecond
+	                // values less than 1000. Credits: @Yaffle.
+	                stringify(new Date(-1)) == '"1969-12-31T23:59:59.999Z"';
+	            } catch (exception) {
+	              stringifySupported = false;
+	            }
+	          }
+	          isSupported = stringifySupported;
+	        }
+	        // Test `JSON.parse`.
+	        if (name == "json-parse") {
+	          var parse = exports.parse;
+	          if (typeof parse == "function") {
+	            try {
+	              // FF 3.1b1, b2 will throw an exception if a bare literal is provided.
+	              // Conforming implementations should also coerce the initial argument to
+	              // a string prior to parsing.
+	              if (parse("0") === 0 && !parse(false)) {
+	                // Simple parsing test.
+	                value = parse(serialized);
+	                var parseSupported = value["a"].length == 5 && value["a"][0] === 1;
+	                if (parseSupported) {
+	                  try {
+	                    // Safari <= 5.1.2 and FF 3.1b1 allow unescaped tabs in strings.
+	                    parseSupported = !parse('"\t"');
+	                  } catch (exception) {}
+	                  if (parseSupported) {
+	                    try {
+	                      // FF 4.0 and 4.0.1 allow leading `+` signs and leading
+	                      // decimal points. FF 4.0, 4.0.1, and IE 9-10 also allow
+	                      // certain octal literals.
+	                      parseSupported = parse("01") !== 1;
+	                    } catch (exception) {}
+	                  }
+	                  if (parseSupported) {
+	                    try {
+	                      // FF 4.0, 4.0.1, and Rhino 1.7R3-R4 allow trailing decimal
+	                      // points. These environments, along with FF 3.1b1 and 2,
+	                      // also allow trailing commas in JSON objects and arrays.
+	                      parseSupported = parse("1.") !== 1;
+	                    } catch (exception) {}
+	                  }
+	                }
+	              }
+	            } catch (exception) {
+	              parseSupported = false;
+	            }
+	          }
+	          isSupported = parseSupported;
+	        }
+	      }
+	      return has[name] = !!isSupported;
+	    }
+
+	    if (!has("json")) {
+	      // Common `[[Class]]` name aliases.
+	      var functionClass = "[object Function]",
+	          dateClass = "[object Date]",
+	          numberClass = "[object Number]",
+	          stringClass = "[object String]",
+	          arrayClass = "[object Array]",
+	          booleanClass = "[object Boolean]";
+
+	      // Detect incomplete support for accessing string characters by index.
+	      var charIndexBuggy = has("bug-string-char-index");
+
+	      // Define additional utility methods if the `Date` methods are buggy.
+	      if (!isExtended) {
+	        var floor = Math.floor;
+	        // A mapping between the months of the year and the number of days between
+	        // January 1st and the first of the respective month.
+	        var Months = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+	        // Internal: Calculates the number of days between the Unix epoch and the
+	        // first day of the given month.
+	        var getDay = function (year, month) {
+	          return Months[month] + 365 * (year - 1970) + floor((year - 1969 + (month = +(month > 1))) / 4) - floor((year - 1901 + month) / 100) + floor((year - 1601 + month) / 400);
+	        };
+	      }
+
+	      // Internal: Determines if a property is a direct property of the given
+	      // object. Delegates to the native `Object#hasOwnProperty` method.
+	      if (!(isProperty = objectProto.hasOwnProperty)) {
+	        isProperty = function (property) {
+	          var members = {}, constructor;
+	          if ((members.__proto__ = null, members.__proto__ = {
+	            // The *proto* property cannot be set multiple times in recent
+	            // versions of Firefox and SeaMonkey.
+	            "toString": 1
+	          }, members).toString != getClass) {
+	            // Safari <= 2.0.3 doesn't implement `Object#hasOwnProperty`, but
+	            // supports the mutable *proto* property.
+	            isProperty = function (property) {
+	              // Capture and break the object's prototype chain (see section 8.6.2
+	              // of the ES 5.1 spec). The parenthesized expression prevents an
+	              // unsafe transformation by the Closure Compiler.
+	              var original = this.__proto__, result = property in (this.__proto__ = null, this);
+	              // Restore the original prototype chain.
+	              this.__proto__ = original;
+	              return result;
+	            };
+	          } else {
+	            // Capture a reference to the top-level `Object` constructor.
+	            constructor = members.constructor;
+	            // Use the `constructor` property to simulate `Object#hasOwnProperty` in
+	            // other environments.
+	            isProperty = function (property) {
+	              var parent = (this.constructor || constructor).prototype;
+	              return property in this && !(property in parent && this[property] === parent[property]);
+	            };
+	          }
+	          members = null;
+	          return isProperty.call(this, property);
+	        };
+	      }
+
+	      // Internal: Normalizes the `for...in` iteration algorithm across
+	      // environments. Each enumerated key is yielded to a `callback` function.
+	      forEach = function (object, callback) {
+	        var size = 0, Properties, members, property;
+
+	        // Tests for bugs in the current environment's `for...in` algorithm. The
+	        // `valueOf` property inherits the non-enumerable flag from
+	        // `Object.prototype` in older versions of IE, Netscape, and Mozilla.
+	        (Properties = function () {
+	          this.valueOf = 0;
+	        }).prototype.valueOf = 0;
+
+	        // Iterate over a new instance of the `Properties` class.
+	        members = new Properties();
+	        for (property in members) {
+	          // Ignore all properties inherited from `Object.prototype`.
+	          if (isProperty.call(members, property)) {
+	            size++;
+	          }
+	        }
+	        Properties = members = null;
+
+	        // Normalize the iteration algorithm.
+	        if (!size) {
+	          // A list of non-enumerable properties inherited from `Object.prototype`.
+	          members = ["valueOf", "toString", "toLocaleString", "propertyIsEnumerable", "isPrototypeOf", "hasOwnProperty", "constructor"];
+	          // IE <= 8, Mozilla 1.0, and Netscape 6.2 ignore shadowed non-enumerable
+	          // properties.
+	          forEach = function (object, callback) {
+	            var isFunction = getClass.call(object) == functionClass, property, length;
+	            var hasProperty = !isFunction && typeof object.constructor != "function" && objectTypes[typeof object.hasOwnProperty] && object.hasOwnProperty || isProperty;
+	            for (property in object) {
+	              // Gecko <= 1.0 enumerates the `prototype` property of functions under
+	              // certain conditions; IE does not.
+	              if (!(isFunction && property == "prototype") && hasProperty.call(object, property)) {
+	                callback(property);
+	              }
+	            }
+	            // Manually invoke the callback for each non-enumerable property.
+	            for (length = members.length; property = members[--length]; hasProperty.call(object, property) && callback(property));
+	          };
+	        } else if (size == 2) {
+	          // Safari <= 2.0.4 enumerates shadowed properties twice.
+	          forEach = function (object, callback) {
+	            // Create a set of iterated properties.
+	            var members = {}, isFunction = getClass.call(object) == functionClass, property;
+	            for (property in object) {
+	              // Store each property name to prevent double enumeration. The
+	              // `prototype` property of functions is not enumerated due to cross-
+	              // environment inconsistencies.
+	              if (!(isFunction && property == "prototype") && !isProperty.call(members, property) && (members[property] = 1) && isProperty.call(object, property)) {
+	                callback(property);
+	              }
+	            }
+	          };
+	        } else {
+	          // No bugs detected; use the standard `for...in` algorithm.
+	          forEach = function (object, callback) {
+	            var isFunction = getClass.call(object) == functionClass, property, isConstructor;
+	            for (property in object) {
+	              if (!(isFunction && property == "prototype") && isProperty.call(object, property) && !(isConstructor = property === "constructor")) {
+	                callback(property);
+	              }
+	            }
+	            // Manually invoke the callback for the `constructor` property due to
+	            // cross-environment inconsistencies.
+	            if (isConstructor || isProperty.call(object, (property = "constructor"))) {
+	              callback(property);
+	            }
+	          };
+	        }
+	        return forEach(object, callback);
+	      };
+
+	      // Public: Serializes a JavaScript `value` as a JSON string. The optional
+	      // `filter` argument may specify either a function that alters how object and
+	      // array members are serialized, or an array of strings and numbers that
+	      // indicates which properties should be serialized. The optional `width`
+	      // argument may be either a string or number that specifies the indentation
+	      // level of the output.
+	      if (!has("json-stringify")) {
+	        // Internal: A map of control characters and their escaped equivalents.
+	        var Escapes = {
+	          92: "\\\\",
+	          34: '\\"',
+	          8: "\\b",
+	          12: "\\f",
+	          10: "\\n",
+	          13: "\\r",
+	          9: "\\t"
+	        };
+
+	        // Internal: Converts `value` into a zero-padded string such that its
+	        // length is at least equal to `width`. The `width` must be <= 6.
+	        var leadingZeroes = "000000";
+	        var toPaddedString = function (width, value) {
+	          // The `|| 0` expression is necessary to work around a bug in
+	          // Opera <= 7.54u2 where `0 == -0`, but `String(-0) !== "0"`.
+	          return (leadingZeroes + (value || 0)).slice(-width);
+	        };
+
+	        // Internal: Double-quotes a string `value`, replacing all ASCII control
+	        // characters (characters with code unit values between 0 and 31) with
+	        // their escaped equivalents. This is an implementation of the
+	        // `Quote(value)` operation defined in ES 5.1 section 15.12.3.
+	        var unicodePrefix = "\\u00";
+	        var quote = function (value) {
+	          var result = '"', index = 0, length = value.length, useCharIndex = !charIndexBuggy || length > 10;
+	          var symbols = useCharIndex && (charIndexBuggy ? value.split("") : value);
+	          for (; index < length; index++) {
+	            var charCode = value.charCodeAt(index);
+	            // If the character is a control character, append its Unicode or
+	            // shorthand escape sequence; otherwise, append the character as-is.
+	            switch (charCode) {
+	              case 8: case 9: case 10: case 12: case 13: case 34: case 92:
+	                result += Escapes[charCode];
+	                break;
+	              default:
+	                if (charCode < 32) {
+	                  result += unicodePrefix + toPaddedString(2, charCode.toString(16));
+	                  break;
+	                }
+	                result += useCharIndex ? symbols[index] : value.charAt(index);
+	            }
+	          }
+	          return result + '"';
+	        };
+
+	        // Internal: Recursively serializes an object. Implements the
+	        // `Str(key, holder)`, `JO(value)`, and `JA(value)` operations.
+	        var serialize = function (property, object, callback, properties, whitespace, indentation, stack) {
+	          var value, className, year, month, date, time, hours, minutes, seconds, milliseconds, results, element, index, length, prefix, result;
+	          try {
+	            // Necessary for host object support.
+	            value = object[property];
+	          } catch (exception) {}
+	          if (typeof value == "object" && value) {
+	            className = getClass.call(value);
+	            if (className == dateClass && !isProperty.call(value, "toJSON")) {
+	              if (value > -1 / 0 && value < 1 / 0) {
+	                // Dates are serialized according to the `Date#toJSON` method
+	                // specified in ES 5.1 section 15.9.5.44. See section 15.9.1.15
+	                // for the ISO 8601 date time string format.
+	                if (getDay) {
+	                  // Manually compute the year, month, date, hours, minutes,
+	                  // seconds, and milliseconds if the `getUTC*` methods are
+	                  // buggy. Adapted from @Yaffle's `date-shim` project.
+	                  date = floor(value / 864e5);
+	                  for (year = floor(date / 365.2425) + 1970 - 1; getDay(year + 1, 0) <= date; year++);
+	                  for (month = floor((date - getDay(year, 0)) / 30.42); getDay(year, month + 1) <= date; month++);
+	                  date = 1 + date - getDay(year, month);
+	                  // The `time` value specifies the time within the day (see ES
+	                  // 5.1 section 15.9.1.2). The formula `(A % B + B) % B` is used
+	                  // to compute `A modulo B`, as the `%` operator does not
+	                  // correspond to the `modulo` operation for negative numbers.
+	                  time = (value % 864e5 + 864e5) % 864e5;
+	                  // The hours, minutes, seconds, and milliseconds are obtained by
+	                  // decomposing the time within the day. See section 15.9.1.10.
+	                  hours = floor(time / 36e5) % 24;
+	                  minutes = floor(time / 6e4) % 60;
+	                  seconds = floor(time / 1e3) % 60;
+	                  milliseconds = time % 1e3;
+	                } else {
+	                  year = value.getUTCFullYear();
+	                  month = value.getUTCMonth();
+	                  date = value.getUTCDate();
+	                  hours = value.getUTCHours();
+	                  minutes = value.getUTCMinutes();
+	                  seconds = value.getUTCSeconds();
+	                  milliseconds = value.getUTCMilliseconds();
+	                }
+	                // Serialize extended years correctly.
+	                value = (year <= 0 || year >= 1e4 ? (year < 0 ? "-" : "+") + toPaddedString(6, year < 0 ? -year : year) : toPaddedString(4, year)) +
+	                  "-" + toPaddedString(2, month + 1) + "-" + toPaddedString(2, date) +
+	                  // Months, dates, hours, minutes, and seconds should have two
+	                  // digits; milliseconds should have three.
+	                  "T" + toPaddedString(2, hours) + ":" + toPaddedString(2, minutes) + ":" + toPaddedString(2, seconds) +
+	                  // Milliseconds are optional in ES 5.0, but required in 5.1.
+	                  "." + toPaddedString(3, milliseconds) + "Z";
+	              } else {
+	                value = null;
+	              }
+	            } else if (typeof value.toJSON == "function" && ((className != numberClass && className != stringClass && className != arrayClass) || isProperty.call(value, "toJSON"))) {
+	              // Prototype <= 1.6.1 adds non-standard `toJSON` methods to the
+	              // `Number`, `String`, `Date`, and `Array` prototypes. JSON 3
+	              // ignores all `toJSON` methods on these objects unless they are
+	              // defined directly on an instance.
+	              value = value.toJSON(property);
+	            }
+	          }
+	          if (callback) {
+	            // If a replacement function was provided, call it to obtain the value
+	            // for serialization.
+	            value = callback.call(object, property, value);
+	          }
+	          if (value === null) {
+	            return "null";
+	          }
+	          className = getClass.call(value);
+	          if (className == booleanClass) {
+	            // Booleans are represented literally.
+	            return "" + value;
+	          } else if (className == numberClass) {
+	            // JSON numbers must be finite. `Infinity` and `NaN` are serialized as
+	            // `"null"`.
+	            return value > -1 / 0 && value < 1 / 0 ? "" + value : "null";
+	          } else if (className == stringClass) {
+	            // Strings are double-quoted and escaped.
+	            return quote("" + value);
+	          }
+	          // Recursively serialize objects and arrays.
+	          if (typeof value == "object") {
+	            // Check for cyclic structures. This is a linear search; performance
+	            // is inversely proportional to the number of unique nested objects.
+	            for (length = stack.length; length--;) {
+	              if (stack[length] === value) {
+	                // Cyclic structures cannot be serialized by `JSON.stringify`.
+	                throw TypeError();
+	              }
+	            }
+	            // Add the object to the stack of traversed objects.
+	            stack.push(value);
+	            results = [];
+	            // Save the current indentation level and indent one additional level.
+	            prefix = indentation;
+	            indentation += whitespace;
+	            if (className == arrayClass) {
+	              // Recursively serialize array elements.
+	              for (index = 0, length = value.length; index < length; index++) {
+	                element = serialize(index, value, callback, properties, whitespace, indentation, stack);
+	                results.push(element === undef ? "null" : element);
+	              }
+	              result = results.length ? (whitespace ? "[\n" + indentation + results.join(",\n" + indentation) + "\n" + prefix + "]" : ("[" + results.join(",") + "]")) : "[]";
+	            } else {
+	              // Recursively serialize object members. Members are selected from
+	              // either a user-specified list of property names, or the object
+	              // itself.
+	              forEach(properties || value, function (property) {
+	                var element = serialize(property, value, callback, properties, whitespace, indentation, stack);
+	                if (element !== undef) {
+	                  // According to ES 5.1 section 15.12.3: "If `gap` {whitespace}
+	                  // is not the empty string, let `member` {quote(property) + ":"}
+	                  // be the concatenation of `member` and the `space` character."
+	                  // The "`space` character" refers to the literal space
+	                  // character, not the `space` {width} argument provided to
+	                  // `JSON.stringify`.
+	                  results.push(quote(property) + ":" + (whitespace ? " " : "") + element);
+	                }
+	              });
+	              result = results.length ? (whitespace ? "{\n" + indentation + results.join(",\n" + indentation) + "\n" + prefix + "}" : ("{" + results.join(",") + "}")) : "{}";
+	            }
+	            // Remove the object from the traversed object stack.
+	            stack.pop();
+	            return result;
+	          }
+	        };
+
+	        // Public: `JSON.stringify`. See ES 5.1 section 15.12.3.
+	        exports.stringify = function (source, filter, width) {
+	          var whitespace, callback, properties, className;
+	          if (objectTypes[typeof filter] && filter) {
+	            if ((className = getClass.call(filter)) == functionClass) {
+	              callback = filter;
+	            } else if (className == arrayClass) {
+	              // Convert the property names array into a makeshift set.
+	              properties = {};
+	              for (var index = 0, length = filter.length, value; index < length; value = filter[index++], ((className = getClass.call(value)), className == stringClass || className == numberClass) && (properties[value] = 1));
+	            }
+	          }
+	          if (width) {
+	            if ((className = getClass.call(width)) == numberClass) {
+	              // Convert the `width` to an integer and create a string containing
+	              // `width` number of space characters.
+	              if ((width -= width % 1) > 0) {
+	                for (whitespace = "", width > 10 && (width = 10); whitespace.length < width; whitespace += " ");
+	              }
+	            } else if (className == stringClass) {
+	              whitespace = width.length <= 10 ? width : width.slice(0, 10);
+	            }
+	          }
+	          // Opera <= 7.54u2 discards the values associated with empty string keys
+	          // (`""`) only if they are used directly within an object member list
+	          // (e.g., `!("" in { "": 1})`).
+	          return serialize("", (value = {}, value[""] = source, value), callback, properties, whitespace, "", []);
+	        };
+	      }
+
+	      // Public: Parses a JSON source string.
+	      if (!has("json-parse")) {
+	        var fromCharCode = String.fromCharCode;
+
+	        // Internal: A map of escaped control characters and their unescaped
+	        // equivalents.
+	        var Unescapes = {
+	          92: "\\",
+	          34: '"',
+	          47: "/",
+	          98: "\b",
+	          116: "\t",
+	          110: "\n",
+	          102: "\f",
+	          114: "\r"
+	        };
+
+	        // Internal: Stores the parser state.
+	        var Index, Source;
+
+	        // Internal: Resets the parser state and throws a `SyntaxError`.
+	        var abort = function () {
+	          Index = Source = null;
+	          throw SyntaxError();
+	        };
+
+	        // Internal: Returns the next token, or `"$"` if the parser has reached
+	        // the end of the source string. A token may be a string, number, `null`
+	        // literal, or Boolean literal.
+	        var lex = function () {
+	          var source = Source, length = source.length, value, begin, position, isSigned, charCode;
+	          while (Index < length) {
+	            charCode = source.charCodeAt(Index);
+	            switch (charCode) {
+	              case 9: case 10: case 13: case 32:
+	                // Skip whitespace tokens, including tabs, carriage returns, line
+	                // feeds, and space characters.
+	                Index++;
+	                break;
+	              case 123: case 125: case 91: case 93: case 58: case 44:
+	                // Parse a punctuator token (`{`, `}`, `[`, `]`, `:`, or `,`) at
+	                // the current position.
+	                value = charIndexBuggy ? source.charAt(Index) : source[Index];
+	                Index++;
+	                return value;
+	              case 34:
+	                // `"` delimits a JSON string; advance to the next character and
+	                // begin parsing the string. String tokens are prefixed with the
+	                // sentinel `@` character to distinguish them from punctuators and
+	                // end-of-string tokens.
+	                for (value = "@", Index++; Index < length;) {
+	                  charCode = source.charCodeAt(Index);
+	                  if (charCode < 32) {
+	                    // Unescaped ASCII control characters (those with a code unit
+	                    // less than the space character) are not permitted.
+	                    abort();
+	                  } else if (charCode == 92) {
+	                    // A reverse solidus (`\`) marks the beginning of an escaped
+	                    // control character (including `"`, `\`, and `/`) or Unicode
+	                    // escape sequence.
+	                    charCode = source.charCodeAt(++Index);
+	                    switch (charCode) {
+	                      case 92: case 34: case 47: case 98: case 116: case 110: case 102: case 114:
+	                        // Revive escaped control characters.
+	                        value += Unescapes[charCode];
+	                        Index++;
+	                        break;
+	                      case 117:
+	                        // `\u` marks the beginning of a Unicode escape sequence.
+	                        // Advance to the first character and validate the
+	                        // four-digit code point.
+	                        begin = ++Index;
+	                        for (position = Index + 4; Index < position; Index++) {
+	                          charCode = source.charCodeAt(Index);
+	                          // A valid sequence comprises four hexdigits (case-
+	                          // insensitive) that form a single hexadecimal value.
+	                          if (!(charCode >= 48 && charCode <= 57 || charCode >= 97 && charCode <= 102 || charCode >= 65 && charCode <= 70)) {
+	                            // Invalid Unicode escape sequence.
+	                            abort();
+	                          }
+	                        }
+	                        // Revive the escaped character.
+	                        value += fromCharCode("0x" + source.slice(begin, Index));
+	                        break;
+	                      default:
+	                        // Invalid escape sequence.
+	                        abort();
+	                    }
+	                  } else {
+	                    if (charCode == 34) {
+	                      // An unescaped double-quote character marks the end of the
+	                      // string.
+	                      break;
+	                    }
+	                    charCode = source.charCodeAt(Index);
+	                    begin = Index;
+	                    // Optimize for the common case where a string is valid.
+	                    while (charCode >= 32 && charCode != 92 && charCode != 34) {
+	                      charCode = source.charCodeAt(++Index);
+	                    }
+	                    // Append the string as-is.
+	                    value += source.slice(begin, Index);
+	                  }
+	                }
+	                if (source.charCodeAt(Index) == 34) {
+	                  // Advance to the next character and return the revived string.
+	                  Index++;
+	                  return value;
+	                }
+	                // Unterminated string.
+	                abort();
+	              default:
+	                // Parse numbers and literals.
+	                begin = Index;
+	                // Advance past the negative sign, if one is specified.
+	                if (charCode == 45) {
+	                  isSigned = true;
+	                  charCode = source.charCodeAt(++Index);
+	                }
+	                // Parse an integer or floating-point value.
+	                if (charCode >= 48 && charCode <= 57) {
+	                  // Leading zeroes are interpreted as octal literals.
+	                  if (charCode == 48 && ((charCode = source.charCodeAt(Index + 1)), charCode >= 48 && charCode <= 57)) {
+	                    // Illegal octal literal.
+	                    abort();
+	                  }
+	                  isSigned = false;
+	                  // Parse the integer component.
+	                  for (; Index < length && ((charCode = source.charCodeAt(Index)), charCode >= 48 && charCode <= 57); Index++);
+	                  // Floats cannot contain a leading decimal point; however, this
+	                  // case is already accounted for by the parser.
+	                  if (source.charCodeAt(Index) == 46) {
+	                    position = ++Index;
+	                    // Parse the decimal component.
+	                    for (; position < length && ((charCode = source.charCodeAt(position)), charCode >= 48 && charCode <= 57); position++);
+	                    if (position == Index) {
+	                      // Illegal trailing decimal.
+	                      abort();
+	                    }
+	                    Index = position;
+	                  }
+	                  // Parse exponents. The `e` denoting the exponent is
+	                  // case-insensitive.
+	                  charCode = source.charCodeAt(Index);
+	                  if (charCode == 101 || charCode == 69) {
+	                    charCode = source.charCodeAt(++Index);
+	                    // Skip past the sign following the exponent, if one is
+	                    // specified.
+	                    if (charCode == 43 || charCode == 45) {
+	                      Index++;
+	                    }
+	                    // Parse the exponential component.
+	                    for (position = Index; position < length && ((charCode = source.charCodeAt(position)), charCode >= 48 && charCode <= 57); position++);
+	                    if (position == Index) {
+	                      // Illegal empty exponent.
+	                      abort();
+	                    }
+	                    Index = position;
+	                  }
+	                  // Coerce the parsed value to a JavaScript number.
+	                  return +source.slice(begin, Index);
+	                }
+	                // A negative sign may only precede numbers.
+	                if (isSigned) {
+	                  abort();
+	                }
+	                // `true`, `false`, and `null` literals.
+	                if (source.slice(Index, Index + 4) == "true") {
+	                  Index += 4;
+	                  return true;
+	                } else if (source.slice(Index, Index + 5) == "false") {
+	                  Index += 5;
+	                  return false;
+	                } else if (source.slice(Index, Index + 4) == "null") {
+	                  Index += 4;
+	                  return null;
+	                }
+	                // Unrecognized token.
+	                abort();
+	            }
+	          }
+	          // Return the sentinel `$` character if the parser has reached the end
+	          // of the source string.
+	          return "$";
+	        };
+
+	        // Internal: Parses a JSON `value` token.
+	        var get = function (value) {
+	          var results, hasMembers;
+	          if (value == "$") {
+	            // Unexpected end of input.
+	            abort();
+	          }
+	          if (typeof value == "string") {
+	            if ((charIndexBuggy ? value.charAt(0) : value[0]) == "@") {
+	              // Remove the sentinel `@` character.
+	              return value.slice(1);
+	            }
+	            // Parse object and array literals.
+	            if (value == "[") {
+	              // Parses a JSON array, returning a new JavaScript array.
+	              results = [];
+	              for (;; hasMembers || (hasMembers = true)) {
+	                value = lex();
+	                // A closing square bracket marks the end of the array literal.
+	                if (value == "]") {
+	                  break;
+	                }
+	                // If the array literal contains elements, the current token
+	                // should be a comma separating the previous element from the
+	                // next.
+	                if (hasMembers) {
+	                  if (value == ",") {
+	                    value = lex();
+	                    if (value == "]") {
+	                      // Unexpected trailing `,` in array literal.
+	                      abort();
+	                    }
+	                  } else {
+	                    // A `,` must separate each array element.
+	                    abort();
+	                  }
+	                }
+	                // Elisions and leading commas are not permitted.
+	                if (value == ",") {
+	                  abort();
+	                }
+	                results.push(get(value));
+	              }
+	              return results;
+	            } else if (value == "{") {
+	              // Parses a JSON object, returning a new JavaScript object.
+	              results = {};
+	              for (;; hasMembers || (hasMembers = true)) {
+	                value = lex();
+	                // A closing curly brace marks the end of the object literal.
+	                if (value == "}") {
+	                  break;
+	                }
+	                // If the object literal contains members, the current token
+	                // should be a comma separator.
+	                if (hasMembers) {
+	                  if (value == ",") {
+	                    value = lex();
+	                    if (value == "}") {
+	                      // Unexpected trailing `,` in object literal.
+	                      abort();
+	                    }
+	                  } else {
+	                    // A `,` must separate each object member.
+	                    abort();
+	                  }
+	                }
+	                // Leading commas are not permitted, object property names must be
+	                // double-quoted strings, and a `:` must separate each property
+	                // name and value.
+	                if (value == "," || typeof value != "string" || (charIndexBuggy ? value.charAt(0) : value[0]) != "@" || lex() != ":") {
+	                  abort();
+	                }
+	                results[value.slice(1)] = get(lex());
+	              }
+	              return results;
+	            }
+	            // Unexpected token encountered.
+	            abort();
+	          }
+	          return value;
+	        };
+
+	        // Internal: Updates a traversed object member.
+	        var update = function (source, property, callback) {
+	          var element = walk(source, property, callback);
+	          if (element === undef) {
+	            delete source[property];
+	          } else {
+	            source[property] = element;
+	          }
+	        };
+
+	        // Internal: Recursively traverses a parsed JSON object, invoking the
+	        // `callback` function for each value. This is an implementation of the
+	        // `Walk(holder, name)` operation defined in ES 5.1 section 15.12.2.
+	        var walk = function (source, property, callback) {
+	          var value = source[property], length;
+	          if (typeof value == "object" && value) {
+	            // `forEach` can't be used to traverse an array in Opera <= 8.54
+	            // because its `Object#hasOwnProperty` implementation returns `false`
+	            // for array indices (e.g., `![1, 2, 3].hasOwnProperty("0")`).
+	            if (getClass.call(value) == arrayClass) {
+	              for (length = value.length; length--;) {
+	                update(value, length, callback);
+	              }
+	            } else {
+	              forEach(value, function (property) {
+	                update(value, property, callback);
+	              });
+	            }
+	          }
+	          return callback.call(source, property, value);
+	        };
+
+	        // Public: `JSON.parse`. See ES 5.1 section 15.12.2.
+	        exports.parse = function (source, callback) {
+	          var result, value;
+	          Index = 0;
+	          Source = "" + source;
+	          result = get(lex());
+	          // If a JSON string contains multiple tokens, it is invalid.
+	          if (lex() != "$") {
+	            abort();
+	          }
+	          // Reset the parser state.
+	          Index = Source = null;
+	          return callback && getClass.call(callback) == functionClass ? walk((value = {}, value[""] = result, value), "", callback) : result;
+	        };
+	      }
+	    }
+
+	    exports["runInContext"] = runInContext;
+	    return exports;
+	  }
+
+	  if (freeExports && !isLoader) {
+	    // Export for CommonJS environments.
+	    runInContext(root, freeExports);
+	  } else {
+	    // Export for web browsers and JavaScript engines.
+	    var nativeJSON = root.JSON,
+	        previousJSON = root["JSON3"],
+	        isRestored = false;
+
+	    var JSON3 = runInContext(root, (root["JSON3"] = {
+	      // Public: Restores the original value of the global `JSON` object and
+	      // returns a reference to the `JSON3` object.
+	      "noConflict": function () {
+	        if (!isRestored) {
+	          isRestored = true;
+	          root.JSON = nativeJSON;
+	          root["JSON3"] = previousJSON;
+	          nativeJSON = previousJSON = null;
+	        }
+	        return JSON3;
+	      }
+	    }));
+
+	    root.JSON = {
+	      "parse": JSON3.parse,
+	      "stringify": JSON3.stringify
+	    };
+	  }
+
+	  // Export for asynchronous module loaders.
+	  if (isLoader) {
+	    define(function () {
+	      return JSON3;
+	    });
+	  }
+	}).call(this);
+
+	}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {})
+	},{}],51:[function(_dereq_,module,exports){
+	module.exports = toArray
+
+	function toArray(list, index) {
+	    var array = []
+
+	    index = index || 0
+
+	    for (var i = index || 0; i < list.length; i++) {
+	        array[i - index] = list[i]
+	    }
+
+	    return array
+	}
+
+	},{}]},{},[31])(31)
+	});
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 31 */
+/* 15 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var MemoryStore = function () {
+	    function MemoryStore() {
+	        var defaultState = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+	        _classCallCheck(this, MemoryStore);
+
+	        this._defaultState = defaultState;
+	        this._data = this._getDefaultState();
+	        this._isStored = false;
+	    }
+
+	    _createClass(MemoryStore, [{
+	        key: "get",
+	        value: function get() {
+	            return this._data;
+	        }
+	    }, {
+	        key: "isStored",
+	        value: function isStored() {
+	            return this._isStored;
+	        }
+	    }, {
+	        key: "update",
+	        value: function update(dataUpdates) {
+	            var oldData = angular.copy(this._data);
+	            angular.copy(dataUpdates, this._data);
+
+	            if (this.onUpdate) {
+	                this.onUpdate(this._data, oldData);
+	            }
+
+	            this._isStored = true;
+
+	            return this._data;
+	        }
+	    }, {
+	        key: "clear",
+	        value: function clear() {
+	            this.update(this._getDefaultState());
+	            this._isStored = false;
+	        }
+	    }, {
+	        key: "_getDefaultState",
+	        value: function _getDefaultState() {
+	            return angular.copy(this._defaultState);
+	        }
+	    }]);
+
+	    return MemoryStore;
+	}();
+
+	exports.default = MemoryStore;
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	   value: true
+	});
+
+	var _angular = __webpack_require__(2);
+
+	var _angular2 = _interopRequireDefault(_angular);
+
+	var _angularUiRouter = __webpack_require__(4);
+
+	var _angularUiRouter2 = _interopRequireDefault(_angularUiRouter);
+
+	var _LoginService = __webpack_require__(17);
+
+	var _LoginService2 = _interopRequireDefault(_LoginService);
+
+	var _loginRoutes = __webpack_require__(18);
+
+	var _loginRoutes2 = _interopRequireDefault(_loginRoutes);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.default = _angular2.default.module('app.login', [_angularUiRouter2.default]).service('LoginService', _LoginService2.default).config(_loginRoutes2.default).name;
+
+/***/ },
+/* 17 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var LoginService = function () {
+	    LoginService.$inject = ["$http", "$state", "IdentityStore", "$window"];
+	    function LoginService($http, $state, IdentityStore, $window) {
+	        'ngInject';
+
+	        _classCallCheck(this, LoginService);
+
+	        this.$http = $http;
+	        this.$state = $state;
+	        this.IdentityStore = IdentityStore;
+	        this.$window = $window;
+	    }
+
+	    _createClass(LoginService, [{
+	        key: 'signIn',
+	        value: function signIn(credentials) {
+	            var _this = this;
+
+	            return this.$http.post('/api/auth/local', credentials).then(function (response) {
+	                _this.IdentityStore.update(response.data);
+	                console.log(_this.IdentityStore.get());
+	            });
+	        }
+	    }, {
+	        key: 'signUp',
+	        value: function signUp(credentials) {
+
+	            return this.$http.post('/api/user', credentials).then(function (response) {
+	                console.log('Signed up succesfuly');
+	            });
+	        }
+	    }, {
+	        key: 'signInWithGitHub',
+	        value: function signInWithGitHub() {
+	            this.$window.location.href = '/api/auth/github/auth';
+	        }
+	    }, {
+	        key: 'getMe',
+	        value: function getMe() {
+	            return this.$http.get('/api/user/me');
+	        }
+	    }, {
+	        key: 'signOut',
+	        value: function signOut() {
+	            return this.$state.go('login');
+	        }
+	    }]);
+
+	    return LoginService;
+	}();
+
+	exports.default = LoginService;
+
+/***/ },
+/* 18 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	loginRoutes.$inject = ["$stateProvider"];
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = loginRoutes;
+
+	var _login = __webpack_require__(19);
+
+	var _login2 = _interopRequireDefault(_login);
+
+	var _LoginController = __webpack_require__(20);
+
+	var _LoginController2 = _interopRequireDefault(_LoginController);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function loginRoutes($stateProvider) {
+	    'ngInject';
+
+	    $stateProvider.state('main.login', {
+	        url: '/login',
+	        views: {
+	            'content@main': {
+	                template: _login2.default,
+	                controller: _LoginController2.default,
+	                controllerAs: 'loginCtrl'
+	            }
+	        }
+	    });
+	}
+
+/***/ },
+/* 19 */
+/***/ function(module, exports) {
+
+	module.exports = "<form name=\"loginCtrl.signInForm\"\n      novalidate\n      autocomplete=\"off\"\n      ng-submit=\"loginCtrl.signIn()\">\n\n    <div>\n        <header>\n            <h2>Sign In</h2>\n        </header>\n\n        <md-input-container>\n            <label>Login</label>\n            <input ng-model=\"loginCtrl.input.login\"\n                required>\n        </md-input-container>\n        <md-input-container>\n            <label>Password</label>\n            <input ng-model=\"loginCtrl.input.password\"\n                required>\n        </md-input-container>\n        <md-button class=\"md-raised md-primary\" type=\"submit\">\n            <span class=\"text\">Sign In</span>\n        </md-button>\n\n        <md-button class=\"md-raised md-primary\"\n            ng-click=\"loginCtrl.signInWithGitHub()\">\n            Sign In With GitHub\n        </md-button>\n    </div>\n\n</form>\n\n<br>\n<br>\n\n<md-divider md-inset></md-divider>\n\n\n<br>\n<br>\n\n<form name=\"loginCtrl.signUpForm\"\n      novalidate\n      autocomplete=\"off\"\n      ng-submit=\"loginCtrl.signUp()\">\n\n    <div>\n        <header>\n            <h2>Sign Up</h2>\n        </header>\n\n        <md-input-container>\n            <label>Login</label>\n            <input ng-model=\"loginCtrl.input.name\"\n                required>\n        </md-input-container>\n        <md-input-container>\n            <label>Password</label>\n            <input ng-model=\"loginCtrl.input.password\"\n                required>\n        </md-input-container>\n        <md-button type=\"submit\"\n            class=\"md-raised md-primary\">\n            <span class=\"text\">SignUp</span>\n        </md-button>\n\n        <md-button type=\"button\"\n            class=\"md-raised md-primary\"\n            ng-click=\"loginCtrl.signUpWithGinhub()\">\n            Sign up with github\n        </md-button>\n    </div>\n\n</form>\n\n<br>\n<br>\n\n<md-divider md-inset></md-divider>\n\n\n<br>\n<br>\n\n<md-button type=\"button\"\n    class=\"md-raised md-primary\"\n    ng-click=\"loginCtrl.getMe()\">\n    Get me\n</md-button>\n\n"
+
+/***/ },
+/* 20 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _LoginForm = __webpack_require__(21);
+
+	var _LoginForm2 = _interopRequireDefault(_LoginForm);
+
+	var _LOGIN_EXCEPTIONS = __webpack_require__(22);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var LoginController = function () {
+	    LoginController.$inject = ["$state", "LoginService"];
+	    function LoginController($state, LoginService) {
+	        'ngInject';
+
+	        _classCallCheck(this, LoginController);
+
+	        this.signInForm = {};
+	        this.signUpForm = {};
+	        this.$state = $state;
+	        this.LoginService = LoginService;
+	        this.input = _LoginForm2.default.getFields();
+	    }
+
+	    _createClass(LoginController, [{
+	        key: 'signIn',
+	        value: function signIn() {
+	            this.LoginService.signIn(this.input);
+	        }
+	    }, {
+	        key: 'signUp',
+	        value: function signUp() {
+	            this.LoginService.signUp(this.input);
+	        }
+	    }, {
+	        key: 'signInWithGitHub',
+	        value: function signInWithGitHub() {
+	            this.LoginService.signInWithGitHub();
+	        }
+	    }, {
+	        key: 'getMe',
+	        value: function getMe() {
+	            this.LoginService.getMe();
+	        }
+	    }, {
+	        key: 'signUpWithGitGub',
+	        value: function signUpWithGitGub() {}
+	    }]);
+
+	    return LoginController;
+	}();
+
+	exports.default = LoginController;
+
+/***/ },
+/* 21 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var LoginForm = function () {
+	    function LoginForm() {
+	        _classCallCheck(this, LoginForm);
+	    }
+
+	    _createClass(LoginForm, null, [{
+	        key: 'getFields',
+	        value: function getFields() {
+	            return {
+	                login: '',
+	                password: ''
+	            };
+	        }
+	    }]);
+
+	    return LoginForm;
+	}();
+
+	exports.default = LoginForm;
+
+/***/ },
+/* 22 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	var LOGIN_EXCEPTIONS = exports.LOGIN_EXCEPTIONS = {
+	    USER_NOT_FOUND: 'UserNotFoundException',
+	    USER_BAD_CREDENTIALS: 'PosBadCredentialsException',
+	    USER_DISABLED: 'OperatorDisabledException',
+	    USER_LOCKED: 'LockedException',
+	    USER_ACCESS_DENIED: 'AuthorizationException'
+	};
+
+/***/ },
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -72684,7 +72459,215 @@ Object.defineProperty(Array.prototype, 'find', {
 
 	var _angularUiRouter2 = _interopRequireDefault(_angularUiRouter);
 
-	var _mainRoutes = __webpack_require__(32);
+	var _pokerRoutes = __webpack_require__(24);
+
+	var _pokerRoutes2 = _interopRequireDefault(_pokerRoutes);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.default = _angular2.default.module('app.poker', [_angularUiRouter2.default]).config(_pokerRoutes2.default).name;
+
+/***/ },
+/* 24 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	pokerRoutes.$inject = ["$stateProvider"];
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = pokerRoutes;
+
+	var _poker = __webpack_require__(25);
+
+	var _poker2 = _interopRequireDefault(_poker);
+
+	var _PokerController = __webpack_require__(26);
+
+	var _PokerController2 = _interopRequireDefault(_PokerController);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function pokerRoutes($stateProvider) {
+	    'ngInject';
+
+	    $stateProvider.state('main.poker', {
+	        url: '/poker',
+	        views: {
+	            'content@main': {
+	                template: _poker2.default,
+	                controller: _PokerController2.default,
+	                controllerAs: 'pokerCtrl'
+	            }
+	        }
+	    });
+	}
+
+/***/ },
+/* 25 */
+/***/ function(module, exports) {
+
+	module.exports = " <div>\n    <div>\n        <div>Hello</div>\n        <div>\n            <div id=\"users\">\n                <div ng-repeat=\"user in pokerCtrl.activeUsers\">{{user.userName}} - {{user.mark}} </div>\n            </div>\n            <ul id=\"marks\">\n                <li ng-repeat=\"score in pokerCtrl.SCORES\"\n                    ng-click=\"pokerCtrl.onMyMarkSelect(score)\">{{score}}</li>\n            </ul>\n\n        </div>\n\n    </div>\n</div>\n"
+
+/***/ },
+/* 26 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _SCORES = __webpack_require__(27);
+
+	var _SCORES2 = _interopRequireDefault(_SCORES);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var PokerController = function () {
+	    PokerController.$inject = ["SocketService", "IdentityStore"];
+	    function PokerController(SocketService, IdentityStore) {
+	        'ngInject';
+
+	        _classCallCheck(this, PokerController);
+
+	        this.currentUser = IdentityStore.get();
+	        this.SCORES = _SCORES2.default;
+	        this.socket = SocketService;
+	        this.activeUsers = [];
+	        this.socket.on('newUser', this.newUser.bind(this));
+	        this.socket.on('onMarkSelect', this.onSomeoneMarkSelect.bind(this));
+	        this.socket.emit('joinPoker', { userId: this.currentUser._id });
+	    }
+
+	    _createClass(PokerController, [{
+	        key: 'newUser',
+	        value: function newUser(data) {
+	            console.log('newUser', data);
+	            this.activeUsers = data;
+	            console.log('all', this.activeUsers);
+	        }
+	    }, {
+	        key: 'onMyMarkSelect',
+	        value: function onMyMarkSelect(mark) {
+	            console.log('onMyMarkSelect', mark);
+	            this.socket.emit('selectMark', {
+	                userId: this.currentUser._id,
+	                mark: mark
+	            });
+	        }
+	    }, {
+	        key: 'onSomeoneMarkSelect',
+	        value: function onSomeoneMarkSelect(data) {
+	            console.log('someoneMark', data);
+
+	            this.activeUsers.forEach(function (user) {
+	                if (user.userId === data.userId) user.mark = data.mark;
+	            });
+	        }
+	    }]);
+
+	    return PokerController;
+	}();
+
+	exports.default = PokerController;
+
+/***/ },
+/* 27 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	exports.default = [0.5, 1, 2, 3, 5, 8, 13, 21];
+
+/***/ },
+/* 28 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _angular = __webpack_require__(2);
+
+	var _angular2 = _interopRequireDefault(_angular);
+
+	var _IdentityStore = __webpack_require__(29);
+
+	var _IdentityStore2 = _interopRequireDefault(_IdentityStore);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.default = _angular2.default.module('app.auth', []).service('IdentityStore', _IdentityStore2.default).name;
+
+/***/ },
+/* 29 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _MemoryStore2 = __webpack_require__(15);
+
+	var _MemoryStore3 = _interopRequireDefault(_MemoryStore2);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var IdentityStore = function (_MemoryStore) {
+	    _inherits(IdentityStore, _MemoryStore);
+
+	    function IdentityStore() {
+	        'ngInject';
+
+	        _classCallCheck(this, IdentityStore);
+
+	        return _possibleConstructorReturn(this, Object.getPrototypeOf(IdentityStore).call(this));
+	    }
+
+	    return IdentityStore;
+	}(_MemoryStore3.default);
+
+	exports.default = IdentityStore;
+
+/***/ },
+/* 30 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _angular = __webpack_require__(2);
+
+	var _angular2 = _interopRequireDefault(_angular);
+
+	var _angularUiRouter = __webpack_require__(4);
+
+	var _angularUiRouter2 = _interopRequireDefault(_angularUiRouter);
+
+	var _mainRoutes = __webpack_require__(31);
 
 	var _mainRoutes2 = _interopRequireDefault(_mainRoutes);
 
@@ -72693,7 +72676,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	exports.default = _angular2.default.module('app.main', [_angularUiRouter2.default]).config(_mainRoutes2.default).name;
 
 /***/ },
-/* 32 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -72704,15 +72687,15 @@ Object.defineProperty(Array.prototype, 'find', {
 	});
 	exports.default = mainRoutes;
 
-	var _main = __webpack_require__(33);
+	var _main = __webpack_require__(32);
 
 	var _main2 = _interopRequireDefault(_main);
 
-	var _header = __webpack_require__(34);
+	var _header = __webpack_require__(33);
 
 	var _header2 = _interopRequireDefault(_header);
 
-	var _HeaderController = __webpack_require__(38);
+	var _HeaderController = __webpack_require__(34);
 
 	var _HeaderController2 = _interopRequireDefault(_HeaderController);
 
@@ -72749,16 +72732,52 @@ Object.defineProperty(Array.prototype, 'find', {
 	};
 
 /***/ },
-/* 33 */
+/* 32 */
 /***/ function(module, exports) {
 
 	module.exports = "<div ui-view=\"header\" class=\"header\"></div>\n<div ui-view=\"content\" class=\"content\"></div>"
 
 /***/ },
-/* 34 */
+/* 33 */
 /***/ function(module, exports) {
 
 	module.exports = "<md-toolbar layout=\"row\" class=\"md-whiteframe-z2 header-panel\" data-ng-cloak>\n    <div class=\"md-toolbar-tools\">\n        <a style=\"padding-left: 40px;\" href=\"#/\" id=\"logo\">PP</a>\n        <a style=\"padding-left: 40px;\" ui-sref=\"main.poker\">poker</a>\n        <a style=\"padding-left: 40px;\" ui-sref=\"main.login\">login</a>\n        <p style=\"padding-left: 40px;\">{{headerCtrl.getCurrentUser()}}</p>\n    </div>\n    <roles layout=\"row\" flex=\"15\" layout-align=\"space-between center\"></roles>\n</md-toolbar>"
+
+/***/ },
+/* 34 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var HeaderController = function () {
+	    HeaderController.$inject = ["IdentityStore"];
+	    function HeaderController(IdentityStore) {
+	        'ngInject';
+
+	        _classCallCheck(this, HeaderController);
+
+	        this.IdentityStore = IdentityStore;
+	    }
+
+	    _createClass(HeaderController, [{
+	        key: 'getCurrentUser',
+	        value: function getCurrentUser() {
+	            return this.IdentityStore.get().name || 'guest';
+	        }
+	    }]);
+
+	    return HeaderController;
+	}();
+
+	exports.default = HeaderController;
 
 /***/ },
 /* 35 */
@@ -72829,35 +72848,16 @@ Object.defineProperty(Array.prototype, 'find', {
 
 	'use strict';
 
+	routeConfig.$inject = ["$urlRouterProvider"];
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
+	exports.default = routeConfig;
+	function routeConfig($urlRouterProvider) {
+	    'ngInject';
 
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	var HeaderController = function () {
-	    HeaderController.$inject = ["IdentityStore"];
-	    function HeaderController(IdentityStore) {
-	        'ngInject';
-
-	        _classCallCheck(this, HeaderController);
-
-	        this.IdentityStore = IdentityStore;
-	    }
-
-	    _createClass(HeaderController, [{
-	        key: 'getCurrentUser',
-	        value: function getCurrentUser() {
-	            return this.IdentityStore.get().name || 'guest';
-	        }
-	    }]);
-
-	    return HeaderController;
-	}();
-
-	exports.default = HeaderController;
+	    $urlRouterProvider.otherwise('/');
+	}
 
 /***/ }
 /******/ ]);

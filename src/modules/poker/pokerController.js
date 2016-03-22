@@ -16,7 +16,7 @@ export default class PokerController {
 
     newUser(data) {
         console.log('newUser', data);
-        this.activeUsers.push(data);
+        this.activeUsers = data;
         console.log('all', this.activeUsers);
     }
 
