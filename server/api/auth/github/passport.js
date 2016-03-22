@@ -1,14 +1,12 @@
 const   passport = require('passport'),
         GithubStrategy = require('passport-github').Strategy;
 
-const   config = require('../../../config/environment');
-
-const   setup = (User, config) => {
+const   setup = (User) => {
     
     passport.use(new GithubStrategy({
-          clientID: config.github.clientID,
-          clientSecret: config.github.clientSecret,
-          callbackURL: config.github.callbackURL
+          clientID: process.env.GITHUB_CLIENT_ID,
+          clientSecret: process.env.GITHUB_CLIENT_SECRET,
+          callbackURL: process.env.GITHUB_CALLBACK_URL
         }, 
         function (accessToken, refreshToken, profile, done) {
             console.log('Strat');

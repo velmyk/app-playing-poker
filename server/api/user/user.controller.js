@@ -47,7 +47,7 @@ const   get = (req, res) => {
 
 const   me = (req, res) => {
     var token = req.cookies.token.slice(1,-1);
-    var id = jwt.verify(token, 'my-secret');
+    var id = jwt.decode(token, 'my-secret');
 
     User.findById(id).exec().then(user => res.send(user));
     // console.log(id);

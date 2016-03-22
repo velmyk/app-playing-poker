@@ -8,15 +8,10 @@ let express = require('express'),
     errorHandler = require('errorhandler'),
     passport = require('passport'),
     path = require('path'),
-    _ = require('lodash'),
     cors = require('cors');
     // session = require('express-sessions');
 
-let config = require('./environment');
-
 const expressSetup = (app) => {
-    var env = app.get('env');
-    _.assign(app.locals, config.locals);
     app.use(bodyParser.urlencoded({extended: false}));
     app.use(bodyParser.json());
     app.use(cors())
@@ -28,11 +23,11 @@ const expressSetup = (app) => {
 
     app.use(express.static(__dirname + './../../target/build'));
 
-    if ('production' === env) {
+    if ('production' === process.env.NODE_ENV) {
         app.use(morgan('dev'));
     }
 
-    if ('development' === env || 'test' === env) {
+    if ('development' === process.env.NODE_ENV || 'test' === process.env.NODE_ENV) {
         app.use(morgan('dev'));
         app.use(errorHandler()); // Error handler - has to be last
     }

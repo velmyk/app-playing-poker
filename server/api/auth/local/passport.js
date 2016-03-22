@@ -1,7 +1,7 @@
 const   passport = require('passport'),
         LocalStrategy = require('passport-local').Strategy;
 
-const   setup = (User, config) => {
+const   setup = (User) => {
     passport.use(new LocalStrategy({
             usernameField: 'login',
             passwordField: 'password' // this is the virtual field on the model

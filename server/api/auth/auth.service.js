@@ -6,11 +6,10 @@ const   mongoose = require('mongoose'),
         expressJwt = require('express-jwt'),
         compose = require('composable-middleware');
 
-const   User = require('../user/user.model'),
-        config = require('../../config/environment');
+const   User = require('../user/user.model');
 
 const   validateJwt = expressJwt({
-    secret: config.secrets.session,
+    secret: process.env.SEACRETS_SESSION,
     getToken: function(req) {
         return req.cookies.token && JSON.parse(req.cookies.token);
     }
@@ -44,7 +43,7 @@ const   isAuthenticated = () => {
  * Returns a jwt token signed by the app secret
  */
 const   signToken = (id) => {
-    return jwt.sign({_id: id}, config.secrets.session, {expiresIn: 60 * 5});
+    return jwt.sign({_id: id}, process.env.SEACRETS_SESSION, {expiresIn: 60 * 5});
 }
 
 /**
