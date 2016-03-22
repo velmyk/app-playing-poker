@@ -8,6 +8,7 @@ let express = require('express'),
     errorHandler = require('errorhandler'),
     passport = require('passport'),
     path = require('path'),
+    favicon = require('serve-favicon'),
     cors = require('cors');
     // session = require('express-sessions');
 
@@ -22,6 +23,7 @@ const expressSetup = (app) => {
     app.use(passport.session());
 
     app.use(express.static(__dirname + './../../target/build'));
+    app.use(favicon(path.join(__dirname, '../../src', 'favicon.ico')));
 
     if ('production' === process.env.NODE_ENV) {
         app.use(morgan('dev'));
