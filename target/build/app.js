@@ -86,7 +86,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "cd157917aac9f449eab1"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "df8e09b163ec57b5e177"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -72508,7 +72508,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /* 25 */
 /***/ function(module, exports) {
 
-	module.exports = " <div>\n    <div>\n        <div>Hello</div>\n        <div>\n            <div id=\"users\">\n                <div ng-repeat=\"user in pokerCtrl.activeUsers\">{{user.userName}} - {{user.mark}} </div>\n            </div>\n            <ul id=\"marks\">\n                <li ng-repeat=\"score in pokerCtrl.SCORES\"\n                    ng-click=\"pokerCtrl.onMyMarkSelect(score)\">{{score}}</li>\n            </ul>\n\n        </div>\n\n    </div>\n</div>\n"
+	module.exports = " <div>\n    <div>\n        <div>\n            <md-list>\n                <md-subheader class=\"md-no-sticky\">Users</md-subheader>\n                <md-list-item ng-repeat=\"user in pokerCtrl.activeUsers\">\n                    <p> {{user.userName}} - {{user.mark}} </p>\n                </md-list-item>\n            </md-list>\n            <md-divider></md-divider>\n            <div id=\"marks\">\n                <div ng-repeat=\"score in pokerCtrl.SCORES\"\n                               ng-click=\"pokerCtrl.onMyMarkSelect(score)\">\n                    <md-button>{{score}}</md-button>\n                </div>\n            </div>\n\n        </div>\n        <md-input-container md-no-float class=\"md-block\">\n            <input ng-model=\"pokerCtrl.storyDescription\" placeholder=\"Story description\">\n        </md-input-container>\n        <md-button class=\"md-raised\"\n                   ng-click=\"pokerCtrl.shareStoryDescription()\">Share</md-button>\n    </div>\n</div>\n"
 
 /***/ },
 /* 26 */
@@ -72541,8 +72541,10 @@ Object.defineProperty(Array.prototype, 'find', {
 	        this.SCORES = _SCORES2.default;
 	        this.socket = SocketService;
 	        this.activeUsers = [];
+	        this.storyDescription = '';
 	        this.socket.on('newUser', this.newUser.bind(this));
 	        this.socket.on('onMarkSelect', this.onSomeoneMarkSelect.bind(this));
+	        this.socket.on('storyDescriptionChanged', this.onStoryDescriptionChanged.bind(this));
 	        this.socket.emit('joinPoker', { userId: this.currentUser._id });
 	    }
 
@@ -72570,6 +72572,18 @@ Object.defineProperty(Array.prototype, 'find', {
 	            this.activeUsers.forEach(function (user) {
 	                if (user.userId === data.userId) user.mark = data.mark;
 	            });
+	        }
+	    }, {
+	        key: 'shareStoryDescription',
+	        value: function shareStoryDescription() {
+	            this.socket.emit('newStoryDescription', {
+	                storyDescription: this.storyDescription
+	            });
+	        }
+	    }, {
+	        key: 'onStoryDescriptionChanged',
+	        value: function onStoryDescriptionChanged(data) {
+	            this.storyDescription = data.storyDescription;
 	        }
 	    }]);
 

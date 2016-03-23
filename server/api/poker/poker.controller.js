@@ -28,9 +28,16 @@ const selectMark = (socket, activeUsers, data) => {
     });
     socket.broadcast.emit('onMarkSelect', data)
     socket.emit('onMarkSelect', data)
-}
+};
+
+const newStoryDescription = (socket, activeUsers, data) => {
+    console.log('newStoryDescription', data);
+    socket.broadcast.emit('storyDescriptionChanged', data)
+    socket.emit('storyDescriptionChanged', data)
+};
 
 module.exports = {
 	joinPoker: joinPoker,
-	selectMark: selectMark
+	selectMark: selectMark,
+    newStoryDescription: newStoryDescription
 };

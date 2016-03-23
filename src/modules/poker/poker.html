@@ -1,16 +1,25 @@
  <div>
     <div>
-        <div>Hello</div>
         <div>
-            <div id="users">
-                <div ng-repeat="user in pokerCtrl.activeUsers">{{user.userName}} - {{user.mark}} </div>
+            <md-list>
+                <md-subheader class="md-no-sticky">Users</md-subheader>
+                <md-list-item ng-repeat="user in pokerCtrl.activeUsers">
+                    <p> {{user.userName}} - {{user.mark}} </p>
+                </md-list-item>
+            </md-list>
+            <md-divider></md-divider>
+            <div id="marks">
+                <div ng-repeat="score in pokerCtrl.SCORES"
+                               ng-click="pokerCtrl.onMyMarkSelect(score)">
+                    <md-button>{{score}}</md-button>
+                </div>
             </div>
-            <ul id="marks">
-                <li ng-repeat="score in pokerCtrl.SCORES"
-                    ng-click="pokerCtrl.onMyMarkSelect(score)">{{score}}</li>
-            </ul>
 
         </div>
-
+        <md-input-container md-no-float class="md-block">
+            <input ng-model="pokerCtrl.storyDescription" placeholder="Story description">
+        </md-input-container>
+        <md-button class="md-raised"
+                   ng-click="pokerCtrl.shareStoryDescription()">Share</md-button>
     </div>
 </div>

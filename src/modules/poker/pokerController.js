@@ -8,8 +8,10 @@ export default class PokerController {
         this.SCORES = SCORES;
         this.socket = SocketService;
         this.activeUsers = [];
+        this.storyDescription = '';
         this.socket.on('newUser', this.newUser.bind(this));
         this.socket.on('onMarkSelect', this.onSomeoneMarkSelect.bind(this));
+        this.socket.on('storyDescriptionChanged', this.onStoryDescriptionChanged.bind(this));
         this.socket.emit('joinPoker', { userId: this.currentUser._id });
     }
 
@@ -34,6 +36,16 @@ export default class PokerController {
         this.activeUsers.forEach(user => {
             if(user.userId === data.userId) user.mark = data.mark;
         });
+    }
+
+    shareStoryDescription() {
+        this.socket.emit('newStoryDescription', {
+            storyDescription: this.storyDescription
+        });
+    }
+
+    onStoryDescriptionChanged(data) {
+        this.storyDescription = data.storyDescription;
     }
 
 }

@@ -14,6 +14,8 @@ const 	poker = (server) => {
         socket.on('joinPoker', controller.joinPoker.bind(null, socket, activeUsers));
 
         socket.on('selectMark', controller.selectMark.bind(null, socket, activeUsers));
+
+        socket.on('newStoryDescription', controller.newStoryDescription.bind(null, socket, activeUsers));
     });
 };
 
