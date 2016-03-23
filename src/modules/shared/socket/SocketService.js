@@ -4,7 +4,7 @@ export default class SocketService {
     constructor($rootScope) {
         'ngInject';
         this.$rootScope = $rootScope;
-        this.socket = io.connect();
+        this.socket = io.connect('/room');
     }
 
     on(eventName, callback) {

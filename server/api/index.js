@@ -8,6 +8,7 @@ const 	auth = require('./auth/auth.service'),
 
 router
 	.use('/user',/* auth.isAuthenticated(),  */require('./user'))
-	.use('/auth', require('./auth'));
+	.use('/auth', require('./auth'))
+	.use('/poker', require('./poker'));
 
 module.exports = router;

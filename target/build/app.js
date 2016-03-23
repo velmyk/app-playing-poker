@@ -86,7 +86,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "df8e09b163ec57b5e177"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "991aad30140cd7ee82c4"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -64815,7 +64815,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	        _classCallCheck(this, SocketService);
 
 	        this.$rootScope = $rootScope;
-	        this.socket = _socketIo2.default.connect();
+	        this.socket = _socketIo2.default.connect('/room');
 	    }
 
 	    _createClass(SocketService, [{

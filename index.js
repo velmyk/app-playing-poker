@@ -17,7 +17,7 @@ mongoose.connection.on('error', (err) => {
 );
 
 require('./server/config/express')(app);
-require('./server/api/poker')(server);
+require('./server/api/poker/socket')(server);
 require('./server/routes')(app);
 
 server.listen(process.env.PORT, process.env.IP, () => {

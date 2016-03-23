@@ -1,22 +1,15 @@
+
 'use strict';
 
-const 	socketIo = require('socket.io');
+const 	express = require('express');
 
-const 	controller = require('./poker.controller');
+const 	controller = require('./poker.controller'),
+		router = express.Router();
 
-const 	poker = (server) => {
+router.route('/room/create')
+	.get(controller.createRoom);
 
-    const 	io = socketIo.listen(server),
-    		activeUsers = [];
+router.route('/room/join')
+	.get(controller.joinRoom);
 
-    io.sockets.on('connection', (socket) => {
-
-        socket.on('joinPoker', controller.joinPoker.bind(null, socket, activeUsers));
-
-        socket.on('selectMark', controller.selectMark.bind(null, socket, activeUsers));
-
-        socket.on('newStoryDescription', controller.newStoryDescription.bind(null, socket, activeUsers));
-    });
-};
-
-module.exports = poker;
+module.exports = router;

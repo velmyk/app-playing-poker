@@ -36,8 +36,23 @@ const newStoryDescription = (socket, activeUsers, data) => {
     socket.emit('storyDescriptionChanged', data)
 };
 
+const createRoom = (req, res) => {
+    let roomId = new Date().getTime();
+    res.send({
+        id: roomId
+    });
+};
+
+const joinRoom = (req, res) => {
+
+};
+
+
+
 module.exports = {
 	joinPoker: joinPoker,
 	selectMark: selectMark,
-    newStoryDescription: newStoryDescription
+    newStoryDescription: newStoryDescription,
+    createRoom: createRoom,
+    joinRoom: joinRoom 
 };
