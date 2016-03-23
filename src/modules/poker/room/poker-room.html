@@ -1,0 +1,25 @@
+ <div>
+    <div>
+        <div>
+            <md-list>
+                <md-subheader class="md-no-sticky">Users</md-subheader>
+                <md-list-item ng-repeat="user in pokerRoomCtrl.activeUsers">
+                    <p> {{user.userName}} - {{user.mark}} </p>
+                </md-list-item>
+            </md-list>
+            <md-divider></md-divider>
+            <div id="marks">
+                <div ng-repeat="score in pokerRoomCtrl.SCORES"
+                               ng-click="pokerRoomCtrl.onMyMarkSelect(score)">
+                    <md-button>{{score}}</md-button>
+                </div>
+            </div>
+
+        </div>
+        <md-input-container md-no-float class="md-block">
+            <input ng-model="pokerRoomCtrl.storyDescription" placeholder="Story description">
+        </md-input-container>
+        <md-button class="md-raised"
+                   ng-click="pokerRoomCtrl.shareStoryDescription()">Share</md-button>
+    </div>
+</div>

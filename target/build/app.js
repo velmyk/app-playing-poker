@@ -86,7 +86,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "991aad30140cd7ee82c4"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "9ec5f43e7d1312aaec72"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -614,7 +614,7 @@ Object.defineProperty(Array.prototype, 'find', {
 
 	var _modules2 = _interopRequireDefault(_modules);
 
-	var _router = __webpack_require__(38);
+	var _router = __webpack_require__(36);
 
 	var _router2 = _interopRequireDefault(_router);
 
@@ -64745,15 +64745,15 @@ Object.defineProperty(Array.prototype, 'find', {
 
 	var _poker2 = _interopRequireDefault(_poker);
 
-	var _auth = __webpack_require__(28);
+	var _auth = __webpack_require__(26);
 
 	var _auth2 = _interopRequireDefault(_auth);
 
-	var _main = __webpack_require__(30);
+	var _main = __webpack_require__(28);
 
 	var _main2 = _interopRequireDefault(_main);
 
-	var _landing = __webpack_require__(35);
+	var _landing = __webpack_require__(33);
 
 	var _landing2 = _interopRequireDefault(_landing);
 
@@ -72448,7 +72448,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	   value: true
 	});
 
 	var _angular = __webpack_require__(2);
@@ -72463,9 +72463,13 @@ Object.defineProperty(Array.prototype, 'find', {
 
 	var _pokerRoutes2 = _interopRequireDefault(_pokerRoutes);
 
+	var _PokerService = __webpack_require__(25);
+
+	var _PokerService2 = _interopRequireDefault(_PokerService);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	exports.default = _angular2.default.module('app.poker', [_angularUiRouter2.default]).config(_pokerRoutes2.default).name;
+	exports.default = _angular2.default.module('app.poker', [_angularUiRouter2.default]).service('PokerService', _PokerService2.default).config(_pokerRoutes2.default).name;
 
 /***/ },
 /* 24 */
@@ -72479,11 +72483,19 @@ Object.defineProperty(Array.prototype, 'find', {
 	});
 	exports.default = pokerRoutes;
 
-	var _poker = __webpack_require__(25);
+	var _pokerRoom = __webpack_require__(37);
+
+	var _pokerRoom2 = _interopRequireDefault(_pokerRoom);
+
+	var _PokerRoomController = __webpack_require__(38);
+
+	var _PokerRoomController2 = _interopRequireDefault(_PokerRoomController);
+
+	var _poker = __webpack_require__(40);
 
 	var _poker2 = _interopRequireDefault(_poker);
 
-	var _PokerController = __webpack_require__(26);
+	var _PokerController = __webpack_require__(41);
 
 	var _PokerController2 = _interopRequireDefault(_PokerController);
 
@@ -72501,6 +72513,15 @@ Object.defineProperty(Array.prototype, 'find', {
 	                controllerAs: 'pokerCtrl'
 	            }
 	        }
+	    }).state('main.poker.room', {
+	        url: '/room/:id',
+	        views: {
+	            'content@main': {
+	                template: _pokerRoom2.default,
+	                controller: _PokerRoomController2.default,
+	                controllerAs: 'pokerRoomCtrl'
+	            }
+	        }
 	    });
 	}
 
@@ -72508,7 +72529,43 @@ Object.defineProperty(Array.prototype, 'find', {
 /* 25 */
 /***/ function(module, exports) {
 
-	module.exports = " <div>\n    <div>\n        <div>\n            <md-list>\n                <md-subheader class=\"md-no-sticky\">Users</md-subheader>\n                <md-list-item ng-repeat=\"user in pokerCtrl.activeUsers\">\n                    <p> {{user.userName}} - {{user.mark}} </p>\n                </md-list-item>\n            </md-list>\n            <md-divider></md-divider>\n            <div id=\"marks\">\n                <div ng-repeat=\"score in pokerCtrl.SCORES\"\n                               ng-click=\"pokerCtrl.onMyMarkSelect(score)\">\n                    <md-button>{{score}}</md-button>\n                </div>\n            </div>\n\n        </div>\n        <md-input-container md-no-float class=\"md-block\">\n            <input ng-model=\"pokerCtrl.storyDescription\" placeholder=\"Story description\">\n        </md-input-container>\n        <md-button class=\"md-raised\"\n                   ng-click=\"pokerCtrl.shareStoryDescription()\">Share</md-button>\n    </div>\n</div>\n"
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var PokerService = function () {
+	    PokerService.$inject = ["$http", "$state"];
+	    function PokerService($http, $state) {
+	        'ngInject';
+
+	        _classCallCheck(this, PokerService);
+
+	        this.$http = $http;
+	        this.$state = $state;
+	    }
+
+	    _createClass(PokerService, [{
+	        key: 'createRoom',
+	        value: function createRoom() {
+	            var _this = this;
+
+	            this.$http.get('/api/poker/room/create').then(function (response) {
+	                console.log(response);
+	                _this.$state.go('main.poker.room', { id: response.data.id });
+	            });
+	        }
+	    }]);
+
+	    return PokerService;
+	}();
+
+	exports.default = PokerService;
 
 /***/ },
 /* 26 */
@@ -72520,9 +72577,285 @@ Object.defineProperty(Array.prototype, 'find', {
 	    value: true
 	});
 
+	var _angular = __webpack_require__(2);
+
+	var _angular2 = _interopRequireDefault(_angular);
+
+	var _IdentityStore = __webpack_require__(27);
+
+	var _IdentityStore2 = _interopRequireDefault(_IdentityStore);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.default = _angular2.default.module('app.auth', []).service('IdentityStore', _IdentityStore2.default).name;
+
+/***/ },
+/* 27 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _MemoryStore2 = __webpack_require__(15);
+
+	var _MemoryStore3 = _interopRequireDefault(_MemoryStore2);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var IdentityStore = function (_MemoryStore) {
+	    _inherits(IdentityStore, _MemoryStore);
+
+	    function IdentityStore() {
+	        'ngInject';
+
+	        _classCallCheck(this, IdentityStore);
+
+	        return _possibleConstructorReturn(this, Object.getPrototypeOf(IdentityStore).call(this));
+	    }
+
+	    return IdentityStore;
+	}(_MemoryStore3.default);
+
+	exports.default = IdentityStore;
+
+/***/ },
+/* 28 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _angular = __webpack_require__(2);
+
+	var _angular2 = _interopRequireDefault(_angular);
+
+	var _angularUiRouter = __webpack_require__(4);
+
+	var _angularUiRouter2 = _interopRequireDefault(_angularUiRouter);
+
+	var _mainRoutes = __webpack_require__(29);
+
+	var _mainRoutes2 = _interopRequireDefault(_mainRoutes);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.default = _angular2.default.module('app.main', [_angularUiRouter2.default]).config(_mainRoutes2.default).name;
+
+/***/ },
+/* 29 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	mainRoutes.$inject = ["$stateProvider"];
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = mainRoutes;
+
+	var _main = __webpack_require__(30);
+
+	var _main2 = _interopRequireDefault(_main);
+
+	var _header = __webpack_require__(31);
+
+	var _header2 = _interopRequireDefault(_header);
+
+	var _HeaderController = __webpack_require__(32);
+
+	var _HeaderController2 = _interopRequireDefault(_HeaderController);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function mainRoutes($stateProvider) {
+	    'ngInject';
+
+	    $stateProvider.state('main', {
+	        url: '',
+	        abstract: true,
+	        views: {
+	            '': {
+	                template: _main2.default
+	            },
+	            'header@main': {
+	                template: _header2.default,
+	                controller: _HeaderController2.default,
+	                controllerAs: 'headerCtrl'
+	            },
+	            'content@main': {
+	                template: '<div>Main</div>'
+	            }
+	        },
+	        onEnter: ["$http", "IdentityStore", function onEnter($http, IdentityStore) {
+	            'ngInject';
+
+	            $http.get('/api/user/me').then(function (data) {
+	                IdentityStore.update(data.data);
+	                console.log(IdentityStore.get());
+	            });
+	        }]
+	    });
+	};
+
+/***/ },
+/* 30 */
+/***/ function(module, exports) {
+
+	module.exports = "<div ui-view=\"header\" class=\"header\"></div>\n<div ui-view=\"content\" class=\"content\"></div>"
+
+/***/ },
+/* 31 */
+/***/ function(module, exports) {
+
+	module.exports = "<md-toolbar layout=\"row\" class=\"md-whiteframe-z2 header-panel\" data-ng-cloak>\n    <div class=\"md-toolbar-tools\">\n        <a style=\"padding-left: 40px;\" href=\"#/\" id=\"logo\">PP</a>\n        <a style=\"padding-left: 40px;\" ui-sref=\"main.poker\">poker</a>\n        <a style=\"padding-left: 40px;\" ui-sref=\"main.login\">login</a>\n        <p style=\"padding-left: 40px;\">{{headerCtrl.getCurrentUser()}}</p>\n    </div>\n    <roles layout=\"row\" flex=\"15\" layout-align=\"space-between center\"></roles>\n</md-toolbar>"
+
+/***/ },
+/* 32 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _SCORES = __webpack_require__(27);
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var HeaderController = function () {
+	    HeaderController.$inject = ["IdentityStore"];
+	    function HeaderController(IdentityStore) {
+	        'ngInject';
+
+	        _classCallCheck(this, HeaderController);
+
+	        this.IdentityStore = IdentityStore;
+	    }
+
+	    _createClass(HeaderController, [{
+	        key: 'getCurrentUser',
+	        value: function getCurrentUser() {
+	            return this.IdentityStore.get().name || 'guest';
+	        }
+	    }]);
+
+	    return HeaderController;
+	}();
+
+	exports.default = HeaderController;
+
+/***/ },
+/* 33 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _angular = __webpack_require__(2);
+
+	var _angular2 = _interopRequireDefault(_angular);
+
+	var _angularUiRouter = __webpack_require__(4);
+
+	var _angularUiRouter2 = _interopRequireDefault(_angularUiRouter);
+
+	var _landingRoutes = __webpack_require__(34);
+
+	var _landingRoutes2 = _interopRequireDefault(_landingRoutes);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.default = _angular2.default.module('app.landing', [_angularUiRouter2.default]).config(_landingRoutes2.default).name;
+
+/***/ },
+/* 34 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	loginRoutes.$inject = ["$stateProvider"];
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = loginRoutes;
+
+	var _landing = __webpack_require__(35);
+
+	var _landing2 = _interopRequireDefault(_landing);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function loginRoutes($stateProvider) {
+	    'ngInject';
+
+	    $stateProvider.state('main.landing', {
+	        url: '/',
+	        views: {
+	            'content@main': {
+	                template: _landing2.default
+	            }
+	        }
+	    });
+	}
+
+/***/ },
+/* 35 */
+/***/ function(module, exports) {
+
+	module.exports = "<div>Landing</div>"
+
+/***/ },
+/* 36 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	routeConfig.$inject = ["$urlRouterProvider"];
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = routeConfig;
+	function routeConfig($urlRouterProvider) {
+	    'ngInject';
+
+	    $urlRouterProvider.otherwise('/');
+	}
+
+/***/ },
+/* 37 */
+/***/ function(module, exports) {
+
+	module.exports = " <div>\n    <div>\n        <div>\n            <md-list>\n                <md-subheader class=\"md-no-sticky\">Users</md-subheader>\n                <md-list-item ng-repeat=\"user in pokerRoomCtrl.activeUsers\">\n                    <p> {{user.userName}} - {{user.mark}} </p>\n                </md-list-item>\n            </md-list>\n            <md-divider></md-divider>\n            <div id=\"marks\">\n                <div ng-repeat=\"score in pokerRoomCtrl.SCORES\"\n                               ng-click=\"pokerRoomCtrl.onMyMarkSelect(score)\">\n                    <md-button>{{score}}</md-button>\n                </div>\n            </div>\n\n        </div>\n        <md-input-container md-no-float class=\"md-block\">\n            <input ng-model=\"pokerRoomCtrl.storyDescription\" placeholder=\"Story description\">\n        </md-input-container>\n        <md-button class=\"md-raised\"\n                   ng-click=\"pokerRoomCtrl.shareStoryDescription()\">Share</md-button>\n    </div>\n</div>\n"
+
+/***/ },
+/* 38 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _SCORES = __webpack_require__(39);
 
 	var _SCORES2 = _interopRequireDefault(_SCORES);
 
@@ -72530,12 +72863,12 @@ Object.defineProperty(Array.prototype, 'find', {
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var PokerController = function () {
-	    PokerController.$inject = ["SocketService", "IdentityStore"];
-	    function PokerController(SocketService, IdentityStore) {
+	var PokerRoomController = function () {
+	    PokerRoomController.$inject = ["SocketService", "IdentityStore"];
+	    function PokerRoomController(SocketService, IdentityStore) {
 	        'ngInject';
 
-	        _classCallCheck(this, PokerController);
+	        _classCallCheck(this, PokerRoomController);
 
 	        this.currentUser = IdentityStore.get();
 	        this.SCORES = _SCORES2.default;
@@ -72548,7 +72881,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	        this.socket.emit('joinPoker', { userId: this.currentUser._id });
 	    }
 
-	    _createClass(PokerController, [{
+	    _createClass(PokerRoomController, [{
 	        key: 'newUser',
 	        value: function newUser(data) {
 	            console.log('newUser', data);
@@ -72587,13 +72920,13 @@ Object.defineProperty(Array.prototype, 'find', {
 	        }
 	    }]);
 
-	    return PokerController;
+	    return PokerRoomController;
 	}();
 
-	exports.default = PokerController;
+	exports.default = PokerRoomController;
 
 /***/ },
-/* 27 */
+/* 39 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -72604,161 +72937,13 @@ Object.defineProperty(Array.prototype, 'find', {
 	exports.default = [0.5, 1, 2, 3, 5, 8, 13, 21];
 
 /***/ },
-/* 28 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _angular = __webpack_require__(2);
-
-	var _angular2 = _interopRequireDefault(_angular);
-
-	var _IdentityStore = __webpack_require__(29);
-
-	var _IdentityStore2 = _interopRequireDefault(_IdentityStore);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	exports.default = _angular2.default.module('app.auth', []).service('IdentityStore', _IdentityStore2.default).name;
-
-/***/ },
-/* 29 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _MemoryStore2 = __webpack_require__(15);
-
-	var _MemoryStore3 = _interopRequireDefault(_MemoryStore2);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var IdentityStore = function (_MemoryStore) {
-	    _inherits(IdentityStore, _MemoryStore);
-
-	    function IdentityStore() {
-	        'ngInject';
-
-	        _classCallCheck(this, IdentityStore);
-
-	        return _possibleConstructorReturn(this, Object.getPrototypeOf(IdentityStore).call(this));
-	    }
-
-	    return IdentityStore;
-	}(_MemoryStore3.default);
-
-	exports.default = IdentityStore;
-
-/***/ },
-/* 30 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _angular = __webpack_require__(2);
-
-	var _angular2 = _interopRequireDefault(_angular);
-
-	var _angularUiRouter = __webpack_require__(4);
-
-	var _angularUiRouter2 = _interopRequireDefault(_angularUiRouter);
-
-	var _mainRoutes = __webpack_require__(31);
-
-	var _mainRoutes2 = _interopRequireDefault(_mainRoutes);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	exports.default = _angular2.default.module('app.main', [_angularUiRouter2.default]).config(_mainRoutes2.default).name;
-
-/***/ },
-/* 31 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	mainRoutes.$inject = ["$stateProvider"];
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.default = mainRoutes;
-
-	var _main = __webpack_require__(32);
-
-	var _main2 = _interopRequireDefault(_main);
-
-	var _header = __webpack_require__(33);
-
-	var _header2 = _interopRequireDefault(_header);
-
-	var _HeaderController = __webpack_require__(34);
-
-	var _HeaderController2 = _interopRequireDefault(_HeaderController);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function mainRoutes($stateProvider) {
-	    'ngInject';
-
-	    $stateProvider.state('main', {
-	        url: '',
-	        abstract: true,
-	        views: {
-	            '': {
-	                template: _main2.default
-	            },
-	            'header@main': {
-	                template: _header2.default,
-	                controller: _HeaderController2.default,
-	                controllerAs: 'headerCtrl'
-	            },
-	            'content@main': {
-	                template: '<div>Main</div>'
-	            }
-	        },
-	        onEnter: ["$http", "IdentityStore", function onEnter($http, IdentityStore) {
-	            'ngInject';
-
-	            $http.get('/api/user/me').then(function (data) {
-	                IdentityStore.update(data.data);
-	                console.log(IdentityStore.get());
-	            });
-	        }]
-	    });
-	};
-
-/***/ },
-/* 32 */
+/* 40 */
 /***/ function(module, exports) {
 
-	module.exports = "<div ui-view=\"header\" class=\"header\"></div>\n<div ui-view=\"content\" class=\"content\"></div>"
+	module.exports = "<md-button class=\"md-raised\"\n                   ng-click=\"pokerCtrl.createRoom()\">Create room</md-button>"
 
 /***/ },
-/* 33 */
-/***/ function(module, exports) {
-
-	module.exports = "<md-toolbar layout=\"row\" class=\"md-whiteframe-z2 header-panel\" data-ng-cloak>\n    <div class=\"md-toolbar-tools\">\n        <a style=\"padding-left: 40px;\" href=\"#/\" id=\"logo\">PP</a>\n        <a style=\"padding-left: 40px;\" ui-sref=\"main.poker\">poker</a>\n        <a style=\"padding-left: 40px;\" ui-sref=\"main.login\">login</a>\n        <p style=\"padding-left: 40px;\">{{headerCtrl.getCurrentUser()}}</p>\n    </div>\n    <roles layout=\"row\" flex=\"15\" layout-align=\"space-between center\"></roles>\n</md-toolbar>"
-
-/***/ },
-/* 34 */
+/* 41 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -72771,107 +72956,27 @@ Object.defineProperty(Array.prototype, 'find', {
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var HeaderController = function () {
-	    HeaderController.$inject = ["IdentityStore"];
-	    function HeaderController(IdentityStore) {
+	var PokerController = function () {
+	    PokerController.$inject = ["PokerService"];
+	    function PokerController(PokerService) {
 	        'ngInject';
 
-	        _classCallCheck(this, HeaderController);
+	        _classCallCheck(this, PokerController);
 
-	        this.IdentityStore = IdentityStore;
+	        this.PokerService = PokerService;
 	    }
 
-	    _createClass(HeaderController, [{
-	        key: 'getCurrentUser',
-	        value: function getCurrentUser() {
-	            return this.IdentityStore.get().name || 'guest';
+	    _createClass(PokerController, [{
+	        key: 'createRoom',
+	        value: function createRoom() {
+	            this.PokerService.createRoom();
 	        }
 	    }]);
 
-	    return HeaderController;
+	    return PokerController;
 	}();
 
-	exports.default = HeaderController;
-
-/***/ },
-/* 35 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _angular = __webpack_require__(2);
-
-	var _angular2 = _interopRequireDefault(_angular);
-
-	var _angularUiRouter = __webpack_require__(4);
-
-	var _angularUiRouter2 = _interopRequireDefault(_angularUiRouter);
-
-	var _landingRoutes = __webpack_require__(36);
-
-	var _landingRoutes2 = _interopRequireDefault(_landingRoutes);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	exports.default = _angular2.default.module('app.landing', [_angularUiRouter2.default]).config(_landingRoutes2.default).name;
-
-/***/ },
-/* 36 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	loginRoutes.$inject = ["$stateProvider"];
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.default = loginRoutes;
-
-	var _landing = __webpack_require__(37);
-
-	var _landing2 = _interopRequireDefault(_landing);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function loginRoutes($stateProvider) {
-	    'ngInject';
-
-	    $stateProvider.state('main.landing', {
-	        url: '/',
-	        views: {
-	            'content@main': {
-	                template: _landing2.default
-	            }
-	        }
-	    });
-	}
-
-/***/ },
-/* 37 */
-/***/ function(module, exports) {
-
-	module.exports = "<div>Landing</div>"
-
-/***/ },
-/* 38 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	routeConfig.$inject = ["$urlRouterProvider"];
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.default = routeConfig;
-	function routeConfig($urlRouterProvider) {
-	    'ngInject';
-
-	    $urlRouterProvider.otherwise('/');
-	}
+	exports.default = PokerController;
 
 /***/ }
 /******/ ]);
