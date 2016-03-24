@@ -25,6 +25,18 @@ export default function pokerRoutes($stateProvider) {
 		            controller: PokerRoomController,
 		            controllerAs: 'pokerRoomCtrl'
             	}
+            },
+            onEnter: function(SocketService, $stateParams) {
+                'ngInject';
+
+                SocketService.connect($stateParams.id);
+
+            },
+            onExit: function(SocketService) {
+                'ngInject';
+
+                SocketService.disconnect();
+
             }
         });
 

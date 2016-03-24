@@ -86,7 +86,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "9ec5f43e7d1312aaec72"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "ce95c09c826a18de45c9"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -64815,10 +64815,21 @@ Object.defineProperty(Array.prototype, 'find', {
 	        _classCallCheck(this, SocketService);
 
 	        this.$rootScope = $rootScope;
-	        this.socket = _socketIo2.default.connect('/room');
+	        // this.socket = io.connect('/room', {query: 'name=something'});
 	    }
 
 	    _createClass(SocketService, [{
+	        key: 'connect',
+	        value: function connect(roomId) {
+	            // this.socket = io.connect('/room', {query: 'name=' + roomId});
+	            this.socket = _socketIo2.default.connect('/room');
+	        }
+	    }, {
+	        key: 'disconnect',
+	        value: function disconnect() {
+	            this.socket.disconnect();
+	        }
+	    }, {
 	        key: 'on',
 	        value: function on(eventName, callback) {
 	            function wrapper() {
@@ -72521,7 +72532,17 @@ Object.defineProperty(Array.prototype, 'find', {
 	                controller: _PokerRoomController2.default,
 	                controllerAs: 'pokerRoomCtrl'
 	            }
-	        }
+	        },
+	        onEnter: ["SocketService", "$stateParams", function onEnter(SocketService, $stateParams) {
+	            'ngInject';
+
+	            SocketService.connect($stateParams.id);
+	        }],
+	        onExit: ["SocketService", function onExit(SocketService) {
+	            'ngInject';
+
+	            SocketService.disconnect();
+	        }]
 	    });
 	}
 
@@ -72841,7 +72862,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /* 37 */
 /***/ function(module, exports) {
 
-	module.exports = " <div>\n    <div>\n        <div>\n            <md-list>\n                <md-subheader class=\"md-no-sticky\">Users</md-subheader>\n                <md-list-item ng-repeat=\"user in pokerRoomCtrl.activeUsers\">\n                    <p> {{user.userName}} - {{user.mark}} </p>\n                </md-list-item>\n            </md-list>\n            <md-divider></md-divider>\n            <div id=\"marks\">\n                <div ng-repeat=\"score in pokerRoomCtrl.SCORES\"\n                               ng-click=\"pokerRoomCtrl.onMyMarkSelect(score)\">\n                    <md-button>{{score}}</md-button>\n                </div>\n            </div>\n\n        </div>\n        <md-input-container md-no-float class=\"md-block\">\n            <input ng-model=\"pokerRoomCtrl.storyDescription\" placeholder=\"Story description\">\n        </md-input-container>\n        <md-button class=\"md-raised\"\n                   ng-click=\"pokerRoomCtrl.shareStoryDescription()\">Share</md-button>\n    </div>\n</div>\n"
+	module.exports = " <div>\n    <div>\n        <div>\n            <md-list>\n                <md-subheader class=\"md-no-sticky\">Users</md-subheader>\n                <md-list-item ng-repeat=\"user in pokerRoomCtrl.activeUsers\">\n                    <p> {{user.name}} - {{user.mark}} </p>\n                </md-list-item>\n            </md-list>\n            <md-divider></md-divider>\n            <div id=\"marks\">\n                <div ng-repeat=\"score in pokerRoomCtrl.SCORES\"\n                               ng-click=\"pokerRoomCtrl.onMyMarkSelect(score)\">\n                    <md-button>{{score}}</md-button>\n                </div>\n            </div>\n\n        </div>\n        <md-input-container md-no-float class=\"md-block\">\n            <input ng-model=\"pokerRoomCtrl.storyDescription\" placeholder=\"Story description\">\n        </md-input-container>\n        <md-button class=\"md-raised\"\n                   ng-click=\"pokerRoomCtrl.shareStoryDescription()\">Share</md-button>\n    </div>\n</div>\n"
 
 /***/ },
 /* 38 */
@@ -72864,12 +72885,13 @@ Object.defineProperty(Array.prototype, 'find', {
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var PokerRoomController = function () {
-	    PokerRoomController.$inject = ["SocketService", "IdentityStore"];
-	    function PokerRoomController(SocketService, IdentityStore) {
+	    PokerRoomController.$inject = ["SocketService", "IdentityStore", "$stateParams"];
+	    function PokerRoomController(SocketService, IdentityStore, $stateParams) {
 	        'ngInject';
 
 	        _classCallCheck(this, PokerRoomController);
 
+	        this.$stateParams = $stateParams;
 	        this.currentUser = IdentityStore.get();
 	        this.SCORES = _SCORES2.default;
 	        this.socket = SocketService;
@@ -72878,10 +72900,18 @@ Object.defineProperty(Array.prototype, 'find', {
 	        this.socket.on('newUser', this.newUser.bind(this));
 	        this.socket.on('onMarkSelect', this.onSomeoneMarkSelect.bind(this));
 	        this.socket.on('storyDescriptionChanged', this.onStoryDescriptionChanged.bind(this));
-	        this.socket.emit('joinPoker', { userId: this.currentUser._id });
+	        this.socket.on('connect', this.onConnect.bind(this));
 	    }
 
 	    _createClass(PokerRoomController, [{
+	        key: 'onConnect',
+	        value: function onConnect() {
+	            this.socket.emit('joinPoker', {
+	                userId: this.currentUser._id,
+	                room: this.$stateParams.id
+	            });
+	        }
+	    }, {
 	        key: 'newUser',
 	        value: function newUser(data) {
 	            console.log('newUser', data);
@@ -72901,10 +72931,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	        key: 'onSomeoneMarkSelect',
 	        value: function onSomeoneMarkSelect(data) {
 	            console.log('someoneMark', data);
-
-	            this.activeUsers.forEach(function (user) {
-	                if (user.userId === data.userId) user.mark = data.mark;
-	            });
+	            this.activeUsers[data.userId]['mark'] = data.mark;
 	        }
 	    }, {
 	        key: 'shareStoryDescription',

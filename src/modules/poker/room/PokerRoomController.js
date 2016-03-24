@@ -2,8 +2,11 @@ import SCORES from './SCORES';
 
 export default class PokerRoomController {
     constructor(SocketService,
-                IdentityStore) {
+                IdentityStore,
+                $stateParams) {
         'ngInject';
+
+        this.$stateParams = $stateParams;
         this.currentUser = IdentityStore.get();
         this.SCORES = SCORES;
         this.socket = SocketService;
@@ -12,9 +15,16 @@ export default class PokerRoomController {
         this.socket.on('newUser', this.newUser.bind(this));
         this.socket.on('onMarkSelect', this.onSomeoneMarkSelect.bind(this));
         this.socket.on('storyDescriptionChanged', this.onStoryDescriptionChanged.bind(this));
-        this.socket.emit('joinPoker', { userId: this.currentUser._id });
+        this.socket.on('connect', this.onConnect.bind(this));
     }
 
+    onConnect() {
+        this.socket.emit('joinPoker',   {
+                                            userId: this.currentUser._id,
+                                            room: this.$stateParams.id
+                                        }
+        );
+    }
 
     newUser(data) {
         console.log('newUser', data);
@@ -32,10 +42,7 @@ export default class PokerRoomController {
 
     onSomeoneMarkSelect(data) {
         console.log('someoneMark', data);
-
-        this.activeUsers.forEach(user => {
-            if(user.userId === data.userId) user.mark = data.mark;
-        });
+        this.activeUsers[data.userId]['mark'] = data.mark;
     }
 
     shareStoryDescription() {

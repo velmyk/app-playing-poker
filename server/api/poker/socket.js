@@ -7,14 +7,10 @@ const 	controller = require('./poker.controller');
 const 	poker = (server) => {
 
     const 	io = socketIo.listen(server),
-    		rooms = [],
-    		activeUsers = [],
+    		activeUsers = {},
     		poker = io.of('/room');
 
     poker.on('connection', (socket) => {
-        console.log(socket);
-
-    	// socket.join();
 
         socket.on('joinPoker', controller.joinPoker.bind(null, socket, activeUsers));
 
@@ -25,9 +21,3 @@ const 	poker = (server) => {
 };
 
 module.exports = poker;
-
-// class Room {
-// 	constructor(id) {
-// 		this.
-// 	}
-// }

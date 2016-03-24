@@ -4,35 +4,32 @@ const User = require('../user/user.model');
 
 const joinPoker = (socket, activeUsers, data) => {
     console.log('joinPoker', data);
+    if(!data.userId) return;
+    socket.userId = data.userId;
+    socket.room = data.room;
+    console.log(data.userId);
     User.findById(data.userId)
         .then(user => {
-            var newComer = !activeUsers.some(nuser => {
-                return nuser.userId == user._id.toString();
-            });
-            if (newComer){
-                activeUsers.push({
-                    userId: user._id,
-                    userName: user.name,
-                    mark: ''
-                });
-            }
-            socket.broadcast.emit('newUser', activeUsers);
+            activeUsers[data.userId] = user;
+            console.log(activeUsers);
+            socket.join(data.room);
+            socket.broadcast.to(socket.room).emit('newUser', activeUsers);
             socket.emit('newUser', activeUsers);
         });
 };
 
 const selectMark = (socket, activeUsers, data) => {
     console.log('selectMark', data);
-    activeUsers.forEach(user => {
-        if(user.userId == data.userId) user.mark = data.mark;
-    });
-    socket.broadcast.emit('onMarkSelect', data)
+    console.log(activeUsers);
+    activeUsers[data.userId]['mark'] = data.mark
+    console.log(socket.room);
+    socket.broadcast.to(socket.room).emit('onMarkSelect', data)
     socket.emit('onMarkSelect', data)
 };
 
 const newStoryDescription = (socket, activeUsers, data) => {
     console.log('newStoryDescription', data);
-    socket.broadcast.emit('storyDescriptionChanged', data)
+    socket.broadcast.to(socket.room).emit('storyDescriptionChanged', data)
     socket.emit('storyDescriptionChanged', data)
 };
 

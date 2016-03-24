@@ -4,7 +4,16 @@ export default class SocketService {
     constructor($rootScope) {
         'ngInject';
         this.$rootScope = $rootScope;
+        // this.socket = io.connect('/room', {query: 'name=something'});
+    }
+
+    connect(roomId) {
+        // this.socket = io.connect('/room', {query: 'name=' + roomId});
         this.socket = io.connect('/room');
+    }
+
+    disconnect() {
+        this.socket.disconnect();
     }
 
     on(eventName, callback) {
