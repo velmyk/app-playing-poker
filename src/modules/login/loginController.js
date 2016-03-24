@@ -32,4 +32,8 @@ export default class LoginController {
     signUpWithGitGub() {
 
     }
+
+    logOut() {
+        
+    }
 }

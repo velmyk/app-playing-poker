@@ -86,7 +86,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "c52b1ada518f54290ecf"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "b9778add5782dd4a6e8d"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -72333,7 +72333,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /* 19 */
 /***/ function(module, exports) {
 
-	module.exports = "<form name=\"loginCtrl.signInForm\"\n      novalidate\n      autocomplete=\"off\"\n      ng-submit=\"loginCtrl.signIn()\">\n\n    <div>\n        <header>\n            <h2>Sign In</h2>\n        </header>\n\n        <md-input-container>\n            <label>Login</label>\n            <input ng-model=\"loginCtrl.input.login\"\n                required>\n        </md-input-container>\n        <md-input-container>\n            <label>Password</label>\n            <input ng-model=\"loginCtrl.input.password\"\n                required>\n        </md-input-container>\n        <md-button class=\"md-raised md-primary\" type=\"submit\">\n            <span class=\"text\">Sign In</span>\n        </md-button>\n\n        <md-button class=\"md-raised md-primary\"\n            ng-click=\"loginCtrl.signInWithGitHub()\">\n            Sign In With GitHub\n        </md-button>\n    </div>\n\n</form>\n\n<br>\n<br>\n\n<md-divider md-inset></md-divider>\n\n\n<br>\n<br>\n\n<form name=\"loginCtrl.signUpForm\"\n      novalidate\n      autocomplete=\"off\"\n      ng-submit=\"loginCtrl.signUp()\">\n\n    <div>\n        <header>\n            <h2>Sign Up</h2>\n        </header>\n\n        <md-input-container>\n            <label>Login</label>\n            <input ng-model=\"loginCtrl.input.name\"\n                required>\n        </md-input-container>\n        <md-input-container>\n            <label>Password</label>\n            <input ng-model=\"loginCtrl.input.password\"\n                required>\n        </md-input-container>\n        <md-button type=\"submit\"\n            class=\"md-raised md-primary\">\n            <span class=\"text\">SignUp</span>\n        </md-button>\n\n        <md-button type=\"button\"\n            class=\"md-raised md-primary\"\n            ng-click=\"loginCtrl.signUpWithGinhub()\">\n            Sign up with github\n        </md-button>\n    </div>\n\n</form>\n\n<br>\n<br>\n\n<md-divider md-inset></md-divider>\n\n\n<br>\n<br>\n\n<md-button type=\"button\"\n    class=\"md-raised md-primary\"\n    ng-click=\"loginCtrl.getMe()\">\n    Get me\n</md-button>\n\n"
+	module.exports = "<form name=\"loginCtrl.signInForm\"\n      novalidate\n      autocomplete=\"off\"\n      ng-submit=\"loginCtrl.signIn()\">\n\n    <div>\n        <header>\n            <h2>Sign In</h2>\n        </header>\n\n        <md-input-container>\n            <label>Login</label>\n            <input ng-model=\"loginCtrl.input.name\"\n                required>\n        </md-input-container>\n        <md-input-container>\n            <label>Password</label>\n            <input ng-model=\"loginCtrl.input.password\"\n                required>\n        </md-input-container>\n        <md-button class=\"md-raised md-primary\" type=\"submit\">\n            <span class=\"text\">Sign In</span>\n        </md-button>\n\n        <md-button class=\"md-raised md-primary\"\n            ng-click=\"loginCtrl.signInWithGitHub()\">\n            Sign In With GitHub\n        </md-button>\n    </div>\n\n</form>\n\n<br>\n<br>\n\n<md-divider md-inset></md-divider>\n\n\n<br>\n<br>\n\n<form name=\"loginCtrl.signUpForm\"\n      novalidate\n      autocomplete=\"off\"\n      ng-submit=\"loginCtrl.signUp()\">\n\n    <div>\n        <header>\n            <h2>Sign Up</h2>\n        </header>\n\n        <md-input-container>\n            <label>Login</label>\n            <input ng-model=\"loginCtrl.input.name\"\n                required>\n        </md-input-container>\n        <md-input-container>\n            <label>Password</label>\n            <input ng-model=\"loginCtrl.input.password\"\n                required>\n        </md-input-container>\n        <md-button type=\"submit\"\n            class=\"md-raised md-primary\">\n            <span class=\"text\">SignUp</span>\n        </md-button>\n\n        <md-button type=\"button\"\n            class=\"md-raised md-primary\"\n            ng-click=\"loginCtrl.signUpWithGinhub()\">\n            Sign up with github\n        </md-button>\n    </div>\n\n</form>\n\n<br>\n<br>\n\n<md-divider md-inset></md-divider>\n\n\n<br>\n<br>\n\n<md-button type=\"button\"\n    class=\"md-raised md-primary\"\n    ng-click=\"loginCtrl.getMe()\">\n    Get me\n</md-button>\n\n"
 
 /***/ },
 /* 20 */
@@ -72394,6 +72394,9 @@ Object.defineProperty(Array.prototype, 'find', {
 	    }, {
 	        key: 'signUpWithGitGub',
 	        value: function signUpWithGitGub() {}
+	    }, {
+	        key: 'logOut',
+	        value: function logOut() {}
 	    }]);
 
 	    return LoginController;

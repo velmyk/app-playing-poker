@@ -50,8 +50,6 @@ const   me = (req, res) => {
     var id = jwt.decode(token, 'my-secret');
 
     User.findById(id).exec().then(user => res.send(user));
-    // console.log(id);
-    // res.send(id);
 };
 
 const   add = (req, res) => {

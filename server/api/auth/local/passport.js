@@ -3,7 +3,7 @@ const   passport = require('passport'),
 
 const   setup = (User) => {
     passport.use(new LocalStrategy({
-            usernameField: 'login',
+            usernameField: 'name',
             passwordField: 'password' // this is the virtual field on the model
         },
         (name, password, done) => {
