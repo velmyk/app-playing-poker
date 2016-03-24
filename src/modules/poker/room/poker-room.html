@@ -1,10 +1,17 @@
- <div>
+
+<div>{{pokerRoomCtrl.allVoutes}}</div>
+<div>
     <div>
         <div>
             <md-list>
                 <md-subheader class="md-no-sticky">Users</md-subheader>
                 <md-list-item ng-repeat="user in pokerRoomCtrl.activeUsers">
-                    <p> {{user.name}} - {{user.mark}} </p>
+                    <div> 
+                        {{user.name}} - <span ng-show="user.mark">
+                                            <span ng-if="pokerRoomCtrl.allVoutes">{{user.mark}}</span>
+                                            <span ng-if="!pokerRoomCtrl.allVoutes">?</span>
+                                        </span>
+                    </div>
                 </md-list-item>
             </md-list>
             <md-divider></md-divider>

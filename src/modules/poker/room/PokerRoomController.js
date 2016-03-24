@@ -12,6 +12,7 @@ export default class PokerRoomController {
         this.socket = SocketService;
         this.activeUsers = {};
         this.storyDescription = '';
+        this.allVoutes = false;
         this.socket.on('newUser', this.newUser.bind(this));
         this.socket.on('onMarkSelect', this.onSomeoneMarkSelect.bind(this));
         this.socket.on('storyDescriptionChanged', this.onStoryDescriptionChanged.bind(this));
@@ -43,6 +44,7 @@ export default class PokerRoomController {
     onSomeoneMarkSelect(data) {
         console.log('someoneMark', data);
         this.activeUsers[data.userId]['mark'] = data.mark;
+        this.allVoutes = this.everyBodyVoted();
     }
 
     shareStoryDescription() {
@@ -53,6 +55,13 @@ export default class PokerRoomController {
 
     onStoryDescriptionChanged(data) {
         this.storyDescription = data.storyDescription;
+    }
+
+    everyBodyVoted() {
+        console.log('calc');
+        console.log(Object.keys(this.activeUsers));
+        console.log(Object.keys(this.activeUsers).every(item => !!this.activeUsers[item].mark));
+        return Object.keys(this.activeUsers).every(item => !!this.activeUsers[item].mark);
     }
 
 }

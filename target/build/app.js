@@ -86,7 +86,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "eeeb0489c81db214e3d4"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "aa8e2a9cfc524e35e81e"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -75720,7 +75720,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /* 29 */
 /***/ function(module, exports) {
 
-	module.exports = " <div>\n    <div>\n        <div>\n            <md-list>\n                <md-subheader class=\"md-no-sticky\">Users</md-subheader>\n                <md-list-item ng-repeat=\"user in pokerRoomCtrl.activeUsers\">\n                    <p> {{user.name}} - {{user.mark}} </p>\n                </md-list-item>\n            </md-list>\n            <md-divider></md-divider>\n            <div id=\"marks\">\n                <div ng-repeat=\"score in pokerRoomCtrl.SCORES\"\n                               ng-click=\"pokerRoomCtrl.onMyMarkSelect(score)\">\n                    <md-button>{{score}}</md-button>\n                </div>\n            </div>\n\n        </div>\n        <md-input-container md-no-float class=\"md-block\">\n            <input ng-model=\"pokerRoomCtrl.storyDescription\" placeholder=\"Story description\">\n        </md-input-container>\n        <md-button class=\"md-raised\"\n                   ng-click=\"pokerRoomCtrl.shareStoryDescription()\">Share</md-button>\n    </div>\n</div>\n"
+	module.exports = "\n<div>{{pokerRoomCtrl.allVoutes}}</div>\n<div>\n    <div>\n        <div>\n            <md-list>\n                <md-subheader class=\"md-no-sticky\">Users</md-subheader>\n                <md-list-item ng-repeat=\"user in pokerRoomCtrl.activeUsers\">\n                    <div> \n                        {{user.name}} - <span ng-show=\"user.mark\">\n                                            <span ng-if=\"pokerRoomCtrl.allVoutes\">{{user.mark}}</span>\n                                            <span ng-if=\"!pokerRoomCtrl.allVoutes\">?</span>\n                                        </span>\n                    </div>\n                </md-list-item>\n            </md-list>\n            <md-divider></md-divider>\n            <div id=\"marks\">\n                <div ng-repeat=\"score in pokerRoomCtrl.SCORES\"\n                               ng-click=\"pokerRoomCtrl.onMyMarkSelect(score)\">\n                    <md-button>{{score}}</md-button>\n                </div>\n            </div>\n\n        </div>\n        <md-input-container md-no-float class=\"md-block\">\n            <input ng-model=\"pokerRoomCtrl.storyDescription\" placeholder=\"Story description\">\n        </md-input-container>\n        <md-button class=\"md-raised\"\n                   ng-click=\"pokerRoomCtrl.shareStoryDescription()\">Share</md-button>\n    </div>\n</div>\n"
 
 /***/ },
 /* 30 */
@@ -75755,6 +75755,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	        this.socket = SocketService;
 	        this.activeUsers = {};
 	        this.storyDescription = '';
+	        this.allVoutes = false;
 	        this.socket.on('newUser', this.newUser.bind(this));
 	        this.socket.on('onMarkSelect', this.onSomeoneMarkSelect.bind(this));
 	        this.socket.on('storyDescriptionChanged', this.onStoryDescriptionChanged.bind(this));
@@ -75790,6 +75791,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	        value: function onSomeoneMarkSelect(data) {
 	            console.log('someoneMark', data);
 	            this.activeUsers[data.userId]['mark'] = data.mark;
+	            this.allVoutes = this.everyBodyVoted();
 	        }
 	    }, {
 	        key: 'shareStoryDescription',
@@ -75802,6 +75804,20 @@ Object.defineProperty(Array.prototype, 'find', {
 	        key: 'onStoryDescriptionChanged',
 	        value: function onStoryDescriptionChanged(data) {
 	            this.storyDescription = data.storyDescription;
+	        }
+	    }, {
+	        key: 'everyBodyVoted',
+	        value: function everyBodyVoted() {
+	            var _this = this;
+
+	            console.log('calc');
+	            console.log(Object.keys(this.activeUsers));
+	            console.log(Object.keys(this.activeUsers).every(function (item) {
+	                return !!_this.activeUsers[item].mark;
+	            }));
+	            return Object.keys(this.activeUsers).every(function (item) {
+	                return !!_this.activeUsers[item].mark;
+	            });
 	        }
 	    }]);
 
@@ -75819,7 +75835,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-	exports.default = [0, 0.5, 1, 2, 3, 5, 8, 13, 21];
+	exports.default = [0.5, 1, 2, 3, 5, 8, 13, 21];
 
 /***/ },
 /* 32 */

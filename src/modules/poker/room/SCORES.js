@@ -1,5 +1,4 @@
 export default [
-	0,
 	0.5,
 	1,
 	2,
