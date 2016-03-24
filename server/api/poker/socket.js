@@ -17,6 +17,8 @@ const 	poker = (server) => {
         socket.on('selectMark', controller.selectMark.bind(null, socket, activeUsers));
 
         socket.on('newStoryDescription', controller.newStoryDescription.bind(null, socket, activeUsers));
+
+        socket.on('disconnect', controller.userDisconnected.bind(null, socket, activeUsers));
     });
 };
 

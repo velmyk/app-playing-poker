@@ -86,7 +86,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "ce95c09c826a18de45c9"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "c52b1ada518f54290ecf"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -72577,7 +72577,6 @@ Object.defineProperty(Array.prototype, 'find', {
 	            var _this = this;
 
 	            this.$http.get('/api/poker/room/create').then(function (response) {
-	                console.log(response);
 	                _this.$state.go('main.poker.room', { id: response.data.id });
 	            });
 	        }
@@ -72895,7 +72894,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	        this.currentUser = IdentityStore.get();
 	        this.SCORES = _SCORES2.default;
 	        this.socket = SocketService;
-	        this.activeUsers = [];
+	        this.activeUsers = {};
 	        this.storyDescription = '';
 	        this.socket.on('newUser', this.newUser.bind(this));
 	        this.socket.on('onMarkSelect', this.onSomeoneMarkSelect.bind(this));
@@ -72961,7 +72960,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-	exports.default = [0.5, 1, 2, 3, 5, 8, 13, 21];
+	exports.default = [0, 0.5, 1, 2, 3, 5, 8, 13, 21];
 
 /***/ },
 /* 40 */

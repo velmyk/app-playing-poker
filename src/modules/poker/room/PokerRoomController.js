@@ -10,7 +10,7 @@ export default class PokerRoomController {
         this.currentUser = IdentityStore.get();
         this.SCORES = SCORES;
         this.socket = SocketService;
-        this.activeUsers = [];
+        this.activeUsers = {};
         this.storyDescription = '';
         this.socket.on('newUser', this.newUser.bind(this));
         this.socket.on('onMarkSelect', this.onSomeoneMarkSelect.bind(this));

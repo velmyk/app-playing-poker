@@ -9,7 +9,6 @@ export default class PokerService {
 
     createRoom() {
         this.$http.get('/api/poker/room/create').then(response => {
-            console.log(response);
             this.$state.go('main.poker.room', { id: response.data.id });
         })
     }
