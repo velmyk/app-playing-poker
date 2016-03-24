@@ -17,4 +17,7 @@ router.route('/:id')
     .put(controller.update)
     .delete(controller.remove);
 
+router.route('/updateImage')
+	.post(controller.updateImage);
+
 module.exports = router;

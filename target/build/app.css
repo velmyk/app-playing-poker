@@ -83,6 +83,13 @@ body {
   margin: 30px;
   padding: 40px; }
 
+.thumb {
+  width: 100px;
+  height: 100px;
+  float: none;
+  position: relative;
+  top: 7px; }
+
 html, body {
   height: 100%;
   color: rgba(0, 0, 0, 0.87);

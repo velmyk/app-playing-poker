@@ -91,9 +91,13 @@ const   update = (req, res) => {
         .catch(err => {
             res.status(NOT_FOUND).json(err);
         });
-}
+};
 
-const remove = (req, res) => {
+const   updateImage = (req, res) => {
+    res.send('Nice image, but uploading is not implemented yet');
+};
+
+const  remove = (req, res) => {
     return User.remove({_id: req.params.id})
         .then(result => {
             res.json({
@@ -113,5 +117,6 @@ module.exports = {
     getById: getById,
     update: update,
     remove: remove,
-    me: me
+    me: me,
+    updateImage: updateImage
 }

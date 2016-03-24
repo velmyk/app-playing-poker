@@ -5,6 +5,7 @@ import poker from './poker/poker.module';
 import auth from './auth/auth.module';
 import main from './main/main.module';
 import landing from './landing/landing.module';
+import settings from './settings/settings.module';
 
 export default [
     shared,
@@ -12,5 +13,6 @@ export default [
     poker,
     auth,
     main,
-    landing
+    landing,
+    settings
 ]
