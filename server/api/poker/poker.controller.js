@@ -44,6 +44,7 @@ const userDisconnected = (socket, activeUsers, data) => {
     console.log('user', socket.userId);
     console.log('room users', activeUsers);
     delete activeUsers[socket.room][socket.userId];
+    socket.broadcast.to(socket.room).emit('newUser', activeUsers[socket.room]);
     // update list of users in chat, client-side
     // io.sockets.emit('updateusers', usernames);
     // echo globally that this client has left
