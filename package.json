@@ -20,7 +20,8 @@
     "build": "webpack -p --optimize-compress-warnings=false",
     "posttestt": "",
     "test": "karma start",
-    "tdd": "karma start --singleRun=false"
+    "tdd": "karma start --singleRun=false",
+    "css": "node-sass ./src/scss/core.scss ./target/build/app.css"
   },
   "keywords": [
     "NodeJS",

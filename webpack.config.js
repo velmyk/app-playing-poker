@@ -1,30 +1,53 @@
 'use strict';
 
-global.env = require('./env');
+const   webpack = require('webpack'),
+        HtmlWebpackPlugin = require('html-webpack-plugin'),
+        ExtractTextPlugin = require('extract-text-webpack-plugin');
 
-const
-    webpack = require('webpack'),
-    devServer = require('./webpack/dev-server'),
-    plugins = require('./webpack/plugins'),
-    loaders = require('./webpack/loaders').dev,
-    PATHS = require('./webpack/webpack-paths'),
-    logEnv = require('./env/log');
-
-logEnv(global.env);
+const   NODE_ENV = process.env.NODE_ENV || 'development';
 
 module.exports = {
-    entry: PATHS.app,
+    entry: './src/app/app.js',
     output: {
-        path: PATHS.build,
-        filename: 'app.js'
+        filename: './target/build/app.js'
+    },
+    watch: NODE_ENV == 'development',
+    watchOptions: {
+        aggregateTimeout: 100
+    },
+    plugins: [
+        new webpack.DefinePlugin({
+            NODE_ENV: JSON.stringify(NODE_ENV)
+        })
+    ],
+    resolve: {
+        modulesDirectories: ['node_modules'],
+        extensions: ['', '.js']
+    },
+
+    resolveLoader: {
+        modulesDirectories: ['node_modules'],
+        moduleTemplates: ['*-loader', '*'],
+        extensions: ['', '.js'] 
     },
     module: {
-        preloaders: [{
-            test: /\.scss$/,
-            loaders: 'import-glob-loader'
-        }],
-        loaders: loaders
-    },
-    plugins: plugins,
-    devServer: devServer
+        loaders: [
+            {
+                test: /\.js$/,
+                loader: 'ng-annotate'
+            },
+            {
+                test: /\.js$/,
+                exclude: /node_modules/,
+                loader: 'babel',
+                query: {
+                    presets: ['es2015', 'stage-0']
+                }
+            },
+            {
+                test: /\.html$/,
+                loader: 'raw'
+            }
+        ]
+    }
 };

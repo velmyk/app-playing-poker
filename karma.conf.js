@@ -1,5 +1,4 @@
-var webpack = require('webpack');
-var loaders = require('./webpack/loaders').test;
+var webpackCfg = require('./webpack.config');
 
 module.exports = function (config) {
     config.set({
@@ -20,14 +19,10 @@ module.exports = function (config) {
                 {type: 'text'}
             ]
         },
-        webpack: {
-            devtool: 'eval',
-            module: {
-                loaders
-            }
-        },
+        webpack: webpackCfg,
         webpackServer: {
             noInfo: true
         }
     });
 };
+

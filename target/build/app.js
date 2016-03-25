@@ -1,548 +1,4 @@
-/* Polyfills */
-Object.defineProperty(Array.prototype, 'find', {
-	configurable: true,
-	value: function find(callback) {
-		if (this === undefined || this === null) {
-			throw new TypeError(this + 'is not an object');
-		}
-
-		if (!(callback instanceof Function)) {
-			throw new TypeError(callback + ' is not a function');
-		}
-
-		var
-		object = Object(this),
-		scope = arguments[1],
-		arraylike = object instanceof String ? object.split('') : object,
-		length = Math.max(Math.min(arraylike.length, 9007199254740991), 0) || 0,
-		index = -1,
-		element;
-
-		while (++index < length) {
-			if (index in arraylike) {
-				element = arraylike[index];
-
-				if (callback.call(scope, element, index, object)) {
-					return element;
-				}
-			}
-		}
-	},
-	writable: true
-});
 /******/ (function(modules) { // webpackBootstrap
-/******/ 	var parentHotUpdateCallback = this["webpackHotUpdate"];
-/******/ 	this["webpackHotUpdate"] = 
-/******/ 	function webpackHotUpdateCallback(chunkId, moreModules) { // eslint-disable-line no-unused-vars
-/******/ 		hotAddUpdateChunk(chunkId, moreModules);
-/******/ 		if(parentHotUpdateCallback) parentHotUpdateCallback(chunkId, moreModules);
-/******/ 	}
-/******/ 	
-/******/ 	function hotDownloadUpdateChunk(chunkId) { // eslint-disable-line no-unused-vars
-/******/ 		var head = document.getElementsByTagName("head")[0];
-/******/ 		var script = document.createElement("script");
-/******/ 		script.type = "text/javascript";
-/******/ 		script.charset = "utf-8";
-/******/ 		script.src = __webpack_require__.p + "" + chunkId + "." + hotCurrentHash + ".hot-update.js";
-/******/ 		head.appendChild(script);
-/******/ 	}
-/******/ 	
-/******/ 	function hotDownloadManifest(callback) { // eslint-disable-line no-unused-vars
-/******/ 		if(typeof XMLHttpRequest === "undefined")
-/******/ 			return callback(new Error("No browser support"));
-/******/ 		try {
-/******/ 			var request = new XMLHttpRequest();
-/******/ 			var requestPath = __webpack_require__.p + "" + hotCurrentHash + ".hot-update.json";
-/******/ 			request.open("GET", requestPath, true);
-/******/ 			request.timeout = 10000;
-/******/ 			request.send(null);
-/******/ 		} catch(err) {
-/******/ 			return callback(err);
-/******/ 		}
-/******/ 		request.onreadystatechange = function() {
-/******/ 			if(request.readyState !== 4) return;
-/******/ 			if(request.status === 0) {
-/******/ 				// timeout
-/******/ 				callback(new Error("Manifest request to " + requestPath + " timed out."));
-/******/ 			} else if(request.status === 404) {
-/******/ 				// no update available
-/******/ 				callback();
-/******/ 			} else if(request.status !== 200 && request.status !== 304) {
-/******/ 				// other failure
-/******/ 				callback(new Error("Manifest request to " + requestPath + " failed."));
-/******/ 			} else {
-/******/ 				// success
-/******/ 				try {
-/******/ 					var update = JSON.parse(request.responseText);
-/******/ 				} catch(e) {
-/******/ 					callback(e);
-/******/ 					return;
-/******/ 				}
-/******/ 				callback(null, update);
-/******/ 			}
-/******/ 		};
-/******/ 	}
-
-/******/ 	
-/******/ 	
-/******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "f3175c991be14cd856df"; // eslint-disable-line no-unused-vars
-/******/ 	var hotCurrentModuleData = {};
-/******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
-/******/ 	
-/******/ 	function hotCreateRequire(moduleId) { // eslint-disable-line no-unused-vars
-/******/ 		var me = installedModules[moduleId];
-/******/ 		if(!me) return __webpack_require__;
-/******/ 		var fn = function(request) {
-/******/ 			if(me.hot.active) {
-/******/ 				if(installedModules[request]) {
-/******/ 					if(installedModules[request].parents.indexOf(moduleId) < 0)
-/******/ 						installedModules[request].parents.push(moduleId);
-/******/ 					if(me.children.indexOf(request) < 0)
-/******/ 						me.children.push(request);
-/******/ 				} else hotCurrentParents = [moduleId];
-/******/ 			} else {
-/******/ 				console.warn("[HMR] unexpected require(" + request + ") from disposed module " + moduleId);
-/******/ 				hotCurrentParents = [];
-/******/ 			}
-/******/ 			return __webpack_require__(request);
-/******/ 		};
-/******/ 		for(var name in __webpack_require__) {
-/******/ 			if(Object.prototype.hasOwnProperty.call(__webpack_require__, name)) {
-/******/ 				Object.defineProperty(fn, name, (function(name) {
-/******/ 					return {
-/******/ 						configurable: true,
-/******/ 						enumerable: true,
-/******/ 						get: function() {
-/******/ 							return __webpack_require__[name];
-/******/ 						},
-/******/ 						set: function(value) {
-/******/ 							__webpack_require__[name] = value;
-/******/ 						}
-/******/ 					};
-/******/ 				}(name)));
-/******/ 			}
-/******/ 		}
-/******/ 		Object.defineProperty(fn, "e", {
-/******/ 			enumerable: true,
-/******/ 			value: function(chunkId, callback) {
-/******/ 				if(hotStatus === "ready")
-/******/ 					hotSetStatus("prepare");
-/******/ 				hotChunksLoading++;
-/******/ 				__webpack_require__.e(chunkId, function() {
-/******/ 					try {
-/******/ 						callback.call(null, fn);
-/******/ 					} finally {
-/******/ 						finishChunkLoading();
-/******/ 					}
-/******/ 	
-/******/ 					function finishChunkLoading() {
-/******/ 						hotChunksLoading--;
-/******/ 						if(hotStatus === "prepare") {
-/******/ 							if(!hotWaitingFilesMap[chunkId]) {
-/******/ 								hotEnsureUpdateChunk(chunkId);
-/******/ 							}
-/******/ 							if(hotChunksLoading === 0 && hotWaitingFiles === 0) {
-/******/ 								hotUpdateDownloaded();
-/******/ 							}
-/******/ 						}
-/******/ 					}
-/******/ 				});
-/******/ 			}
-/******/ 		});
-/******/ 		return fn;
-/******/ 	}
-/******/ 	
-/******/ 	function hotCreateModule(moduleId) { // eslint-disable-line no-unused-vars
-/******/ 		var hot = {
-/******/ 			// private stuff
-/******/ 			_acceptedDependencies: {},
-/******/ 			_declinedDependencies: {},
-/******/ 			_selfAccepted: false,
-/******/ 			_selfDeclined: false,
-/******/ 			_disposeHandlers: [],
-/******/ 	
-/******/ 			// Module API
-/******/ 			active: true,
-/******/ 			accept: function(dep, callback) {
-/******/ 				if(typeof dep === "undefined")
-/******/ 					hot._selfAccepted = true;
-/******/ 				else if(typeof dep === "function")
-/******/ 					hot._selfAccepted = dep;
-/******/ 				else if(typeof dep === "object")
-/******/ 					for(var i = 0; i < dep.length; i++)
-/******/ 						hot._acceptedDependencies[dep[i]] = callback;
-/******/ 				else
-/******/ 					hot._acceptedDependencies[dep] = callback;
-/******/ 			},
-/******/ 			decline: function(dep) {
-/******/ 				if(typeof dep === "undefined")
-/******/ 					hot._selfDeclined = true;
-/******/ 				else if(typeof dep === "number")
-/******/ 					hot._declinedDependencies[dep] = true;
-/******/ 				else
-/******/ 					for(var i = 0; i < dep.length; i++)
-/******/ 						hot._declinedDependencies[dep[i]] = true;
-/******/ 			},
-/******/ 			dispose: function(callback) {
-/******/ 				hot._disposeHandlers.push(callback);
-/******/ 			},
-/******/ 			addDisposeHandler: function(callback) {
-/******/ 				hot._disposeHandlers.push(callback);
-/******/ 			},
-/******/ 			removeDisposeHandler: function(callback) {
-/******/ 				var idx = hot._disposeHandlers.indexOf(callback);
-/******/ 				if(idx >= 0) hot._disposeHandlers.splice(idx, 1);
-/******/ 			},
-/******/ 	
-/******/ 			// Management API
-/******/ 			check: hotCheck,
-/******/ 			apply: hotApply,
-/******/ 			status: function(l) {
-/******/ 				if(!l) return hotStatus;
-/******/ 				hotStatusHandlers.push(l);
-/******/ 			},
-/******/ 			addStatusHandler: function(l) {
-/******/ 				hotStatusHandlers.push(l);
-/******/ 			},
-/******/ 			removeStatusHandler: function(l) {
-/******/ 				var idx = hotStatusHandlers.indexOf(l);
-/******/ 				if(idx >= 0) hotStatusHandlers.splice(idx, 1);
-/******/ 			},
-/******/ 	
-/******/ 			//inherit from previous dispose call
-/******/ 			data: hotCurrentModuleData[moduleId]
-/******/ 		};
-/******/ 		return hot;
-/******/ 	}
-/******/ 	
-/******/ 	var hotStatusHandlers = [];
-/******/ 	var hotStatus = "idle";
-/******/ 	
-/******/ 	function hotSetStatus(newStatus) {
-/******/ 		hotStatus = newStatus;
-/******/ 		for(var i = 0; i < hotStatusHandlers.length; i++)
-/******/ 			hotStatusHandlers[i].call(null, newStatus);
-/******/ 	}
-/******/ 	
-/******/ 	// while downloading
-/******/ 	var hotWaitingFiles = 0;
-/******/ 	var hotChunksLoading = 0;
-/******/ 	var hotWaitingFilesMap = {};
-/******/ 	var hotRequestedFilesMap = {};
-/******/ 	var hotAvailibleFilesMap = {};
-/******/ 	var hotCallback;
-/******/ 	
-/******/ 	// The update info
-/******/ 	var hotUpdate, hotUpdateNewHash;
-/******/ 	
-/******/ 	function toModuleId(id) {
-/******/ 		var isNumber = (+id) + "" === id;
-/******/ 		return isNumber ? +id : id;
-/******/ 	}
-/******/ 	
-/******/ 	function hotCheck(apply, callback) {
-/******/ 		if(hotStatus !== "idle") throw new Error("check() is only allowed in idle status");
-/******/ 		if(typeof apply === "function") {
-/******/ 			hotApplyOnUpdate = false;
-/******/ 			callback = apply;
-/******/ 		} else {
-/******/ 			hotApplyOnUpdate = apply;
-/******/ 			callback = callback || function(err) {
-/******/ 				if(err) throw err;
-/******/ 			};
-/******/ 		}
-/******/ 		hotSetStatus("check");
-/******/ 		hotDownloadManifest(function(err, update) {
-/******/ 			if(err) return callback(err);
-/******/ 			if(!update) {
-/******/ 				hotSetStatus("idle");
-/******/ 				callback(null, null);
-/******/ 				return;
-/******/ 			}
-/******/ 	
-/******/ 			hotRequestedFilesMap = {};
-/******/ 			hotAvailibleFilesMap = {};
-/******/ 			hotWaitingFilesMap = {};
-/******/ 			for(var i = 0; i < update.c.length; i++)
-/******/ 				hotAvailibleFilesMap[update.c[i]] = true;
-/******/ 			hotUpdateNewHash = update.h;
-/******/ 	
-/******/ 			hotSetStatus("prepare");
-/******/ 			hotCallback = callback;
-/******/ 			hotUpdate = {};
-/******/ 			var chunkId = 0;
-/******/ 			{ // eslint-disable-line no-lone-blocks
-/******/ 				/*globals chunkId */
-/******/ 				hotEnsureUpdateChunk(chunkId);
-/******/ 			}
-/******/ 			if(hotStatus === "prepare" && hotChunksLoading === 0 && hotWaitingFiles === 0) {
-/******/ 				hotUpdateDownloaded();
-/******/ 			}
-/******/ 		});
-/******/ 	}
-/******/ 	
-/******/ 	function hotAddUpdateChunk(chunkId, moreModules) { // eslint-disable-line no-unused-vars
-/******/ 		if(!hotAvailibleFilesMap[chunkId] || !hotRequestedFilesMap[chunkId])
-/******/ 			return;
-/******/ 		hotRequestedFilesMap[chunkId] = false;
-/******/ 		for(var moduleId in moreModules) {
-/******/ 			if(Object.prototype.hasOwnProperty.call(moreModules, moduleId)) {
-/******/ 				hotUpdate[moduleId] = moreModules[moduleId];
-/******/ 			}
-/******/ 		}
-/******/ 		if(--hotWaitingFiles === 0 && hotChunksLoading === 0) {
-/******/ 			hotUpdateDownloaded();
-/******/ 		}
-/******/ 	}
-/******/ 	
-/******/ 	function hotEnsureUpdateChunk(chunkId) {
-/******/ 		if(!hotAvailibleFilesMap[chunkId]) {
-/******/ 			hotWaitingFilesMap[chunkId] = true;
-/******/ 		} else {
-/******/ 			hotRequestedFilesMap[chunkId] = true;
-/******/ 			hotWaitingFiles++;
-/******/ 			hotDownloadUpdateChunk(chunkId);
-/******/ 		}
-/******/ 	}
-/******/ 	
-/******/ 	function hotUpdateDownloaded() {
-/******/ 		hotSetStatus("ready");
-/******/ 		var callback = hotCallback;
-/******/ 		hotCallback = null;
-/******/ 		if(!callback) return;
-/******/ 		if(hotApplyOnUpdate) {
-/******/ 			hotApply(hotApplyOnUpdate, callback);
-/******/ 		} else {
-/******/ 			var outdatedModules = [];
-/******/ 			for(var id in hotUpdate) {
-/******/ 				if(Object.prototype.hasOwnProperty.call(hotUpdate, id)) {
-/******/ 					outdatedModules.push(toModuleId(id));
-/******/ 				}
-/******/ 			}
-/******/ 			callback(null, outdatedModules);
-/******/ 		}
-/******/ 	}
-/******/ 	
-/******/ 	function hotApply(options, callback) {
-/******/ 		if(hotStatus !== "ready") throw new Error("apply() is only allowed in ready status");
-/******/ 		if(typeof options === "function") {
-/******/ 			callback = options;
-/******/ 			options = {};
-/******/ 		} else if(options && typeof options === "object") {
-/******/ 			callback = callback || function(err) {
-/******/ 				if(err) throw err;
-/******/ 			};
-/******/ 		} else {
-/******/ 			options = {};
-/******/ 			callback = callback || function(err) {
-/******/ 				if(err) throw err;
-/******/ 			};
-/******/ 		}
-/******/ 	
-/******/ 		function getAffectedStuff(module) {
-/******/ 			var outdatedModules = [module];
-/******/ 			var outdatedDependencies = {};
-/******/ 	
-/******/ 			var queue = outdatedModules.slice();
-/******/ 			while(queue.length > 0) {
-/******/ 				var moduleId = queue.pop();
-/******/ 				var module = installedModules[moduleId];
-/******/ 				if(!module || module.hot._selfAccepted)
-/******/ 					continue;
-/******/ 				if(module.hot._selfDeclined) {
-/******/ 					return new Error("Aborted because of self decline: " + moduleId);
-/******/ 				}
-/******/ 				if(moduleId === 0) {
-/******/ 					return;
-/******/ 				}
-/******/ 				for(var i = 0; i < module.parents.length; i++) {
-/******/ 					var parentId = module.parents[i];
-/******/ 					var parent = installedModules[parentId];
-/******/ 					if(parent.hot._declinedDependencies[moduleId]) {
-/******/ 						return new Error("Aborted because of declined dependency: " + moduleId + " in " + parentId);
-/******/ 					}
-/******/ 					if(outdatedModules.indexOf(parentId) >= 0) continue;
-/******/ 					if(parent.hot._acceptedDependencies[moduleId]) {
-/******/ 						if(!outdatedDependencies[parentId])
-/******/ 							outdatedDependencies[parentId] = [];
-/******/ 						addAllToSet(outdatedDependencies[parentId], [moduleId]);
-/******/ 						continue;
-/******/ 					}
-/******/ 					delete outdatedDependencies[parentId];
-/******/ 					outdatedModules.push(parentId);
-/******/ 					queue.push(parentId);
-/******/ 				}
-/******/ 			}
-/******/ 	
-/******/ 			return [outdatedModules, outdatedDependencies];
-/******/ 		}
-/******/ 	
-/******/ 		function addAllToSet(a, b) {
-/******/ 			for(var i = 0; i < b.length; i++) {
-/******/ 				var item = b[i];
-/******/ 				if(a.indexOf(item) < 0)
-/******/ 					a.push(item);
-/******/ 			}
-/******/ 		}
-/******/ 	
-/******/ 		// at begin all updates modules are outdated
-/******/ 		// the "outdated" status can propagate to parents if they don't accept the children
-/******/ 		var outdatedDependencies = {};
-/******/ 		var outdatedModules = [];
-/******/ 		var appliedUpdate = {};
-/******/ 		for(var id in hotUpdate) {
-/******/ 			if(Object.prototype.hasOwnProperty.call(hotUpdate, id)) {
-/******/ 				var moduleId = toModuleId(id);
-/******/ 				var result = getAffectedStuff(moduleId);
-/******/ 				if(!result) {
-/******/ 					if(options.ignoreUnaccepted)
-/******/ 						continue;
-/******/ 					hotSetStatus("abort");
-/******/ 					return callback(new Error("Aborted because " + moduleId + " is not accepted"));
-/******/ 				}
-/******/ 				if(result instanceof Error) {
-/******/ 					hotSetStatus("abort");
-/******/ 					return callback(result);
-/******/ 				}
-/******/ 				appliedUpdate[moduleId] = hotUpdate[moduleId];
-/******/ 				addAllToSet(outdatedModules, result[0]);
-/******/ 				for(var moduleId in result[1]) {
-/******/ 					if(Object.prototype.hasOwnProperty.call(result[1], moduleId)) {
-/******/ 						if(!outdatedDependencies[moduleId])
-/******/ 							outdatedDependencies[moduleId] = [];
-/******/ 						addAllToSet(outdatedDependencies[moduleId], result[1][moduleId]);
-/******/ 					}
-/******/ 				}
-/******/ 			}
-/******/ 		}
-/******/ 	
-/******/ 		// Store self accepted outdated modules to require them later by the module system
-/******/ 		var outdatedSelfAcceptedModules = [];
-/******/ 		for(var i = 0; i < outdatedModules.length; i++) {
-/******/ 			var moduleId = outdatedModules[i];
-/******/ 			if(installedModules[moduleId] && installedModules[moduleId].hot._selfAccepted)
-/******/ 				outdatedSelfAcceptedModules.push({
-/******/ 					module: moduleId,
-/******/ 					errorHandler: installedModules[moduleId].hot._selfAccepted
-/******/ 				});
-/******/ 		}
-/******/ 	
-/******/ 		// Now in "dispose" phase
-/******/ 		hotSetStatus("dispose");
-/******/ 		var queue = outdatedModules.slice();
-/******/ 		while(queue.length > 0) {
-/******/ 			var moduleId = queue.pop();
-/******/ 			var module = installedModules[moduleId];
-/******/ 			if(!module) continue;
-/******/ 	
-/******/ 			var data = {};
-/******/ 	
-/******/ 			// Call dispose handlers
-/******/ 			var disposeHandlers = module.hot._disposeHandlers;
-/******/ 			for(var j = 0; j < disposeHandlers.length; j++) {
-/******/ 				var cb = disposeHandlers[j];
-/******/ 				cb(data);
-/******/ 			}
-/******/ 			hotCurrentModuleData[moduleId] = data;
-/******/ 	
-/******/ 			// disable module (this disables requires from this module)
-/******/ 			module.hot.active = false;
-/******/ 	
-/******/ 			// remove module from cache
-/******/ 			delete installedModules[moduleId];
-/******/ 	
-/******/ 			// remove "parents" references from all children
-/******/ 			for(var j = 0; j < module.children.length; j++) {
-/******/ 				var child = installedModules[module.children[j]];
-/******/ 				if(!child) continue;
-/******/ 				var idx = child.parents.indexOf(moduleId);
-/******/ 				if(idx >= 0) {
-/******/ 					child.parents.splice(idx, 1);
-/******/ 				}
-/******/ 			}
-/******/ 		}
-/******/ 	
-/******/ 		// remove outdated dependency from module children
-/******/ 		for(var moduleId in outdatedDependencies) {
-/******/ 			if(Object.prototype.hasOwnProperty.call(outdatedDependencies, moduleId)) {
-/******/ 				var module = installedModules[moduleId];
-/******/ 				var moduleOutdatedDependencies = outdatedDependencies[moduleId];
-/******/ 				for(var j = 0; j < moduleOutdatedDependencies.length; j++) {
-/******/ 					var dependency = moduleOutdatedDependencies[j];
-/******/ 					var idx = module.children.indexOf(dependency);
-/******/ 					if(idx >= 0) module.children.splice(idx, 1);
-/******/ 				}
-/******/ 			}
-/******/ 		}
-/******/ 	
-/******/ 		// Not in "apply" phase
-/******/ 		hotSetStatus("apply");
-/******/ 	
-/******/ 		hotCurrentHash = hotUpdateNewHash;
-/******/ 	
-/******/ 		// insert new code
-/******/ 		for(var moduleId in appliedUpdate) {
-/******/ 			if(Object.prototype.hasOwnProperty.call(appliedUpdate, moduleId)) {
-/******/ 				modules[moduleId] = appliedUpdate[moduleId];
-/******/ 			}
-/******/ 		}
-/******/ 	
-/******/ 		// call accept handlers
-/******/ 		var error = null;
-/******/ 		for(var moduleId in outdatedDependencies) {
-/******/ 			if(Object.prototype.hasOwnProperty.call(outdatedDependencies, moduleId)) {
-/******/ 				var module = installedModules[moduleId];
-/******/ 				var moduleOutdatedDependencies = outdatedDependencies[moduleId];
-/******/ 				var callbacks = [];
-/******/ 				for(var i = 0; i < moduleOutdatedDependencies.length; i++) {
-/******/ 					var dependency = moduleOutdatedDependencies[i];
-/******/ 					var cb = module.hot._acceptedDependencies[dependency];
-/******/ 					if(callbacks.indexOf(cb) >= 0) continue;
-/******/ 					callbacks.push(cb);
-/******/ 				}
-/******/ 				for(var i = 0; i < callbacks.length; i++) {
-/******/ 					var cb = callbacks[i];
-/******/ 					try {
-/******/ 						cb(outdatedDependencies);
-/******/ 					} catch(err) {
-/******/ 						if(!error)
-/******/ 							error = err;
-/******/ 					}
-/******/ 				}
-/******/ 			}
-/******/ 		}
-/******/ 	
-/******/ 		// Load self accepted modules
-/******/ 		for(var i = 0; i < outdatedSelfAcceptedModules.length; i++) {
-/******/ 			var item = outdatedSelfAcceptedModules[i];
-/******/ 			var moduleId = item.module;
-/******/ 			hotCurrentParents = [moduleId];
-/******/ 			try {
-/******/ 				__webpack_require__(moduleId);
-/******/ 			} catch(err) {
-/******/ 				if(typeof item.errorHandler === "function") {
-/******/ 					try {
-/******/ 						item.errorHandler(err);
-/******/ 					} catch(err) {
-/******/ 						if(!error)
-/******/ 							error = err;
-/******/ 					}
-/******/ 				} else if(!error)
-/******/ 					error = err;
-/******/ 			}
-/******/ 		}
-/******/ 	
-/******/ 		// handle errors in accept handlers and self accepted module load
-/******/ 		if(error) {
-/******/ 			hotSetStatus("fail");
-/******/ 			return callback(error);
-/******/ 		}
-/******/ 	
-/******/ 		hotSetStatus("idle");
-/******/ 		callback(null, outdatedModules);
-/******/ 	}
-
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 
@@ -557,14 +13,11 @@ Object.defineProperty(Array.prototype, 'find', {
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			exports: {},
 /******/ 			id: moduleId,
-/******/ 			loaded: false,
-/******/ 			hot: hotCreateModule(moduleId),
-/******/ 			parents: hotCurrentParents,
-/******/ 			children: []
+/******/ 			loaded: false
 /******/ 		};
 
 /******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, hotCreateRequire(moduleId));
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
 
 /******/ 		// Flag the module as loaded
 /******/ 		module.loaded = true;
@@ -583,11 +36,8 @@ Object.defineProperty(Array.prototype, 'find', {
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
 
-/******/ 	// __webpack_hash__
-/******/ 	__webpack_require__.h = function() { return hotCurrentHash; };
-
 /******/ 	// Load entry module and return exports
-/******/ 	return hotCreateRequire(0)(0);
+/******/ 	return __webpack_require__(0);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -596,33 +46,31 @@ Object.defineProperty(Array.prototype, 'find', {
 
 	"use strict";
 
-	__webpack_require__(1);
-
-	var _angular = __webpack_require__(2);
+	var _angular = __webpack_require__(1);
 
 	var _angular2 = _interopRequireDefault(_angular);
 
-	var _angularUiRouter = __webpack_require__(4);
+	var _angularUiRouter = __webpack_require__(3);
 
 	var _angularUiRouter2 = _interopRequireDefault(_angularUiRouter);
 
-	var _angularMaterial = __webpack_require__(5);
+	var _angularMaterial = __webpack_require__(4);
 
 	var _angularMaterial2 = _interopRequireDefault(_angularMaterial);
 
-	var _angularCookies = __webpack_require__(11);
+	var _angularCookies = __webpack_require__(10);
 
 	var _angularCookies2 = _interopRequireDefault(_angularCookies);
 
-	var _ngFileUpload = __webpack_require__(13);
+	var _ngFileUpload = __webpack_require__(12);
 
 	var _ngFileUpload2 = _interopRequireDefault(_ngFileUpload);
 
-	var _modules = __webpack_require__(15);
+	var _modules = __webpack_require__(14);
 
 	var _modules2 = _interopRequireDefault(_modules);
 
-	var _router = __webpack_require__(50);
+	var _router = __webpack_require__(49);
 
 	var _router2 = _interopRequireDefault(_router);
 
@@ -634,20 +82,14 @@ Object.defineProperty(Array.prototype, 'find', {
 
 /***/ },
 /* 1 */
-/***/ function(module, exports) {
-
-	// removed by extract-text-webpack-plugin
-
-/***/ },
-/* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(3);
+	__webpack_require__(2);
 	module.exports = angular;
 
 
 /***/ },
-/* 3 */
+/* 2 */
 /***/ function(module, exports) {
 
 	/**
@@ -31080,7 +30522,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	!window.angular.$$csp().noInlineStyle && window.angular.element(document.head).prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>');
 
 /***/ },
-/* 4 */
+/* 3 */
 /***/ function(module, exports) {
 
 	/**
@@ -35624,33 +35066,33 @@ Object.defineProperty(Array.prototype, 'find', {
 	})(window, window.angular);
 
 /***/ },
-/* 5 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Should already be required, here for clarity
-	__webpack_require__(2);
+	__webpack_require__(1);
 
 	// Load Angular and dependent libs
-	__webpack_require__(6);
-	__webpack_require__(8);
+	__webpack_require__(5);
+	__webpack_require__(7);
 
 	// Now load Angular Material
-	__webpack_require__(10);
+	__webpack_require__(9);
 
 	// Export namespace
 	module.exports = 'ngMaterial';
 
 
 /***/ },
-/* 6 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(7);
+	__webpack_require__(6);
 	module.exports = 'ngAnimate';
 
 
 /***/ },
-/* 7 */
+/* 6 */
 /***/ function(module, exports) {
 
 	/**
@@ -39766,15 +39208,15 @@ Object.defineProperty(Array.prototype, 'find', {
 
 
 /***/ },
-/* 8 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(9);
+	__webpack_require__(8);
 	module.exports = 'ngAria';
 
 
 /***/ },
-/* 9 */
+/* 8 */
 /***/ function(module, exports) {
 
 	/**
@@ -40178,7 +39620,7 @@ Object.defineProperty(Array.prototype, 'find', {
 
 
 /***/ },
-/* 10 */
+/* 9 */
 /***/ function(module, exports) {
 
 	/*!
@@ -64732,15 +64174,15 @@ Object.defineProperty(Array.prototype, 'find', {
 	})(window, window.angular);;window.ngMaterial={version:{full: "1.0.6"}};
 
 /***/ },
-/* 11 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(12);
+	__webpack_require__(11);
 	module.exports = 'ngCookies';
 
 
 /***/ },
-/* 12 */
+/* 11 */
 /***/ function(module, exports) {
 
 	/**
@@ -65068,14 +64510,14 @@ Object.defineProperty(Array.prototype, 'find', {
 
 
 /***/ },
-/* 13 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(14);
+	__webpack_require__(13);
 	module.exports = 'ngFileUpload';
 
 /***/ },
-/* 14 */
+/* 13 */
 /***/ function(module, exports) {
 
 	/**!
@@ -67882,7 +67324,7 @@ Object.defineProperty(Array.prototype, 'find', {
 
 
 /***/ },
-/* 15 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -67891,31 +67333,31 @@ Object.defineProperty(Array.prototype, 'find', {
 	    value: true
 	});
 
-	var _shared = __webpack_require__(16);
+	var _shared = __webpack_require__(15);
 
 	var _shared2 = _interopRequireDefault(_shared);
 
-	var _login = __webpack_require__(20);
+	var _login = __webpack_require__(19);
 
 	var _login2 = _interopRequireDefault(_login);
 
-	var _poker = __webpack_require__(27);
+	var _poker = __webpack_require__(26);
 
 	var _poker2 = _interopRequireDefault(_poker);
 
-	var _auth = __webpack_require__(35);
+	var _auth = __webpack_require__(34);
 
 	var _auth2 = _interopRequireDefault(_auth);
 
-	var _main = __webpack_require__(37);
+	var _main = __webpack_require__(36);
 
 	var _main2 = _interopRequireDefault(_main);
 
-	var _landing = __webpack_require__(42);
+	var _landing = __webpack_require__(41);
 
 	var _landing2 = _interopRequireDefault(_landing);
 
-	var _settings = __webpack_require__(45);
+	var _settings = __webpack_require__(44);
 
 	var _settings2 = _interopRequireDefault(_settings);
 
@@ -67924,7 +67366,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	exports.default = [_shared2.default, _login2.default, _poker2.default, _auth2.default, _main2.default, _landing2.default, _settings2.default];
 
 /***/ },
-/* 16 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -67933,15 +67375,15 @@ Object.defineProperty(Array.prototype, 'find', {
 		value: true
 	});
 
-	var _angular = __webpack_require__(2);
+	var _angular = __webpack_require__(1);
 
 	var _angular2 = _interopRequireDefault(_angular);
 
-	var _SocketService = __webpack_require__(17);
+	var _SocketService = __webpack_require__(16);
 
 	var _SocketService2 = _interopRequireDefault(_SocketService);
 
-	var _MemoryStore = __webpack_require__(19);
+	var _MemoryStore = __webpack_require__(18);
 
 	var _MemoryStore2 = _interopRequireDefault(_MemoryStore);
 
@@ -67950,7 +67392,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	exports.default = _angular2.default.module('shared', []).service('SocketService', _SocketService2.default).service('MemoryStore', _MemoryStore2.default).name;
 
 /***/ },
-/* 17 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -67961,7 +67403,7 @@ Object.defineProperty(Array.prototype, 'find', {
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _socketIo = __webpack_require__(18);
+	var _socketIo = __webpack_require__(17);
 
 	var _socketIo2 = _interopRequireDefault(_socketIo);
 
@@ -68032,7 +67474,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	exports.default = SocketService;
 
 /***/ },
-/* 18 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var require;var require;/* WEBPACK VAR INJECTION */(function(global) {(function(f){if(true){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.io = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return require(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
@@ -75291,7 +74733,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 19 */
+/* 18 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -75358,7 +74800,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	exports.default = MemoryStore;
 
 /***/ },
-/* 20 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -75367,19 +74809,19 @@ Object.defineProperty(Array.prototype, 'find', {
 	   value: true
 	});
 
-	var _angular = __webpack_require__(2);
+	var _angular = __webpack_require__(1);
 
 	var _angular2 = _interopRequireDefault(_angular);
 
-	var _angularUiRouter = __webpack_require__(4);
+	var _angularUiRouter = __webpack_require__(3);
 
 	var _angularUiRouter2 = _interopRequireDefault(_angularUiRouter);
 
-	var _LoginService = __webpack_require__(21);
+	var _LoginService = __webpack_require__(20);
 
 	var _LoginService2 = _interopRequireDefault(_LoginService);
 
-	var _loginRoutes = __webpack_require__(22);
+	var _loginRoutes = __webpack_require__(21);
 
 	var _loginRoutes2 = _interopRequireDefault(_loginRoutes);
 
@@ -75388,7 +74830,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	exports.default = _angular2.default.module('app.login', [_angularUiRouter2.default]).service('LoginService', _LoginService2.default).config(_loginRoutes2.default).name;
 
 /***/ },
-/* 21 */
+/* 20 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -75455,7 +74897,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	exports.default = LoginService;
 
 /***/ },
-/* 22 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -75466,11 +74908,11 @@ Object.defineProperty(Array.prototype, 'find', {
 	});
 	exports.default = loginRoutes;
 
-	var _login = __webpack_require__(23);
+	var _login = __webpack_require__(22);
 
 	var _login2 = _interopRequireDefault(_login);
 
-	var _LoginController = __webpack_require__(24);
+	var _LoginController = __webpack_require__(23);
 
 	var _LoginController2 = _interopRequireDefault(_LoginController);
 
@@ -75492,13 +74934,13 @@ Object.defineProperty(Array.prototype, 'find', {
 	}
 
 /***/ },
-/* 23 */
+/* 22 */
 /***/ function(module, exports) {
 
 	module.exports = "<form name=\"loginCtrl.signInForm\"\n      novalidate\n      autocomplete=\"off\"\n      ng-submit=\"loginCtrl.signIn()\">\n\n    <div>\n        <header>\n            <h2>Sign In</h2>\n        </header>\n\n        <md-input-container>\n            <label>Login</label>\n            <input ng-model=\"loginCtrl.input.name\"\n                required>\n        </md-input-container>\n        <md-input-container>\n            <label>Password</label>\n            <input ng-model=\"loginCtrl.input.password\"\n                required>\n        </md-input-container>\n        <md-button class=\"md-raised md-primary\" type=\"submit\">\n            <span class=\"text\">Sign In</span>\n        </md-button>\n\n        <md-button class=\"md-raised md-primary\"\n            ng-click=\"loginCtrl.signInWithGitHub()\">\n            Sign In With GitHub\n        </md-button>\n    </div>\n\n</form>\n\n<br>\n<br>\n\n<md-divider md-inset></md-divider>\n\n\n<br>\n<br>\n\n<form name=\"loginCtrl.signUpForm\"\n      novalidate\n      autocomplete=\"off\"\n      ng-submit=\"loginCtrl.signUp()\">\n\n    <div>\n        <header>\n            <h2>Sign Up</h2>\n        </header>\n\n        <md-input-container>\n            <label>Login</label>\n            <input ng-model=\"loginCtrl.input.name\"\n                required>\n        </md-input-container>\n        <md-input-container>\n            <label>Password</label>\n            <input ng-model=\"loginCtrl.input.password\"\n                required>\n        </md-input-container>\n        <md-button type=\"submit\"\n            class=\"md-raised md-primary\">\n            <span class=\"text\">SignUp</span>\n        </md-button>\n\n        <md-button type=\"button\"\n            class=\"md-raised md-primary\"\n            ng-click=\"loginCtrl.signUpWithGinhub()\">\n            Sign up with github\n        </md-button>\n    </div>\n\n</form>\n\n<br>\n<br>\n\n<md-divider md-inset></md-divider>\n\n\n<br>\n<br>\n\n<md-button type=\"button\"\n    class=\"md-raised md-primary\"\n    ng-click=\"loginCtrl.getMe()\">\n    Get me\n</md-button>\n\n<md-button type=\"button\"\n    class=\"md-raised md-primary\"\n    ng-click=\"loginCtrl.logOut()\">\n    Log out\n</md-button>\n\n"
 
 /***/ },
-/* 24 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -75509,11 +74951,11 @@ Object.defineProperty(Array.prototype, 'find', {
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _LoginForm = __webpack_require__(25);
+	var _LoginForm = __webpack_require__(24);
 
 	var _LoginForm2 = _interopRequireDefault(_LoginForm);
 
-	var _LOGIN_EXCEPTIONS = __webpack_require__(26);
+	var _LOGIN_EXCEPTIONS = __webpack_require__(25);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -75572,7 +75014,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	exports.default = LoginController;
 
 /***/ },
-/* 25 */
+/* 24 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -75606,7 +75048,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	exports.default = LoginForm;
 
 /***/ },
-/* 26 */
+/* 25 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -75623,7 +75065,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	};
 
 /***/ },
-/* 27 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -75632,19 +75074,19 @@ Object.defineProperty(Array.prototype, 'find', {
 	   value: true
 	});
 
-	var _angular = __webpack_require__(2);
+	var _angular = __webpack_require__(1);
 
 	var _angular2 = _interopRequireDefault(_angular);
 
-	var _angularUiRouter = __webpack_require__(4);
+	var _angularUiRouter = __webpack_require__(3);
 
 	var _angularUiRouter2 = _interopRequireDefault(_angularUiRouter);
 
-	var _pokerRoutes = __webpack_require__(28);
+	var _pokerRoutes = __webpack_require__(27);
 
 	var _pokerRoutes2 = _interopRequireDefault(_pokerRoutes);
 
-	var _PokerService = __webpack_require__(34);
+	var _PokerService = __webpack_require__(33);
 
 	var _PokerService2 = _interopRequireDefault(_PokerService);
 
@@ -75653,7 +75095,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	exports.default = _angular2.default.module('app.poker', [_angularUiRouter2.default]).service('PokerService', _PokerService2.default).config(_pokerRoutes2.default).name;
 
 /***/ },
-/* 28 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -75664,19 +75106,19 @@ Object.defineProperty(Array.prototype, 'find', {
 	});
 	exports.default = pokerRoutes;
 
-	var _pokerRoom = __webpack_require__(29);
+	var _pokerRoom = __webpack_require__(28);
 
 	var _pokerRoom2 = _interopRequireDefault(_pokerRoom);
 
-	var _PokerRoomController = __webpack_require__(30);
+	var _PokerRoomController = __webpack_require__(29);
 
 	var _PokerRoomController2 = _interopRequireDefault(_PokerRoomController);
 
-	var _poker = __webpack_require__(32);
+	var _poker = __webpack_require__(31);
 
 	var _poker2 = _interopRequireDefault(_poker);
 
-	var _PokerController = __webpack_require__(33);
+	var _PokerController = __webpack_require__(32);
 
 	var _PokerController2 = _interopRequireDefault(_PokerController);
 
@@ -75717,13 +75159,13 @@ Object.defineProperty(Array.prototype, 'find', {
 	}
 
 /***/ },
-/* 29 */
+/* 28 */
 /***/ function(module, exports) {
 
 	module.exports = "\n<div>\n    <div>\n        <div>\n            <md-list>\n                <md-subheader class=\"md-no-sticky\">Users</md-subheader>\n                <md-list-item ng-repeat=\"user in pokerRoomCtrl.activeUsers\">\n                    <div> \n                        {{user.name}} - <span ng-show=\"user.mark\">\n                                            <span ng-if=\"pokerRoomCtrl.allVoutes\">{{user.mark}}</span>\n                                            <span ng-if=\"!pokerRoomCtrl.allVoutes\">?</span>\n                                        </span>\n                    </div>\n                </md-list-item>\n            </md-list>\n            <md-divider></md-divider>\n            <div id=\"marks\">\n                <div ng-repeat=\"score in pokerRoomCtrl.SCORES\"\n                               ng-click=\"pokerRoomCtrl.onMyMarkSelect(score)\">\n                    <md-button>{{score}}</md-button>\n                </div>\n            </div>\n\n        </div>\n        <md-input-container md-no-float class=\"md-block\">\n            <input ng-model=\"pokerRoomCtrl.storyDescription\" placeholder=\"Story description\">\n        </md-input-container>\n        <md-button class=\"md-raised\"\n                   ng-click=\"pokerRoomCtrl.shareStoryDescription()\">Share</md-button>\n    </div>\n</div>\n"
 
 /***/ },
-/* 30 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -75734,7 +75176,7 @@ Object.defineProperty(Array.prototype, 'find', {
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _SCORES = __webpack_require__(31);
+	var _SCORES = __webpack_require__(30);
 
 	var _SCORES2 = _interopRequireDefault(_SCORES);
 
@@ -75827,7 +75269,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	exports.default = PokerRoomController;
 
 /***/ },
-/* 31 */
+/* 30 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -75838,13 +75280,13 @@ Object.defineProperty(Array.prototype, 'find', {
 	exports.default = [0.5, 1, 2, 3, 5, 8, 13, 21];
 
 /***/ },
-/* 32 */
+/* 31 */
 /***/ function(module, exports) {
 
 	module.exports = "<md-button \tclass=\"md-raised\"\n\t\t\tng-disabled=\"pokerCtrl.createRoomDisabled()\"\n            ng-click=\"pokerCtrl.createRoom()\">Create room</md-button>"
 
 /***/ },
-/* 33 */
+/* 32 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -75886,7 +75328,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	exports.default = PokerController;
 
 /***/ },
-/* 34 */
+/* 33 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -75927,6 +75369,28 @@ Object.defineProperty(Array.prototype, 'find', {
 	exports.default = PokerService;
 
 /***/ },
+/* 34 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _angular = __webpack_require__(1);
+
+	var _angular2 = _interopRequireDefault(_angular);
+
+	var _IdentityStore = __webpack_require__(35);
+
+	var _IdentityStore2 = _interopRequireDefault(_IdentityStore);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.default = _angular2.default.module('app.auth', []).service('IdentityStore', _IdentityStore2.default).name;
+
+/***/ },
 /* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -75936,29 +75400,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	    value: true
 	});
 
-	var _angular = __webpack_require__(2);
-
-	var _angular2 = _interopRequireDefault(_angular);
-
-	var _IdentityStore = __webpack_require__(36);
-
-	var _IdentityStore2 = _interopRequireDefault(_IdentityStore);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	exports.default = _angular2.default.module('app.auth', []).service('IdentityStore', _IdentityStore2.default).name;
-
-/***/ },
-/* 36 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _MemoryStore2 = __webpack_require__(19);
+	var _MemoryStore2 = __webpack_require__(18);
 
 	var _MemoryStore3 = _interopRequireDefault(_MemoryStore2);
 
@@ -75987,7 +75429,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	exports.default = IdentityStore;
 
 /***/ },
-/* 37 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -75996,15 +75438,15 @@ Object.defineProperty(Array.prototype, 'find', {
 	    value: true
 	});
 
-	var _angular = __webpack_require__(2);
+	var _angular = __webpack_require__(1);
 
 	var _angular2 = _interopRequireDefault(_angular);
 
-	var _angularUiRouter = __webpack_require__(4);
+	var _angularUiRouter = __webpack_require__(3);
 
 	var _angularUiRouter2 = _interopRequireDefault(_angularUiRouter);
 
-	var _mainRoutes = __webpack_require__(38);
+	var _mainRoutes = __webpack_require__(37);
 
 	var _mainRoutes2 = _interopRequireDefault(_mainRoutes);
 
@@ -76013,7 +75455,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	exports.default = _angular2.default.module('app.main', [_angularUiRouter2.default]).config(_mainRoutes2.default).name;
 
 /***/ },
-/* 38 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -76024,15 +75466,15 @@ Object.defineProperty(Array.prototype, 'find', {
 	});
 	exports.default = mainRoutes;
 
-	var _main = __webpack_require__(39);
+	var _main = __webpack_require__(38);
 
 	var _main2 = _interopRequireDefault(_main);
 
-	var _header = __webpack_require__(40);
+	var _header = __webpack_require__(39);
 
 	var _header2 = _interopRequireDefault(_header);
 
-	var _HeaderController = __webpack_require__(41);
+	var _HeaderController = __webpack_require__(40);
 
 	var _HeaderController2 = _interopRequireDefault(_HeaderController);
 
@@ -76070,19 +75512,19 @@ Object.defineProperty(Array.prototype, 'find', {
 	};
 
 /***/ },
-/* 39 */
+/* 38 */
 /***/ function(module, exports) {
 
 	module.exports = "<div ui-view=\"header\" class=\"header\"></div>\n<div ui-view=\"content\" class=\"content\"></div>"
 
 /***/ },
-/* 40 */
+/* 39 */
 /***/ function(module, exports) {
 
 	module.exports = "<md-toolbar layout=\"row\" class=\"md-whiteframe-z2 header-panel\" data-ng-cloak>\n    <div class=\"md-toolbar-tools\">\n        <a style=\"padding-left: 40px;\" href=\"#/\" id=\"logo\">PP</a>\n        <a style=\"padding-left: 40px;\" ui-sref=\"main.poker\">poker</a>\n        <a style=\"padding-left: 40px;\" ui-sref=\"main.login\">login</a>\n        <a style=\"padding-left: 40px;\" ui-sref=\"main.settings\">{{headerCtrl.getCurrentUser()}}</a>\n    </div>\n    <roles layout=\"row\" flex=\"15\" layout-align=\"space-between center\"></roles>\n</md-toolbar>"
 
 /***/ },
-/* 41 */
+/* 40 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -76118,7 +75560,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	exports.default = HeaderController;
 
 /***/ },
-/* 42 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -76127,15 +75569,15 @@ Object.defineProperty(Array.prototype, 'find', {
 	    value: true
 	});
 
-	var _angular = __webpack_require__(2);
+	var _angular = __webpack_require__(1);
 
 	var _angular2 = _interopRequireDefault(_angular);
 
-	var _angularUiRouter = __webpack_require__(4);
+	var _angularUiRouter = __webpack_require__(3);
 
 	var _angularUiRouter2 = _interopRequireDefault(_angularUiRouter);
 
-	var _landingRoutes = __webpack_require__(43);
+	var _landingRoutes = __webpack_require__(42);
 
 	var _landingRoutes2 = _interopRequireDefault(_landingRoutes);
 
@@ -76144,7 +75586,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	exports.default = _angular2.default.module('app.landing', [_angularUiRouter2.default]).config(_landingRoutes2.default).name;
 
 /***/ },
-/* 43 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -76155,7 +75597,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	});
 	exports.default = loginRoutes;
 
-	var _landing = __webpack_require__(44);
+	var _landing = __webpack_require__(43);
 
 	var _landing2 = _interopRequireDefault(_landing);
 
@@ -76175,13 +75617,13 @@ Object.defineProperty(Array.prototype, 'find', {
 	}
 
 /***/ },
-/* 44 */
+/* 43 */
 /***/ function(module, exports) {
 
 	module.exports = "<div>Landing</div>"
 
 /***/ },
-/* 45 */
+/* 44 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -76190,19 +75632,19 @@ Object.defineProperty(Array.prototype, 'find', {
 	   value: true
 	});
 
-	var _angular = __webpack_require__(2);
+	var _angular = __webpack_require__(1);
 
 	var _angular2 = _interopRequireDefault(_angular);
 
-	var _angularUiRouter = __webpack_require__(4);
+	var _angularUiRouter = __webpack_require__(3);
 
 	var _angularUiRouter2 = _interopRequireDefault(_angularUiRouter);
 
-	var _SettingsService = __webpack_require__(46);
+	var _SettingsService = __webpack_require__(45);
 
 	var _SettingsService2 = _interopRequireDefault(_SettingsService);
 
-	var _settingsRoutes = __webpack_require__(47);
+	var _settingsRoutes = __webpack_require__(46);
 
 	var _settingsRoutes2 = _interopRequireDefault(_settingsRoutes);
 
@@ -76211,13 +75653,13 @@ Object.defineProperty(Array.prototype, 'find', {
 	exports.default = _angular2.default.module('app.settings', [_angularUiRouter2.default]).service('SettingsService', _SettingsService2.default).config(_settingsRoutes2.default).name;
 
 /***/ },
-/* 46 */
+/* 45 */
 /***/ function(module, exports) {
 
 	"use strict";
 
 /***/ },
-/* 47 */
+/* 46 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -76228,11 +75670,11 @@ Object.defineProperty(Array.prototype, 'find', {
 	});
 	exports.default = loginRoutes;
 
-	var _settings = __webpack_require__(48);
+	var _settings = __webpack_require__(47);
 
 	var _settings2 = _interopRequireDefault(_settings);
 
-	var _SettingsController = __webpack_require__(49);
+	var _SettingsController = __webpack_require__(48);
 
 	var _SettingsController2 = _interopRequireDefault(_SettingsController);
 
@@ -76254,13 +75696,13 @@ Object.defineProperty(Array.prototype, 'find', {
 	}
 
 /***/ },
-/* 48 */
+/* 47 */
 /***/ function(module, exports) {
 
 	module.exports = "<form name=\"settingsCtrl.myForm\">\n\t<fieldset>\n\t\t<legend>Upload on form submit</legend>\n\t\t<br>Photo:\n\t\t<input  type=\"file\"\n\t\t\t\tngf-select\n\t\t\t\tng-model=\"settingsCtrl.picFile\"\n\t\t\t\tname=\"file\"    \n\t\t\t\taccept=\"image/*\"\n\t\t\t\tngf-max-size=\"2MB\"\n\t\t\t\trequired\n\t\t\t\tngf-model-invalid=\"settingsCtrl.errorFile\">\n\t\t<i ng-show=\"settingsCtrl.myForm.file.$error.required\">\n\t\t\t*required\n\t\t</i>\n\t\t<br>\n\t\t<i ng-show=\"settingsCtrl.myForm.file.$error.maxSize\">\n\t\t\tFile too large \n\t\t\t{{errorFile.size / 1000000|number:1}}MB: max 2M\n\t\t</i>\n\t\t<img ng-show=\"settingsCtrl.myForm.file.$valid\"\n\t\t\t ngf-thumbnail=\"settingsCtrl.picFile\"\n\t\t\t class=\"thumb\">\n\t\t<button ng-click=\"settingsCtrl.picFile = null\"\n\t\t\t\tng-show=\"settingsCtrl.picFile\">\n\t\t\tRemove\n\t\t</button>\n\t\t<br>\n\t\t<button ng-disabled=\"!settingsCtrl.myForm.$valid\"\n\t\t\t\tng-click=\"settingsCtrl.uploadPic(settingsCtrl.picFile)\">\n\t\t\tSubmit\n\t\t</button>\n\t\t<span ng-show=\"settingsCtrl.picFile.result\">Upload Successful</span>\n\t\t<span class=\"err\"\n\t\t\t  ng-show=\"settingsCtrl.errorMsg\">\n\t\t\t{{errorMsg}}\n\t\t</span>\n\t</fieldset>\n\t<br>\n</form>"
 
 /***/ },
-/* 49 */
+/* 48 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -76314,7 +75756,7 @@ Object.defineProperty(Array.prototype, 'find', {
 	;
 
 /***/ },
-/* 50 */
+/* 49 */
 /***/ function(module, exports) {
 
 	'use strict';
