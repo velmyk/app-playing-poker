@@ -10,7 +10,6 @@ let express = require('express'),
     path = require('path'),
     favicon = require('serve-favicon'),
     cors = require('cors');
-    // session = require('express-sessions');
 
 const expressSetup = (app) => {
     app.use(bodyParser.urlencoded({extended: false}));
@@ -18,7 +17,6 @@ const expressSetup = (app) => {
     app.use(cors())
     app.use(methodOverride());
     app.use(cookieParser());
-    // app.use(session({secret: 'mysecret'}));
     app.use(passport.initialize());
     app.use(passport.session());
 

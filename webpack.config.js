@@ -1,8 +1,6 @@
 'use strict';
 
-const   webpack = require('webpack'),
-        HtmlWebpackPlugin = require('html-webpack-plugin'),
-        ExtractTextPlugin = require('extract-text-webpack-plugin');
+const   webpack = require('webpack');
 
 const   NODE_ENV = process.env.NODE_ENV || 'development';
 
@@ -11,7 +9,7 @@ module.exports = {
     output: {
         filename: './target/build/app.js'
     },
-    watch: NODE_ENV == 'development',
+    // watch: NODE_ENV == 'development',
     watchOptions: {
         aggregateTimeout: 100
     },
