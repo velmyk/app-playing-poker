@@ -86,7 +86,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "aa8e2a9cfc524e35e81e"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "f3175c991be14cd856df"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -75720,7 +75720,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /* 29 */
 /***/ function(module, exports) {
 
-	module.exports = "\n<div>{{pokerRoomCtrl.allVoutes}}</div>\n<div>\n    <div>\n        <div>\n            <md-list>\n                <md-subheader class=\"md-no-sticky\">Users</md-subheader>\n                <md-list-item ng-repeat=\"user in pokerRoomCtrl.activeUsers\">\n                    <div> \n                        {{user.name}} - <span ng-show=\"user.mark\">\n                                            <span ng-if=\"pokerRoomCtrl.allVoutes\">{{user.mark}}</span>\n                                            <span ng-if=\"!pokerRoomCtrl.allVoutes\">?</span>\n                                        </span>\n                    </div>\n                </md-list-item>\n            </md-list>\n            <md-divider></md-divider>\n            <div id=\"marks\">\n                <div ng-repeat=\"score in pokerRoomCtrl.SCORES\"\n                               ng-click=\"pokerRoomCtrl.onMyMarkSelect(score)\">\n                    <md-button>{{score}}</md-button>\n                </div>\n            </div>\n\n        </div>\n        <md-input-container md-no-float class=\"md-block\">\n            <input ng-model=\"pokerRoomCtrl.storyDescription\" placeholder=\"Story description\">\n        </md-input-container>\n        <md-button class=\"md-raised\"\n                   ng-click=\"pokerRoomCtrl.shareStoryDescription()\">Share</md-button>\n    </div>\n</div>\n"
+	module.exports = "\n<div>\n    <div>\n        <div>\n            <md-list>\n                <md-subheader class=\"md-no-sticky\">Users</md-subheader>\n                <md-list-item ng-repeat=\"user in pokerRoomCtrl.activeUsers\">\n                    <div> \n                        {{user.name}} - <span ng-show=\"user.mark\">\n                                            <span ng-if=\"pokerRoomCtrl.allVoutes\">{{user.mark}}</span>\n                                            <span ng-if=\"!pokerRoomCtrl.allVoutes\">?</span>\n                                        </span>\n                    </div>\n                </md-list-item>\n            </md-list>\n            <md-divider></md-divider>\n            <div id=\"marks\">\n                <div ng-repeat=\"score in pokerRoomCtrl.SCORES\"\n                               ng-click=\"pokerRoomCtrl.onMyMarkSelect(score)\">\n                    <md-button>{{score}}</md-button>\n                </div>\n            </div>\n\n        </div>\n        <md-input-container md-no-float class=\"md-block\">\n            <input ng-model=\"pokerRoomCtrl.storyDescription\" placeholder=\"Story description\">\n        </md-input-container>\n        <md-button class=\"md-raised\"\n                   ng-click=\"pokerRoomCtrl.shareStoryDescription()\">Share</md-button>\n    </div>\n</div>\n"
 
 /***/ },
 /* 30 */
@@ -75841,7 +75841,7 @@ Object.defineProperty(Array.prototype, 'find', {
 /* 32 */
 /***/ function(module, exports) {
 
-	module.exports = "<md-button class=\"md-raised\"\n                   ng-click=\"pokerCtrl.createRoom()\">Create room</md-button>"
+	module.exports = "<md-button \tclass=\"md-raised\"\n\t\t\tng-disabled=\"pokerCtrl.createRoomDisabled()\"\n            ng-click=\"pokerCtrl.createRoom()\">Create room</md-button>"
 
 /***/ },
 /* 33 */
@@ -75858,19 +75858,25 @@ Object.defineProperty(Array.prototype, 'find', {
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var PokerController = function () {
-	    PokerController.$inject = ["PokerService"];
-	    function PokerController(PokerService) {
+	    PokerController.$inject = ["PokerService", "IdentityStore"];
+	    function PokerController(PokerService, IdentityStore) {
 	        'ngInject';
 
 	        _classCallCheck(this, PokerController);
 
 	        this.PokerService = PokerService;
+	        this.IdentityStore = IdentityStore;
 	    }
 
 	    _createClass(PokerController, [{
 	        key: 'createRoom',
 	        value: function createRoom() {
 	            this.PokerService.createRoom();
+	        }
+	    }, {
+	        key: 'createRoomDisabled',
+	        value: function createRoomDisabled() {
+	            return !this.IdentityStore.get()._id;
 	        }
 	    }]);
 
@@ -76051,13 +76057,14 @@ Object.defineProperty(Array.prototype, 'find', {
 	                template: '<div>Main</div>'
 	            }
 	        },
-	        onEnter: ["$http", "IdentityStore", function onEnter($http, IdentityStore) {
+	        onEnter: ["$http", "IdentityStore", "$cookies", function onEnter($http, IdentityStore, $cookies) {
 	            'ngInject';
 
-	            $http.get('/api/user/me').then(function (data) {
-	                IdentityStore.update(data.data);
-	                console.log(IdentityStore.get());
-	            });
+	            if ($cookies.get('token')) {
+	                $http.get('/api/user/me').then(function (response) {
+	                    IdentityStore.update(response.data);
+	                });
+	            }
 	        }]
 	    });
 	};

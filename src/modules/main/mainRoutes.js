@@ -22,11 +22,15 @@ export default function mainRoutes($stateProvider) {
                     template: '<div>Main</div>'
                 }
             },
-            onEnter: function($http, IdentityStore){
+            onEnter: function($http, IdentityStore, $cookies){
                 'ngInject';
-                $http.get('/api/user/me')
-                    .then(data => {IdentityStore.update(data.data);
-                        console.log(IdentityStore.get())});
+                if($cookies.get('token')) {
+                    $http.get('/api/user/me')
+                    .then(response => {
+                        IdentityStore.update(response.data);
+                    });
+                }
+                
 
             }
         });

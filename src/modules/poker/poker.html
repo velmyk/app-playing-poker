@@ -1,2 +1,3 @@
-<md-button class="md-raised"
-                   ng-click="pokerCtrl.createRoom()">Create room</md-button>
+<md-button 	class="md-raised"
+			ng-disabled="pokerCtrl.createRoomDisabled()"
+            ng-click="pokerCtrl.createRoom()">Create room</md-button>
