@@ -1,5 +1,3 @@
-"use strict";
-
 import angular from 'angular';
 import uirouter from 'angular-ui-router';
 import ngMaterial from 'angular-material';

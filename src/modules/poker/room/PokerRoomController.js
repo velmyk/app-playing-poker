@@ -20,11 +20,10 @@ export default class PokerRoomController {
     }
 
     onConnect() {
-        this.socket.emit('joinPoker',   {
-                                            userId: this.currentUser._id,
-                                            room: this.$stateParams.id
-                                        }
-        );
+        this.socket.emit('joinPoker', {
+            userId: this.currentUser._id,
+            room: this.$stateParams.id
+        });
     }
 
     newUser(data) {

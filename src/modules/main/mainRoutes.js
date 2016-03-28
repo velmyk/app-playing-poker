@@ -1,4 +1,4 @@
-import rootTemplate from  './main.html';
+import rootTemplate from './main.html';
 import headerTemplate from './header.html';
 import HeaderController from './HeaderController';
 
