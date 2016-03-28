@@ -1,14 +1,15 @@
 language: node_js
 node_js:
-- '4.3'
+    - '4.3'
 before_script:
-- npm install
+    - npm install
 script:
-- npm test
+    - npm test
 after_success:
-- npm run coveralls
+    - npm run coveralls
+    - npm run app
 deploy:
-  provider: heroku
-  api_key:
-    secure: bncBIyuO8Lfm+dVW+aLQL1X6G/c7c5py+xo8sHMJdl5AgpUrRCHR/jp9xQoTHN+f11ZY6ZUowO1gzzdTvD14/zKjMp/0fz6iVCOZ6cBtGbzR7Osh4EtHjy/Ghx37+q7aqQ+SIz+2iR0+qWqwDZ7JyrSElZ4zDvGex2pTj7JSF/BJNDcVJ608b+QvAzYs6lw1U7hsDbOW0gEpuVfk2hRaLuM9MYf/dR5RCPEYAGvxBIw9SSdBqjLFckcP3N2NjO5qokbLXrTdffKVR0BDw45QPlfJm04EJVX1S8lMzib7W1t3b49UHsEEO8vioBlJSElcxS+pDdkR64e8omiN2M4ErWlxx5DAZ7iIaZ4bobaoTzuWrZ1e+QwF+AF/VTe1oGIV0Sf80Elc7y7Uy5RrghSV8O7totYMkz0/fnujXtV/lcc7ylK/rnw7wIE26wiaIYGGTbbWeEWMBoczIMSR99cJbmgCmrjGT29+zJE1pxp2YefErM06w/1YxrdaAe1FVLkmrPfE0kECW4HmNZ4vybcaVt9gWncgTAIfKXI73tuohckvOeOcs4GenzPKEei6zmgHbiXPeWICIfAnq3+L3TmWpkjdfjCyPAYWYD1w+KLAXmWu4IVmVekt9V2BqSvGN2TLzfHI0D7Wle/Q/iA7M2gxpuSAf9klKtNjKK02eEuuDjM=
-  app: playing-poker
+    provider: heroku
+    api_key:
+        secure: bncBIyuO8Lfm+dVW+aLQL1X6G/c7c5py+xo8sHMJdl5AgpUrRCHR/jp9xQoTHN+f11ZY6ZUowO1gzzdTvD14/zKjMp/0fz6iVCOZ6cBtGbzR7Osh4EtHjy/Ghx37+q7aqQ+SIz+2iR0+qWqwDZ7JyrSElZ4zDvGex2pTj7JSF/BJNDcVJ608b+QvAzYs6lw1U7hsDbOW0gEpuVfk2hRaLuM9MYf/dR5RCPEYAGvxBIw9SSdBqjLFckcP3N2NjO5qokbLXrTdffKVR0BDw45QPlfJm04EJVX1S8lMzib7W1t3b49UHsEEO8vioBlJSElcxS+pDdkR64e8omiN2M4ErWlxx5DAZ7iIaZ4bobaoTzuWrZ1e+QwF+AF/VTe1oGIV0Sf80Elc7y7Uy5RrghSV8O7totYMkz0/fnujXtV/lcc7ylK/rnw7wIE26wiaIYGGTbbWeEWMBoczIMSR99cJbmgCmrjGT29+zJE1pxp2YefErM06w/1YxrdaAe1FVLkmrPfE0kECW4HmNZ4vybcaVt9gWncgTAIfKXI73tuohckvOeOcs4GenzPKEei6zmgHbiXPeWICIfAnq3+L3TmWpkjdfjCyPAYWYD1w+KLAXmWu4IVmVekt9V2BqSvGN2TLzfHI0D7Wle/Q/iA7M2gxpuSAf9klKtNjKK02eEuuDjM=
+    app: playing-poker
