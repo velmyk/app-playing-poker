@@ -12,4 +12,8 @@ export default class PokerService {
             this.$state.go('main.poker.room', { id: response.data.id });
         })
     }
+
+    saveRoom(roomInfo) {
+        console.log(roomInfo);
+    }
 }

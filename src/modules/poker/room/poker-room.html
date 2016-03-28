@@ -28,4 +28,9 @@
         <md-button class="md-raised"
                    ng-click="pokerRoomCtrl.shareStoryDescription()">Share</md-button>
     </div>
+    <md-input-container md-no-float class="md-block">
+            <input ng-model="pokerRoomCtrl.storyEstimation" placeholder="Final story estimation">
+    </md-input-container>
+    <md-button class="md-raised"
+                   ng-click="pokerRoomCtrl.saveRoom()">Save room</md-button>
 </div>

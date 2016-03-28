@@ -3,11 +3,13 @@ import SCORES from './SCORES';
 export default class PokerRoomController {
     constructor(SocketService,
                 IdentityStore,
-                $stateParams) {
+                $stateParams,
+                PokerService) {
         'ngInject';
 
         this.$stateParams = $stateParams;
         this.currentUser = IdentityStore.get();
+        this.PokerService = PokerService;
         this.SCORES = SCORES;
         this.socket = SocketService;
         this.activeUsers = {};
@@ -61,6 +63,15 @@ export default class PokerRoomController {
         console.log(Object.keys(this.activeUsers));
         console.log(Object.keys(this.activeUsers).every(item => !!this.activeUsers[item].mark));
         return Object.keys(this.activeUsers).every(item => !!this.activeUsers[item].mark);
+    }
+
+    saveRoom() {
+        this.PokerService.saveRoom({
+            marks: this.activeUsers,
+            storyDescription: this.storyDescription,
+            storyEstimation: this.storyEstimation,
+            roomId: this.$stateParams.id
+        });
     }
 
 }
