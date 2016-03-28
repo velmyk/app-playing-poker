@@ -1,14 +1,16 @@
-'use strict';
+const
+	socketIo = require('socket.io');
 
-const 	socketIo = require('socket.io');
+const
+	controller = require('./poker.controller');
 
-const 	controller = require('./poker.controller');
+const
+	poker = (server) => {
 
-const 	poker = (server) => {
-
-    const 	io = socketIo.listen(server),
-    		activeUsers = {},
-    		poker = io.of('/room');
+    const
+    	io = socketIo.listen(server),
+    	activeUsers = {},
+    	poker = io.of('/room');
 
     poker.on('connection', (socket) => {
 

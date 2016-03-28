@@ -1,25 +1,27 @@
-'use strict';
+const
+    mongoose = require('mongoose'),
+    passport = require('passport'),
+    jwt = require('jsonwebtoken'),
+    expressJwt = require('express-jwt'),
+    compose = require('composable-middleware');
 
-const   mongoose = require('mongoose'),
-        passport = require('passport'),
-        jwt = require('jsonwebtoken'),
-        expressJwt = require('express-jwt'),
-        compose = require('composable-middleware');
+const
+    User = require('../user/user.model');
 
-const   User = require('../user/user.model');
-
-const   validateJwt = expressJwt({
-    secret: process.env.SEACRETS_SESSION,
-    getToken: function(req) {
-        return req.cookies.token && JSON.parse(req.cookies.token);
-    }
-});
+const
+    validateJwt = expressJwt({
+        secret: process.env.SEACRETS_SESSION,
+        getToken: function(req) {
+            return req.cookies.token && JSON.parse(req.cookies.token);
+        }
+    });
 
 /**
  * Attaches the user object to the request if authenticated
  * Otherwise returns 403
  */
-const   isAuthenticated = () => {
+const
+    isAuthenticated = () => {
     return compose()
     // Validate jwt
         .use(validateJwt)
@@ -42,28 +44,28 @@ const   isAuthenticated = () => {
 /**
  * Returns a jwt token signed by the app secret
  */
-const   signToken = (id) => {
-    return jwt.sign({_id: id}, process.env.SEACRETS_SESSION, {expiresIn: 60 * 5});
-}
+const
+    signToken = (id) => {
+        return jwt.sign({_id: id}, process.env.SEACRETS_SESSION, {expiresIn: 60 * 5});
+    };
 
 /**
  * Set token cookie directly for oAuth strategies
  */
-const   setTokenCookie = (req, res) => {
-    if (!req.user) {
-        return res.status(404).json({message: 'Something went wrong, please try again.'});
-    }
-    console.log(req.user._id)
-    var token = signToken(req.user._id);
-    res.cookie('token', JSON.stringify(token));
-    // console.log(res.cookies.token);
-    res.redirect('/');
-}
+const
+    setTokenCookie = (req, res) => {
+        if (!req.user) {
+            return res.status(404).json({message: 'Something went wrong, please try again.'});
+        }
+        var token = signToken(req.user._id);
+        res.cookie('token', JSON.stringify(token));
+        res.redirect('/');
+    };
 
-const   error = (req, res) => {
-    console.log('GH err');
-  res.send('Login Failed');
-};
+const
+    error = (req, res) => {
+        res.send('Login Failed');
+    };
 
 module.exports = {
     isAuthenticated: isAuthenticated,

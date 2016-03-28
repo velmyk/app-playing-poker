@@ -1,10 +1,10 @@
-'use strict';
+const
+	express = require('express'),
+    passport = require('passport');
 
-const   express = require('express'),
-        passport = require('passport');
-
-const   auth = require('../auth.service'),
-        router = express.Router();
+const
+	auth = require('../auth.service'),
+	router = express.Router();
 
 router
     .get('/auth', passport.authenticate('github'))

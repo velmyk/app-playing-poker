@@ -16,8 +16,10 @@
     "css": "node-sass --output-style compressed ./src/scss/core.scss ./target/build/app.css",
     "static": "cp ./src/index.html ./target/build/index.html",
     "autoprefixer": "postcss -u autoprefixer -r target/build/*.css",
-    "lint": "eslint src/js",
-    "app": "npm-run-all clean build css static",
+    "lint:ui": "eslint src/",
+    "lint:server": "eslint server/",
+    "lint": "npm-run-all lint:*",
+    "app": "npm-run-all clean build css static"
   },
   "keywords": [
     "NodeJS",

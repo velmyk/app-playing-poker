@@ -1,10 +1,10 @@
-'use strict';
+const
+	express = require('express'),
+	passport = require('passport');
 
-const 	express = require('express'),
-		passport = require('passport');
-
-const	User = require('../user/user.model'),
-		router = express.Router();
+const
+	User = require('../user/user.model'),
+	router = express.Router();
 
 require('./local/passport').setup(User);
 require('./github/passport').setup(User);

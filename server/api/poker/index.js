@@ -1,10 +1,9 @@
+const
+	express = require('express');
 
-'use strict';
-
-const 	express = require('express');
-
-const 	controller = require('./poker.controller'),
-		router = express.Router();
+const
+	controller = require('./poker.controller'),
+	router = express.Router();
 
 router.route('/room/create')
 	.get(controller.createRoom);
