@@ -16,7 +16,6 @@ export default class LoginService {
         return this.$http.post('/api/auth/local', credentials)
             .then(response => {
                 this.IdentityStore.update(response.data);
-                console.log(this.IdentityStore.get());
             });
     }
 
@@ -24,7 +23,7 @@ export default class LoginService {
 
         return this.$http.post('/api/user', credentials)
             .then(response => {
-                console.log('Signed up succesfuly');
+                this.IdentityStore.update(response.data.response);
             });
     }
 

@@ -41,7 +41,7 @@ const
 
 const
     createRoom = (req, res) => {
-        let roomId = new Date().getTime();
+        var roomId = new Date().getTime();
         res.send({
             id: roomId
         });
