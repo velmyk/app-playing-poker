@@ -19,6 +19,7 @@
     "lint:ui": "eslint src/",
     "lint:server": "eslint server/",
     "lint": "npm-run-all lint:*",
+    "uglify": "mkdir -p dist/js && uglifyjs target/build/app.js -m -o dist/js/app.js && uglifyjs target/build/app.js -m -c -o dist/js/app.min.js",
     "app": "npm-run-all clean build css static"
   },
   "keywords": [
@@ -68,6 +69,7 @@
     "raw-loader": "0.5.1",
     "rimraf": "2.5.2",
     "sass-loader": "3.1.2",
+    "uglify-js": "2.6.2",
     "watch": "0.17.1",
     "webpack": "1.12.13",
     "webpack-dev-server": "1.14.1",

@@ -9,7 +9,7 @@ module.exports = {
     output: {
         filename: './target/build/app.js'
     },
-    watch: NODE_ENV == 'development',
+    // watch: NODE_ENV == 'development',
     watchOptions: {
         aggregateTimeout: 100
     },

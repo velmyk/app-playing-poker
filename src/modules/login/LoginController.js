@@ -33,10 +33,6 @@ export default class LoginController {
         this.LoginService.getMe();
     }
 
-    signUpWithGitGub() {
-
-    }
-
     logOut() {
         this.$cookies.remove('token');
         this.IdentityStore.update({});
