@@ -1,1 +1,1 @@
-web: npm run app && node index.js
+web: npm run release && node index.js

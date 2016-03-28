@@ -9,10 +9,11 @@ module.exports = {
     output: {
         filename: './target/build/app.js'
     },
-    // watch: NODE_ENV == 'development',
+    watch: NODE_ENV == 'development',
     watchOptions: {
         aggregateTimeout: 100
     },
+    devtool: NODE_ENV == 'development' ? 'cheap-inline-module-source-map' : null,
     plugins: [
         new webpack.DefinePlugin({
             NODE_ENV: JSON.stringify(NODE_ENV)

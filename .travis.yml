@@ -1,12 +1,15 @@
 language: node_js
 node_js:
     - '4.3'
+env:
+    - NODE_ENV=production
 before_script:
     - npm install
 script:
     - npm test
+    - npm run lint
 after_success:
-    - npm run coveralls
+    - npm run test:coveralls
 deploy:
     provider: heroku
     api_key:
