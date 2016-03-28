@@ -33,7 +33,8 @@
   ],
   "author": "velmyk",
   "license": "ISC",
-  "devDependencies": {
+  "devDependencies": {},
+  "dependencies": {
     "angular-mocks": "1.5.0",
     "chai": "3.5.0",
     "karma": "0.13.19",
@@ -49,9 +50,7 @@
     "onchange": "2.2.0",
     "phantomjs": "1.9.8",
     "phantomjs-polyfill": "0.0.1",
-    "phantomjs-prebuilt": "2.1.4"
-  },
-  "dependencies": {
+    "phantomjs-prebuilt": "2.1.4",
     "autoprefixer": "6.3.4",
     "babel-core": "6.7.2",
     "babel-loader": "6.2.2",
