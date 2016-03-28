@@ -19,8 +19,8 @@
     "lint:ui": "eslint src/",
     "lint:server": "eslint server/",
     "lint": "npm-run-all lint:*",
-    "uglify": "mkdir -p dist/js && uglifyjs target/build/app.js -m -o dist/js/app.js && uglifyjs target/build/app.js -m -c -o dist/js/app.min.js",
-    "app": "npm-run-all clean build css static"
+    "uglify": "uglifyjs target/build/app.js -m -c -o target/build/app.js",
+    "app": "npm-run-all clean build css static uglify"
   },
   "keywords": [
     "NodeJS",
