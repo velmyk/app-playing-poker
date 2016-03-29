@@ -4,12 +4,12 @@ module.exports = function (config) {
     config.set({
         browsers: ['PhantomJS'],
         singleRun: true,
-        frameworks: ['mocha', 'sinon-chai', 'chai'],
+        frameworks: ['jasmine'],
         files: [
             'test.config.js'
         ],
         preprocessors: {
-            'test.config.js': ['webpack', 'sourcemap']
+            'test.config.js': ['webpack']
         },
         reporters: ['dots', 'coverage'],
         coverageReporter: {
@@ -25,4 +25,3 @@ module.exports = function (config) {
         }
     });
 };
-

@@ -7,14 +7,12 @@ const
     errorHandler = require('errorhandler'),
     passport = require('passport'),
     path = require('path'),
-    favicon = require('serve-favicon'),
-    cors = require('cors');
-
+    favicon = require('serve-favicon');
+    
 const
     expressSetup = (app) => {
         app.use(bodyParser.urlencoded({extended: false}));
         app.use(bodyParser.json());
-        app.use(cors())
         app.use(methodOverride());
         app.use(cookieParser());
         app.use(passport.initialize());
