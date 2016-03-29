@@ -48,7 +48,7 @@
     "karma-webpack": "1.7.0",
     "mocha": "2.4.5",
     "onchange": "2.2.0",
-    "phantomjs": "1.9.8",
+    "phantomjs": "^1.9.8",
     "phantomjs-polyfill": "0.0.1",
     "phantomjs-prebuilt": "2.1.4",
     "autoprefixer": "6.3.4",
