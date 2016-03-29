@@ -20,7 +20,8 @@
     "globals": {
         "angular": false,
         "describe": false,
-        "it": false
+        "it": false,
+        "expect": false
     }
 }
 
