@@ -66,11 +66,17 @@ export default class PokerRoomController {
     }
 
     saveRoom() {
+        let marks = Object.keys(this.activeUsers).map(userId => {
+            let user = this.activeUsers[userId];
+            return {
+                name: user.name,
+                mark: user.mark
+            };
+        });
         this.PokerService.saveRoom({
-            marks: this.activeUsers,
+            marks: marks,
             storyDescription: this.storyDescription,
-            storyEstimation: this.storyEstimation,
-            roomId: this.$stateParams.id
+            storyEstimation: this.storyEstimation
         });
     }
 

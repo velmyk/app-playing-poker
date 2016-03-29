@@ -8,12 +8,16 @@ export default class PokerService {
     }
 
     createRoom() {
-        this.$http.get('/api/poker/room/create').then(response => {
+        this.$http.get('/api/room/create').then(response => {
             this.$state.go('main.poker.room', { id: response.data.id });
         })
     }
 
     saveRoom(roomInfo) {
-        console.log(roomInfo);
+        // console.log(roomInfo);
+        this.$http.post('/api/room', roomInfo)
+            .then(() => {
+                console.log('Room saved');
+            });
     }
 }

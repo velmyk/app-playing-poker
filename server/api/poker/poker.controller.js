@@ -39,26 +39,9 @@ const
         socket.leave(socket.room);
     };
 
-const
-    createRoom = (req, res) => {
-        var roomId = new Date().getTime();
-        res.send({
-            id: roomId
-        });
-    };
-
-const
-    joinRoom = (req, res) => {
-
-    };
-
-
-
 module.exports = {
 	joinPoker: joinPoker,
 	selectMark: selectMark,
     newStoryDescription: newStoryDescription,
-    userDisconnected: userDisconnected,
-    createRoom: createRoom,
-    joinRoom: joinRoom 
+    userDisconnected: userDisconnected
 };

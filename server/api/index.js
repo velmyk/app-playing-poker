@@ -8,6 +8,6 @@ const
 router
 	.use('/user',/* auth.isAuthenticated(),  */require('./user'))
 	.use('/auth', require('./auth'))
-	.use('/poker', require('./poker'));
+	.use('/room', require('./room'));
 
 module.exports = router;
