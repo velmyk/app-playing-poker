@@ -51,15 +51,15 @@ const
 
 const
     me = (req, res) => {
-        var token = req.cookies.token.slice(1,-1);
-        var id = jwt.decode(token, 'my-secret');
+        const token = req.cookies.token.slice(1,-1);
+        const id = jwt.decode(token, process.env.SEACRETS_SESSION);
 
-        User.findById(id).exec().then(user => res.send(user));
+        User.findById(id).then(user => res.send(user));
     };
 
 const
     add = (req, res) => {
-        var modelInstance = new User(req.body);
+        const modelInstance = new User(req.body);
         return modelInstance.save()
             .then(result => {
                 res.status(CREATED).json({
@@ -87,7 +87,9 @@ const
     update = (req, res) => {
         return User.findById(req.params.id)
             .then(modelInstance => {
-                var updatedInstance = _lodash.extend(modelInstance, req.body);
+                const
+                    updatedInstance = _lodash.extend(modelInstance, req.body);
+                    
                 return updatedInstance.save();
             })
             .then(result => {

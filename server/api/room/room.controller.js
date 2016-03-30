@@ -1,10 +1,14 @@
 const
+    jwt = require('jsonwebtoken');
+
+const
     OK = 200,
     CREATED = 201,
     NOT_FOUND = 404;
 
 const
-    Room = require('./room.model');
+    Room = require('./room.model'),
+    User = require('../user/user.model');
 
 const
     createRoom = (req, res) => {
@@ -16,9 +20,20 @@ const
 
 const
     add = (req, res) => {
-        var modelInstance = new Room(req.body);
-        return modelInstance.save()
+        const
+            modelInstance = new Room(req.body);
+
+        modelInstance.save()
             .then(result => {
+                const
+                    token = req.cookies.token.slice(1,-1),
+                    id = jwt.decode(token, process.env.SEACRETS_SESSION)._id;
+
+                User.findById(id)
+                    .then(user => {
+                        user.savedStories.push(result._id);
+                        user.save();
+                    });
                 res.status(CREATED).json({
                     status: 'success',
                     response: result

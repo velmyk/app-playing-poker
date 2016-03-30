@@ -59,9 +59,6 @@ export default class PokerRoomController {
     }
 
     everyBodyVoted() {
-        console.log('calc');
-        console.log(Object.keys(this.activeUsers));
-        console.log(Object.keys(this.activeUsers).every(item => !!this.activeUsers[item].mark));
         return Object.keys(this.activeUsers).every(item => !!this.activeUsers[item].mark);
     }
 

@@ -10,6 +10,7 @@ const
             required: true
         },
         githubId: String,
+        savedStories: Array,
         salt: String,
         hashedPassword: String
     }, {collection: 'users'});
