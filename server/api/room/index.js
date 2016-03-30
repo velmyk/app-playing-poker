@@ -11,7 +11,7 @@ router.route('')
 router.route('/create')
 	.get(controller.createRoom);
 
-// router.route('/all')
-// 	.get(controller.getAll);
+router.route('/all')
+	.get(controller.getSavedStories);
 
 module.exports = router;

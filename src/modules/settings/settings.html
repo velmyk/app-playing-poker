@@ -38,3 +38,10 @@
 	</fieldset>
 	<br>
 </form>
+
+<md-button class="md-raised md-primary"
+    ng-click="settingsCtrl.loadSavedStories()">
+    Load stories
+</md-button>
+
+<div ng-repeat="story in settingsCtrl.savedStories">{{story}}</div>

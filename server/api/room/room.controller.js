@@ -42,26 +42,27 @@ const
             .catch(err => {
                 res.send(err);
             });
+    };    
+
+const
+    getSavedStories = (req, res) => {
+        const
+            token = req.cookies.token.slice(1,-1),
+            id = jwt.decode(token, process.env.SEACRETS_SESSION)._id;
+
+        User
+            .findById(id)
+            // .limit(req.query.postsLimit)
+            // .skip(req.query.postsSkip)
+            .populate('savedStories')
+            .exec()
+            .then(user => {
+                res.json(user.savedStories);
+            })
+            .catch(err => {
+                console.log(err);
+            });
     };
-
-// const
-//     getAll = (req, res) => {
-//         commentsQuery.options = {
-//             limit: req.query.commentsLimit
-//         };
-
-//         Room
-//             .find()
-//             .limit(req.query.postsLimit)
-//             .skip(req.query.postsSkip)
-//             .populate(populateQuery)
-//             .exec(function(err, items){
-//                 if(err){ return next(err); }
-
-//                 res.json(items);
-//             });
-
-//     };
 
 // const 
 //     authorQuery = {
@@ -84,6 +85,6 @@ const
 
 module.exports = {
     add: add,
-    // getAll: getAll,
+    getSavedStories: getSavedStories,
     createRoom: createRoom
 }

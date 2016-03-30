@@ -1,12 +1,22 @@
 export default class SettingsController {
     constructor(IdentityStore,
     			Upload,
-    			$timeout) {
+    			$timeout,
+    			$http) {
         'ngInject';
 
         this.currentUser = IdentityStore.get();
         this.Upload = Upload;
         this.$timeout = $timeout;
+        this.$http = $http;
+        this.savedStories = [];
+    }
+
+    loadSavedStories() {
+    	this.$http.get('/api/room/all')
+    		.then(response => {
+    			this.savedStories = response.data;
+    		});
     }
 
     uploadPic(file) {

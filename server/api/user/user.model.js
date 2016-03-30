@@ -10,7 +10,7 @@ const
             required: true
         },
         githubId: String,
-        savedStories: Array,
+        savedStories: [{ type: Schema.Types.ObjectId, ref: 'Room' }],
         salt: String,
         hashedPassword: String
     }, {collection: 'users'});
