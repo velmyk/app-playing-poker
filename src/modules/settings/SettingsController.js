@@ -19,6 +19,10 @@ export default class SettingsController {
     		});
     }
 
+    onFormSubmit() {
+    	this.$http.put(`/api/user/${this.currentUser._id}`, this.input);
+    }
+
     uploadPic(file) {
 	    file.upload = this.Upload.upload({
 	      url: '/api/user/updateImage',
