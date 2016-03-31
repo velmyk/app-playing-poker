@@ -23,27 +23,15 @@ export default class SettingsController {
     	this.$http.put(`/api/user/${this.currentUser._id}`, this.input);
     }
 
-    uploadPic(file) {
-	    file.upload = this.Upload.upload({
+    uploadPic() {
+	    return this.Upload.upload({
 	      url: '/api/user/updateImage',
-	      data: {username: this.currentUser._id, file: file},
-	    });
-
-	    file.upload
-	    	.then(
-		    	response => {
-			      	this.$timeout(function () {
-			        	file.result = response.data;
-			      	});
-			    },
-			    response => {
-			      	if (response.status > 0)
-			        	this.errorMsg = response.status + ': ' + response.data;
-			    },
-			    evt => {
-			      file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
-			    }
-		    );
+	      method: 'POST',
+	      file: this.picFile,
+	    })
+    	.then(response => {
+    		return response.data;
+    	});
     }
 
 };

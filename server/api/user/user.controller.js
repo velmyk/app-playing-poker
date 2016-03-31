@@ -2,7 +2,9 @@ const
     path = require('path'),
     q = require('q'),
     _lodash = require('lodash'),
-    jwt = require('jsonwebtoken');
+    jwt = require('jsonwebtoken'),
+    multer  = require('multer'),
+    fs = require('fs');
 
 const
     OK = 200,
@@ -10,7 +12,8 @@ const
     NOT_FOUND = 404;
 
 const
-    User = require('./user.model');
+    User = require('./user.model'),
+    upload = multer({ dest: 'uploads/' });
 
 
 const
@@ -104,8 +107,22 @@ const
     };
 
 const
+    fetchFile = (field) => {
+        return multer({
+            storage: multer.diskStorage({
+                destination: function (req, file, cb) {
+                    cb(null, './uploads/');
+                },
+                filename: function (req, file, cb) {
+                    cb(null, Date.now() + "-" + file.originalname.split('.')[0] + "." + file.mimetype.split("/").slice(1));
+                }
+            })
+        }).single(field);
+    };
+
+const
     updateImage = (req, res) => {
-        res.send('Nice image, but uploading is not implemented yet');
+        res.send('Saved succesfuly');
     };
 
 const
@@ -130,5 +147,6 @@ module.exports = {
     update: update,
     remove: remove,
     me: me,
-    updateImage: updateImage
+    updateImage: updateImage,
+    fetchFile: fetchFile
 }

@@ -18,6 +18,6 @@ router.route('/:id')
     .delete(controller.remove);
 
 router.route('/updateImage')
-	.post(controller.updateImage);
+	.post(controller.fetchFile('file'), controller.updateImage);
 
 module.exports = router;

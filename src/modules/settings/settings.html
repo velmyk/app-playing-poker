@@ -1,22 +1,14 @@
-<form name="settingsCtrl.myForm" ng-submit="settingsCtrl.onFormSubmit()">
+<form name="myForm" enctype="multipart/form-data">
 	<fieldset>
 		<legend>Upload on form submit</legend>
 		<br>Photo:
 		<input  type="file"
 				ngf-select
 				ng-model="settingsCtrl.picFile"
-				name="file"    
+				name="avatar"    
 				accept="image/*"
-				ngf-max-size="2MB"
-				ngf-model-invalid="settingsCtrl.errorFile">
-		<i ng-show="settingsCtrl.myForm.file.$error.required">
-			*required
-		</i>
+				ngf-max-size="2MB">
 		<br>
-		<i ng-show="settingsCtrl.myForm.file.$error.maxSize">
-			File too large 
-			{{errorFile.size / 1000000|number:1}}MB: max 2M
-		</i>
 		<img ng-show="settingsCtrl.myForm.file.$valid"
 			 ngf-thumbnail="settingsCtrl.picFile"
 			 class="thumb">
@@ -25,31 +17,25 @@
 			Remove
 		</button>
 		<br>
-		<button ng-disabled="!settingsCtrl.myForm.$valid"
-				ng-click="settingsCtrl.uploadPic(settingsCtrl.picFile)">
+		<button ng-click="settingsCtrl.uploadPic()">
 			Submit
 		</button>
-		<span ng-show="settingsCtrl.picFile.result">Upload Successful</span>
-		<span class="err"
-			  ng-show="settingsCtrl.errorMsg">
-			{{errorMsg}}
-		</span>
 	</fieldset>
 	<br>
-	<div>
-
-        <md-input-container>
-            <label>Name</label>
-            <input ng-model="settingsCtrl.input.name"
-                required>
-        </md-input-container>
-
-        <md-button class="md-raised md-primary" type="submit">
-            <span class="text">Save Changes</span>
-        </md-button>
-
-    </div>
 </form>
+
+<div>
+
+    <md-input-container>
+        <label>Name</label>
+        <input ng-model="settingsCtrl.input.name">
+    </md-input-container>
+
+    <md-button class="md-raised md-primary" ng-click="settingsCtrl.onFormSubmit()">
+        <span class="text">Save Changes</span>
+    </md-button>
+
+</div>
 
 <md-button class="md-raised md-primary"
     ng-click="settingsCtrl.loadSavedStories()">
