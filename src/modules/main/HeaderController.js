@@ -5,7 +5,11 @@ export default class HeaderController {
         this.IdentityStore = IdentityStore;
     }
 
-    getCurrentUser() {
+    getCurrentUserName() {
     	return this.IdentityStore.get().name || 'guest';
+    }
+
+    getCurrentUserId() {
+    	return this.IdentityStore.get()._id;
     }
 }

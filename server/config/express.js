@@ -19,6 +19,7 @@ const
         app.use(passport.session());
 
         app.use(express.static(__dirname + './../../target/build'));
+        app.use(express.static(__dirname + './../../uploads'));
         app.use(favicon(path.join(__dirname, '../../src', 'favicon.ico')));
 
         if ('production' === process.env.NODE_ENV) {

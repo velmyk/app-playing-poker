@@ -3,7 +3,10 @@
         <a style="padding-left: 40px;" href="#/" id="logo">PP</a>
         <a style="padding-left: 40px;" ui-sref="main.poker">poker</a>
         <a style="padding-left: 40px;" ui-sref="main.login">login</a>
-        <a style="padding-left: 40px;" ui-sref="main.settings">{{headerCtrl.getCurrentUser()}}</a>
+        <a style="padding-left: 40px;" ui-sref="main.settings">{{headerCtrl.getCurrentUserName()}}</a>
+        <img ng-if="headerCtrl.getCurrentUserId()"
+        	 style="padding-left: 40px;"
+        	 ng-src="/avatars/{{headerCtrl.getCurrentUserId()}}.png">
     </div>
     <roles layout="row" flex="15" layout-align="space-between center"></roles>
 </md-toolbar>
