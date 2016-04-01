@@ -1,4 +1,4 @@
-import io from 'socket.io-client/socket.io.js';
+import io from 'socket.io-client';
 
 export default class SocketService {
     constructor($rootScope) {
