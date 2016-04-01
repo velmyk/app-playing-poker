@@ -114,7 +114,11 @@ const
                     cb(null, './uploads/');
                 },
                 filename: function (req, file, cb) {
-                    cb(null, Date.now() + "-" + file.originalname.split('.')[0] + "." + file.mimetype.split("/").slice(1));
+                    const
+                        token = req.cookies.token.slice(1,-1),
+                        id = jwt.decode(token, process.env.SEACRETS_SESSION);
+
+                    cb(null, id._id + "." + file.mimetype.split("/").slice(1));
                 }
             })
         }).single(field);
