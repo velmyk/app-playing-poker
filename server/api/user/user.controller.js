@@ -3,7 +3,7 @@ const
     q = require('q'),
     _lodash = require('lodash'),
     jwt = require('jsonwebtoken'),
-    multer  = require('multer'),
+    multer = require('multer'),
     fs = require('fs');
 
 const
@@ -118,7 +118,7 @@ const
                         token = req.cookies.token.slice(1,-1),
                         id = jwt.decode(token, process.env.SEACRETS_SESSION);
 
-                    cb(null, id._id + "." + file.mimetype.split("/").slice(1));
+                    cb(null, `${id._id}.${file.mimetype.split('/').slice(1)}`);
                 }
             })
         }).single(field);
