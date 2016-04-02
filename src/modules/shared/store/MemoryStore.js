@@ -15,7 +15,9 @@ export default class MemoryStore {
     }
 
     update(dataUpdates) {
-        var oldData = angular.copy(this._data);
+        const
+            oldData = angular.copy(this._data);
+            
         angular.copy(dataUpdates, this._data);
 
         if (this.onUpdate) {

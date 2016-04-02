@@ -21,7 +21,10 @@
         "angular": false,
         "describe": false,
         "it": false,
-        "expect": false
+        "expect": false,
+        "beforeEach": false,
+        "jasmine": false,
+        "spyOn": false
     }
 }
 
